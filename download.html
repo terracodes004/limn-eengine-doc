@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Limn Engine — Download</title>
+<link rel="stylesheet" href="style.css">
+<script src="head.js"></script>
+</head>
+<body>
+
+<nav>
+  <ul>
+    <li title="Home"><a href="index.html">🏠</a></li>
+    <li title="Tutorial"><a href="tutorial.html">📚</a></li>
+    <li title="Reference"><a href="reference.html">🗒</a></li>
+    <li title="Download"><a href="download.html">⬇</a></li>
+  </ul>
+</nav>
+
+<main>
+
+  <fieldset style="display:block">
+    <legend><h2 style="display:inline-block;">Download Limn Engine</h2></legend>
+    <article>
+      <blockquote>
+        <p>Limn Engine is a single JavaScript file — no npm, no build tools, no configuration. Just download and include it in your HTML.</p>
+        <details>
+          <summary>see more...</summary>
+          <p><b>Version:</b> v4.0 &nbsp;|&nbsp; <b>File:</b> epic.js &nbsp;|&nbsp; <b>Size:</b> ~50KB</p>
+          <br>
+          <a href="asset/epic.js" download style="font-size:20px; background:rgb(0,3,33); color:white; padding:10px 24px; border-radius:8px; display:inline-block; margin-bottom:16px;">⬇ Download epic.js</a>
+          <h3>Setup in 3 steps</h3>
+          <pre><code>&lt;!-- Step 1: Put epic.js in your project folder --&gt;
+&lt;!-- Step 2: Include it in your HTML --&gt;
+&lt;script src="epic.js"&gt;&lt;/script&gt;
+
+&lt;!-- Step 3: Write your game --&gt;
+&lt;script&gt;
+const display = new Display();
+display.start(800, 600);
+
+const player = new Component(50, 50, "blue", 400, 300, "rect");
+display.add(player);
+
+function update() {
+    if (display.keys[39]) player.speedX =  4;
+    if (display.keys[37]) player.speedX = -4;
+    else player.speedX = 0;
+}
+&lt;/script&gt;</code></pre>
+          <p>✅ That's it. Open your HTML file in a browser and your game runs.</p>
+          <h3>File structure</h3>
+          <pre><code>my-game/
+├── index.html    ← your game
+├── epic.js       ← Limn Engine
+├── img/          ← your images (optional)
+└── audio/        ← your sounds (optional)</code></pre>
+          <table>
+            <tbody>
+              <tr><th>Version</th><th>Release</th><th>Notes</th></tr>
+              <tr><td><b>v4.0 (Limn Engine)</b></td><td>2026</td><td>Dual-canvas, particles, circle collision, AnimatedSprite, SoundManager</td></tr>
+              <tr><td>v3.x (TCJSGame)</td><td>2024–2025</td><td>Previous generation</td></tr>
+              <tr><td>v2.x (TCGame)</td><td>2023–2024</td><td>Experimental</td></tr>
+              <tr><td>v1.x (JGame)</td><td>2023</td><td>Original prototype</td></tr>
+            </tbody>
+          </table>
+        </details>
+      </blockquote>
+    </article>
+  </fieldset>
+
+  <fieldset style="display:block">
+    <legend><h2 style="display:inline-block;">What's included</h2></legend>
+    <article>
+      <blockquote>
+        <p>Everything in one file — no dependencies.</p>
+        <details>
+          <summary>see more...</summary>
+          <table>
+            <tbody>
+              <tr><th>System</th><th>What it gives you</th></tr>
+              <tr><td><b>Display</b></td><td>Canvas, game loop, input (keyboard + mouse + touch)</td></tr>
+              <tr><td><b>Component</b></td><td>Rect, image, and text objects with physics</td></tr>
+              <tr><td><b>Camera</b></td><td>Follow, smooth follow, zoom, shake, rotation shake</td></tr>
+              <tr><td><b>move utility</b></td><td>Teleport, glide, project, pointTo, accelerate, decelerate, bound</td></tr>
+              <tr><td><b>TileMap</b></td><td>Grid-based levels with runtime tile editing</td></tr>
+              <tr><td><b>Tctxt</b></td><td>Rich text with background, padding, and alignment</td></tr>
+              <tr><td><b>ParticleSystem</b></td><td>emit, burst, emitters, and 6 built-in presets</td></tr>
+              <tr><td><b>Sound & SoundManager</b></td><td>SFX, music, volume, mute</td></tr>
+              <tr><td><b>Sprite & AnimatedSprite</b></td><td>Spritesheet animation with named clips</td></tr>
+              <tr><td><b>Dual-canvas pipeline</b></td><td>perform() for high-performance static rendering</td></tr>
+            </tbody>
+          </table>
+        </details>
+      </blockquote>
+    </article>
+  </fieldset>
+
+</main>
+<footer class="footer">
+  <span class="footer-logo"><img id="fl" src="img/logo.png"></span>
+  <span>TCJSGame v4 · Created by Owolabi Kehinde</span>
+  <span style="font-family:'Space Mono',monospace;font-size:11px;">v4.0 · 2026</span>
+</footer>
+</body>
+</html>

@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Limn Engine — Documentation</title>
+<link rel="stylesheet" href="style.css">
+<script src="head.js"></script>
+</head>
+<body>
+  
+  <nav>
+    <ul>
+      <li title="Home"><a href="index.html">🏠</a></li>
+      <li title="Tutorial"><a href="tutorial.html">📚</a></li>
+      <li title="Reference"><a href="reference.html">🗒</a></li>
+      <li title="Download"><a href="download.html">⬇</a></li>
+      <button id="clickkk" onclick="console.log('Clicked');
+      if(document.querySelector('aside').style.display=='block'){
+        console.log('garri')
+        document.querySelector('aside').style.display='none'
+      }else{
+        document.querySelector('aside').style.display='block'
+      }" style="background:rgb(0,3,33); text-align:right;">🍔</button>
+    </ul>
+  </nav>
+
+  <aside style="display: block;">
+    <ul>
+      <li><a href="#1">Creating a Display and calling start()</a></li>
+      <li><a href="#2">Adding and moving Component objects</a></li>
+      <li><a href="#3">Keyboard input (display.keys) and delta‑time movement</a></li>
+      <li><a href="#4">Screen boundaries with move.bound()</a></li>
+      <li><a href="#5">Rectangle collision (crashWith())</a></li>
+      <li><a href="#6">Text with Tctxt</a></li>
+      <li><a href="#7">Images with setImage()</a></li>
+      <li><a href="#8">Mouse input and clicked()</a></li>
+      <li><a href="#9">Sound with Sound class</a></li>
+      <li><a href="#10">Game states using display.scene</a></li>
+      <li><a href="#11">Coin collector tutorial</a></li>
+      <li><a href="#12">Quick reference</a></li>
+    </ul>
+  </aside>
+
+  <main>
+    <fieldset id="1">
+      <legend><h2 style="display:inline-block;">Creating a Display and calling start()</h2></legend>
+      <article>
+        <p>
+        To initialize your game, create an instance of the <code>Display</code> class and run <code>start()</code>. This sets up your game window canvas size and hooks it into the game loop.
+        <details open>
+          <summary>See more...</summary>
+          <pre><code>&lt;script src="epic.js"&gt;&lt;/script&gt;
+&lt;script&gt;
+const display = new Display();
+display.start(800, 600); // Width, Height
+
+const player = new Component(50, 50, "red", 400, 300, "rect");
+display.add(player);
+
+function update() {
+    // Game loop logic runs here automatically
+}
+&lt;/script&gt;</code></pre>
+          <p>✅ What happens: <code>start()</code> builds your canvas, attaches it to the DOM, and prepares the core loop. Note that your engine instance <b>must</b> be named exactly <code>display</code>.</p>
+          <table>
+            <tbody>
+              <tr>
+                <th>Class / Method</th>
+                <th>Purpose</th>
+                <th>Parameters</th>
+              </tr>
+              <tr>
+                <td><b>Display()</b></td>
+                <td>Core engine framework instance. Manages input arrays, camera systems, and loop ticking.</td>
+                <td>None</td>
+              </tr>
+              <tr>
+                <td><b>display.start()</b></td>
+                <td>Creates and inserts the canvas to begin the update cycle loop.</td>
+                <td>width, height, elementNode (optional)</td>
+              </tr>
+            </tbody>
+          </table>
+        </details>
+        </p>
+      </article>
+    </fieldset>
+
+    <fieldset id="2">
+      <legend><h2 style="display:inline-block;">Adding and moving Component objects</h2></legend>
+      <article>
+        <p>
+        A <code>Component</code> is your standard engine actor node: players, obstacles, collectibles, or projectiles.
+        <details>
+          <summary>See more...</summary>
+          <p>The type parameter supports basic geometry configurations:
+            <u>"rect"</u>, <u>"image"</u>, or <u>"text"</u>.
+          </p>
+          <h3>Moving your Components</h3>
+          <p>To move your Components you just have to change the X and Y position.
+          <pre><code>player.x = 10
+player.y = 10</code></pre>
+          For continuous motion you just have to change the speed
+          <pre><code>player.speedX = 1
+player.speedY = 1</code></pre>
+          No need for <code>player.x += 1</code>, Limn Engine has you covered.
+          </p>
+          <table>
+            <tbody>
+              <tr>
+                <th>Class</th>
+                <th>Purpose</th>
+                <th>Parameters</th>
+              </tr>
+              <tr>
+                <td><b>Component</b></td>
+                <td>Any game object – player, enemy, coin, bullet. Has position, size, colour, and movement properties.</td>
+                <td>width, height, color, x, y, type</td>
+              </tr>
+            </tbody>
+          </table>
+        </details>
+        </p>
+      </article>
+    </fieldset>
+
+    <fieldset id="3">
+      <legend><h2 style="display:inline-block;">Keyboard input (display.keys) and delta‑time movement</h2></legend>
+      <article>
+        <p>
+        Capture global hardware keyboard actions via the tracked key array matrix <code>display.keys</code>.
+        <details>
+          <summary>See more...</summary>
+          <p>To keep movement smooth and uniform across variable monitor frame rates, multiply your speed by <code>display.deltaTime</code> inside the <code>update()</code> loop:</p>
+          <p>The display.keys array stores which keys are currently pressed. Each key has a numeric keycode. Use it inside update() to change the player’s speedX and speedY.</p>
+          <p><mark>Common keycodes: left=37, right=39, up=38, down=40, space=32, A=65, D=68, W=87, S=83.</mark></p>
+          <pre><code>function update() {
+    player.stopMove(); // Clear automatic speeds before applying input
+    
+    let speed = 200 * display.deltaTime; // 200 pixels per second
+
+    if (display.keys[37] || display.keys[65]) { player.x -= speed; } // Left / A
+    if (display.keys[39] || display.keys[68]) { player.x += speed; } // Right / D
+    if (display.keys[38] || display.keys[87]) { player.y -= speed; } // Up / W
+    if (display.keys[40] || display.keys[83]) { player.y += speed; } // Down / S
+}</code></pre>
+        </details>
+        </p>
+      </article>
+    </fieldset>
+
+    <fieldset id="4">
+      <legend><h2 style="display:inline-block;">Screen boundaries with move.bound()</h2></legend>
+      <article>
+        <p>
+        Prevent players or game elements from shifting out of view beyond the active layout canvas borders.
+        <details>
+          <summary>See more...</summary>
+          <p>Pass your actor node into <code>move.bound()</code> inside your main runtime update execution loop:</p>
+          <pre><code>function update() {
+    // Handle player control tracking...
+    
+    // Clamp coordinates safely inside game board dimensions
+    move.bound(player);
+}</code></pre>
+          <p>If you need custom boundaries instead of the total canvas size, you can specify constraints using <code>move.boundTo(component, left, right, top, bottom)</code>.</p>
+        </details>
+        </p>
+      </article>
+    </fieldset>
+
+    <fieldset id="5">
+      <legend><h2 style="display:inline-block;">Rectangle collision (crashWith())</h2></legend>
+      <article>
+        <p>
+        Detect when two elements touch or collide using Axis-Aligned Bounding Box intersecting structures.
+        <details>
+          <summary>See more...</summary>
+          <p>The method returns a true boolean conditional check whenever bounds overlap:</p>
+          <pre><code>function update() {
+    if (player.crashWith(enemy)) {
+        console.log("Collision detected!");
+        player.setColor("blue"); // Change look state
+    }
+}</code></pre>
+        </details>
+        </p>
+      </article>
+    </fieldset>
+
+    <fieldset id="6">
+      <legend><h2 style="display:inline-block;">Text with Tctxt</h2></legend>
+      <article>
+        <p>
+        Render text components onto the active scene utilizing the specific <code>Tctxt</code> extension class.
+        <details>
+          <summary>See more...</summary>
+          <pre><code>const scoreLabel = new Tctxt("24px", "Consolas", "white", 20, 40, "left");
+display.add(scoreLabel);
+
+function update() {
+    scoreLabel.setText("Score: " + currentScore);
+}</code></pre>
+<p>
+You can also set <code>scoreText.align = "center"</code>, <code>scoreText.storke = true</code> (outline), or add a background with <code>scoreText.background = "black"</code>.</p>
+          <table>
+            <tbody>
+              <tr>
+                <th>Parameters</th>
+                <th>Type</th>
+                <th>Description</th>
+              </tr>
+              <tr>
+                <td><b>size, font, color, x, y, align</b></td>
+                <td>String & Numbers</td>
+                <td>Defines typography styles, color palette choices, baseline context placements, and text directions.</td>
+              </tr>
+            </tbody>
+          </table>
+        </details>
+        </p>
+      </article>
+    </fieldset>
+
+    <fieldset id="7">
+      <legend><h2 style="display:inline-block;">Images with setImage()</h2></legend>
+      <article>
+        <p>
+        <p>To use an image, create a component with type "image" and the color will be the image path. You change the image using setImage().</p>
+        <details>
+          <summary>See more...</summary>
+          
+          <pre><code>const character = new Component(64, 64, "hero.png", 100, 100, "image");
+display.add(character);
+
+// Convert standard block node into an active sprite asset map
+character.setImage("img/hero.png");</code></pre>
+<p>You can change the image later (e.g., power‑up) with player.setImage("player_powered.png"). To switch back to a coloured rectangle, use player.setColor("blue").</p>
+<p><mark>Images are not automatically resized – set the component’s width and height to match your sprite dimensions.</mark></p>
+          <p>💡 <i>Fallback Behavior:</i> If the specified image asset fails to load or cannot be found, the canvas gracefully displays the base color block layout instead.</p>
+        </details>
+        </p>
+      </article>
+    </fieldset>
+
+    <fieldset id="8">
+      <legend><h2 style="display:inline-block;">Mouse input and clicked()</h2></legend>
+      <article>
+        <p>
+        Interact with elements using pointing devices or touchscreen positions directly over visual components.
+        <details>
+          <summary>See more...</summary>
+          <p>Check if a component has been pressed inside your active conditional loops:</p>
+          <pre><code>function update() {
+    if (startButton.clicked()) {
+        console.log("Button pressed!");
+        display.scene = 1; // Change your scene context
+    }
+}</code></pre>
+        </details>
+        </p>
+      </article>
+    </fieldset>
+
+    <fieldset id="9">
+      <legend><h2 style="display:inline-block;">Sound with Sound class</h2></legend>
+      <article>
+        <p>
+        Incorporate audio background loops and sound effects cleanly into game triggers.
+        <details>
+          <summary>See more...</summary>
+          <p>Load a sound using the <code>Sound</code> class, then call <code>.play()</code>. Supported formats: <code>.wav</code>, <code>.mp3</code>, <code>.ogg</code>.</p>
+          <pre><code>// Initialize audio sources
+const zapSound = new Sound("audio/zap.mp3");
+const backgroundTrack = new Sound("audio/music.mp3");
+
+backgroundTrack.play(); // Play loop track safely
+
+function update() {
+    if (player.crashWith(coin)) {
+        zapSound.play(); // Execute quick audio feedback trigger
+    }
+}</code></pre>
+        </details>
+        </p>
+      </article>
+    </fieldset>
+
+    <fieldset id="10">
+      <legend><h2 style="display:inline-block;">Game states using display.scene</h2></legend>
+      <article>
+        <p>
+        Isolate distinct parts of your game like start screens, main gameplay sections, and game over maps.
+        <details>
+          <summary>See more...</summary>
+          <p>Use <code>display.scene</code> to group components. Each component can be assigned to a scene number. Only components whose scene matches the current <code>display.scene</code> are rendered.</p>
+          <p>Components added using <code>display.add(item, sceneId)</code> will only update and render if the value matches the current <code>display.scene</code> tracking state:</p>
+          <pre><code>const titleText = new Component(300, 40, "white", 100, 100, "text");
+const avatar = new Component(40, 40, "green", 200, 200, "rect");
+
+display.add(titleText, 0); // Active in Scene 0 (Menu)
+display.add(avatar, 1);    // Active in Scene 1 (Gameplay)
+
+function update() {
+    if (display.scene === 0) {
+        if (display.keys[13]) { display.scene = 1; } // Press Enter to play
+    } else if (display.scene === 1) {
+        // Run core simulation ticks smoothly away from menu interfaces
+    }
+}</code></pre>
+        </details>
+        </p>
+      </article>
+    </fieldset>
+
+    <fieldset id="11">
+      <legend><h2 style="display:inline-block;">Coin collector tutorial</h2></legend>
+      <article>
+        <p>
+        A complete starter template integrating movement, text generation, boundaries, and collisions.
+        <details>
+          <summary>See more...</summary>
+          <pre><code>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;&lt;title&gt;Coin Collector&lt;/title&gt;&lt;/head&gt;
+&lt;body&gt;
+&lt;script src="epic.js"&gt;&lt;/script&gt;
+&lt;script&gt;
+let gameActive = true;
+    const display = new Display();
+const player = new Component(40, 40, "blue", 400, 300, "rect");
+const scoreText = new Tctxt("24px", "Arial", "white", 20, 50);
+const restartText = new Tctxt("20px", "Arial", "white", 400, 380);
+display.perform()
+display.start(800, 600);
+document.writeln(com)
+let score = 0;
+const totalCoins = 10;
+let coins = [];
+let bCoins=[]
+  // Player
+display.add(player);
+display.backgroundColor("green")
+// Score text
+scoreText.setText("Score: 0 / " + totalCoins);
+display.add(scoreText);
+
+// Win text (hidden at start)
+const winText = new Tctxt("48px", "Arial", "gold", 400, 300);
+winText.align = "center";
+winText.setText("YOU WIN!");
+winText.hide();
+display.add(winText);
+
+restartText.align = "center";
+restartText.setText("Press R to play again");
+restartText.hide();
+display.add(restartText);
+
+// Create coins
+for (let i = 0; i < totalCoins; i++) {
+    let coin = new Component(30, 30, "gold",
+        Math.random() * 700 + 50,
+        Math.random() * 500 + 50, "rect");
+    display.add(coin);
+    coins.push(coin);
+  console.log(coins)
+  
+}
+
+// Sounds (optional)
+// const collectSound = new Sound("collect.wav");
+// const winSound = new Sound("win.wav");
+
+
+
+function restart() {
+    location.reload()
+}
+    
+bCoins = coins
+    console.log(coins+" and "+ bCoins)
+function update(deltaTime) {
+    // Restart with R key
+    if (display.keys[82]) {
+        restart();
+        return;
+    }
+    if (!gameActive) return;
+    // console.log(coins)
+    // Player movement
+    if (display.keys[37]) player.speedX = -400 * deltaTime;
+    else if (display.keys[39]) player.speedX = 400 * deltaTime;
+    else player.speedX = 0;
+
+    if (display.keys[38]) player.speedY = -400 * deltaTime;
+    else if (display.keys[40]) player.speedY = 400 * deltaTime;
+    else player.speedY = 0;
+
+    move.bound(player);
+
+    // Coin collection
+    for (let i = 0; i < coins.length; i++) {
+        if (player.crashWith(coins[i])) {
+            // collectSound.play();
+            display.camera.shake(3, 3);
+            coins[i].hide();
+          
+            coins.splice(i, 1);
+            console.log(coins.length)
+            score++;
+            scoreText.setText("Score: " + score + " / " + totalCoins);
+            break;
+        }
+    }
+
+    // Win condition
+    if (score === totalCoins && gameActive) {
+        gameActive = false;
+        // winSound.play();
+        winText.show();
+        restartText.show();
+        scoreText.hide();
+    }
+}
+&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+        </details>
+        </p>
+      </article>
+    </fieldset>
+
+    <fieldset id="12">
+      <legend><h2 style="display:inline-block;">Quick reference</h2></legend>
+      <article id="tip">
+        <code>display.keys[37]</code> – left arrow<br>
+            <code>move.bound(obj)</code> – keep on screen<br>
+            <code>obj.crashWith(other)</code> – collision<br>
+            <code>new Tctxt(size,font,color,x,y)</code> – text<br>
+            <code>obj.setImage("file.png")</code> – load image<br>
+            <code>new Sound("file.wav").play()</code> – sound<br>
+            <code>display.camera.shake(x,y)</code> – screen shake<br>
+            <code>display.scene = n</code> – switch scene
+      </article>
+    </fieldset>
+  </main>
+
+  <footer class="footer">
+    <span class="footer-logo"><img id="fl" src="img/logo.png"></span>
+    <span>TCJSGame v4 · Created by Owolabi Kehinde</span>
+    <span style="font-family:'Space Mono',monospace;font-size:11px;">v4.0 · 2026</span>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Limn Engine — Advanced</title>
+<link rel="stylesheet" href="style.css">
+<script src="head.js"></script>
+</head>
+<body>
+
+<nav>
+  <ul>
+    <li title="Home"><a href="index.html">🏠</a></li>
+    <li title="Tutorial"><a href="tutorial.html">📚</a></li>
+    <li title="Reference"><a href="reference.html">🗒</a></li>
+    <li title="Download"><a href="download.html">⬇</a></li>
+    <button id="clickkk" onclick="
+      var a=document.querySelector('aside');
+      a.style.display=a.style.display=='block'?'none':'block';
+    " style="background:rgb(0,3,33);text-align:right;">🍔</button>
+  </ul>
+</nav>
+
+<aside>
+  <ul>
+    <li><a href="#1">Scene management</a></li>
+    <li><a href="#2">Particle system basics</a></li>
+    <li><a href="#3">Built-in particle presets</a></li>
+    <li><a href="#4">Continuous emitters</a></li>
+    <li><a href="#5">Circle collision</a></li>
+    <li><a href="#6">Camera shake</a></li>
+    <li><a href="#7">Camera rotation shake</a></li>
+    <li><a href="#8">Dynamic TileMap editing</a></li>
+    <li><a href="#9">move.pointTo & move.circle</a></li>
+    <li><a href="#10">Component.fixed() – HUD anchoring</a></li>
+    <li><a href="#11">Top-down shooter tutorial</a></li>
+    <li><a href="#12">Quick reference</a></li>
+  </ul>
+</aside>
+
+<main>
+
+  <fieldset id="1" style="display:block">
+    <legend><h2 style="display:inline-block;">Scene Management</h2></legend>
+    <article>
+      <blockquote>
+        <p>Assign Components to scenes to manage game states — main menu, gameplay, game over — without creating and destroying objects.</p>
+        <details>
+          <summary>see more...</summary>
+          <pre><code>const display = new Display();
+display.start(800, 600);
+
+// Scene 0 — main menu
+const menuBtn = new Component(160, 50, "white", 320, 270, "rect");
+display.add(menuBtn, 0);  // second param = scene number
+
+// Scene 1 — gameplay
+const player = new Component(40, 40, "blue", 100, 100, "rect");
+display.add(player, 1);
+
+// Scene 2 — game over screen
+const gameOverText = new Component(200, 50, "red", 300, 250, "rect");
+display.add(gameOverText, 2);
+
+function update() {
+    if (display.scene === 0) {
+        // show menu, wait for click
+        if (display.x && menuBtn.clicked()) {
+            display.scene = 1; // switch to game
+        }
+    }
+    if (display.scene === 1) {
+        // gameplay logic here
+        if (playerDead) display.scene = 2;
+    }
+}</code></pre>
+          <p>✅ Only Components whose scene number matches <code>display.scene</code> are drawn and updated. Switch scenes instantly with <code>display.scene = n</code>.</p>
+          <p><mark><u><b>NOTE: </b>Components default to scene 0 if you don't pass a scene number to display.add().</u></mark></p>
+          <table>
+            <tbody>
+              <tr><th>Feature</th><th>How to use</th></tr>
+              <tr><td><b>display.add(obj, scene)</b></td><td>Register Component to a scene number</td></tr>
+              <tr><td><b>display.scene</b></td><td>Set to switch the active scene</td></tr>
+            </tbody>
+          </table>
+        </details>
+      </blockquote>
+    </article>
+  </fieldset>
+
+  <fieldset id="2" style="display:block">
+    <legend><h2 style="display:inline-block;">Particle System Basics</h2></legend>
+    <article>
+      <blockquote>
+        <p>The ParticleSystem lets you spawn, configure, and auto-clean individual particles. Always call <code>ps.update()</code> inside your game loop.</p>
+        <details>
+          <summary>see more...</summary>
+          <pre><code>const display = new Display();
+display.start(800, 600);
+
+const ps = new ParticleSystem(display);
+
+function update() {
+    ps.update(); // REQUIRED — advances and removes dead particles
+
+    // Spawn one particle at mouse position
+    if (display.x) {
+        ps.emit(display.x, display.y, {
+            width: 6, height: 6,
+            color: "#ffaa00",
+            life: 40,
+            speedX: (Math.random()-0.5)*4,
+            speedY: -2,
+            gravity: 0.1,
+            friction: 0.97,
+            alphaFade: 0.025,
+            type: "circle"
+        });
+    }
+}</code></pre>
+          <p>✅ <code>emit()</code> spawns one particle. Dead particles (life=0 or alpha=0) are removed automatically by <code>ps.update()</code>.</p>
+          <table>
+            <tbody>
+              <tr><th>Option</th><th>Purpose</th><th>Default</th></tr>
+              <tr><td><b>life</b></td><td>Frames until the particle dies</td><td>60</td></tr>
+              <tr><td><b>alphaFade</b></td><td>How fast it fades per frame</td><td>0.02</td></tr>
+              <tr><td><b>friction</b></td><td>Speed multiplier per frame (drag)</td><td>0.98</td></tr>
+              <tr><td><b>type</b></td><td>"rect", "circle", or "image"</td><td>"rect"</td></tr>
+              <tr><td><b>randomColor</b></td><td>Pick random color from colors[]</td><td>false</td></tr>
+            </tbody>
+          </table>
+        </details>
+      </blockquote>
+    </article>
+  </fieldset>
+
+  <fieldset id="3" style="display:block">
+    <legend><h2 style="display:inline-block;">Built-in Particle Presets</h2></legend>
+    <article>
+      <blockquote>
+        <p>Six ready-made effects via <code>move.particles.*</code>. One line of code for professional visual feedback.</p>
+        <details>
+          <summary>see more...</summary>
+          <pre><code>const ps = new ParticleSystem(display);
+
+function update() {
+    ps.update();
+
+    if (enemyDied) {
+        move.particles.explosion(ps, enemy.x, enemy.y, 40); // intensity=40
+        move.particles.blood(ps, enemy.x, enemy.y, 20);     // amount=20
+    }
+    if (playerPowerUp) {
+        move.particles.magic(ps, player.x, player.y);
+        move.particles.sparkle(ps, player.x, player.y);
+    }
+    // Continuous weather
+    move.particles.rain(ps, 0, 0, 3);    // intensity per frame
+    move.particles.smoke(ps, 200, 300);  // one puff per call
+}</code></pre>
+          <p>✅ All presets are configured with sensible defaults. You only need to pass the ParticleSystem, position, and optionally an intensity/amount.</p>
+          <table>
+            <tbody>
+              <tr><th>Preset</th><th>Effect</th><th>Extra param</th></tr>
+              <tr><td><b>explosion(ps,x,y,intensity)</b></td><td>Orange/red burst</td><td>intensity (default 30)</td></tr>
+              <tr><td><b>smoke(ps,x,y)</b></td><td>Grey rising puff</td><td>—</td></tr>
+              <tr><td><b>sparkle(ps,x,y)</b></td><td>Yellow star burst</td><td>—</td></tr>
+              <tr><td><b>rain(ps,x,y,intensity)</b></td><td>Blue falling streaks</td><td>intensity (default 1)</td></tr>
+              <tr><td><b>blood(ps,x,y,amount)</b></td><td>Red splatter</td><td>amount (default 15)</td></tr>
+              <tr><td><b>magic(ps,x,y)</b></td><td>Coloured energy burst</td><td>—</td></tr>
+            </tbody>
+          </table>
+        </details>
+      </blockquote>
+    </article>
+  </fieldset>
+
+  <fieldset id="4" style="display:block">
+    <legend><h2 style="display:inline-block;">Continuous Emitters</h2></legend>
+    <article>
+      <blockquote>
+        <p>An emitter fires particles automatically every frame at a set rate. Start, stop, and reposition it at any time.</p>
+        <details>
+          <summary>see more...</summary>
+          <pre><code>const ps = new ParticleSystem(display);
+
+// Create emitter at position 400,300 firing 20 particles/sec
+const fire = ps.createEmitter(400, 300, {
+    rate: 20,
+    randomSpread: true,
+    speed: 2,
+    color: "#ff4400",
+    life: 35,
+    alphaFade: 0.03,
+    gravity: -0.05,
+    type: "circle"
+});
+
+function update() {
+    ps.update();
+
+    // Move emitter to follow player
+    fire.setPosition(player.x + 20, player.y);
+
+    // Toggle with key
+    if (display.keys[70]) fire.stop();  // F key
+    else fire.start();
+}</code></pre>
+          <p>✅ <code>createEmitter()</code> returns an emitter object with <code>start()</code>, <code>stop()</code>, and <code>setPosition(x,y)</code>. The rate is particles per second, scaled automatically to your frame rate.</p>
+          <table>
+            <tbody>
+              <tr><th>Method</th><th>Purpose</th></tr>
+              <tr><td><b>fire.start()</b></td><td>Begin emitting particles</td></tr>
+              <tr><td><b>fire.stop()</b></td><td>Pause emission (particles already out survive)</td></tr>
+              <tr><td><b>fire.setPosition(x,y)</b></td><td>Move the emitter's origin</td></tr>
+            </tbody>
+          </table>
+        </details>
+      </blockquote>
+    </article>
+  </fieldset>
+
+  <fieldset id="5" style="display:block">
+    <legend><h2 style="display:inline-block;">Circle Collision</h2></legend>
+    <article>
+      <blockquote>
+        <p>Enable radius-based collision for more accurate detection on round objects like balls, coins, and characters.</p>
+        <details>
+          <summary>see more...</summary>
+          <pre><code>const ball   = new Component(40, 40, "blue",   200, 200, "rect");
+const target = new Component(40, 40, "red",    350, 200, "rect");
+display.add(ball);
+display.add(target);
+
+// Enable circle collision (radius auto = half of largest dimension)
+ball.enableCircleCollision();
+target.enableCircleCollision(25); // custom radius
+
+function update() {
+    if (ball.crashWithCircle(target)) {
+        target.setColor("yellow"); // hit!
+    } else {
+        target.setColor("red");
+    }
+}</code></pre>
+          <p>✅ <code>crashWithCircle()</code> uses distance between centres vs sum of radii. Falls back to AABB if the other object doesn't have circle collision enabled.</p>
+          <table>
+            <tbody>
+              <tr><th>Method</th><th>Purpose</th><th>Parameter</th></tr>
+              <tr><td><b>enableCircleCollision(radius)</b></td><td>Enable circle collision</td><td>optional radius (auto if omitted)</td></tr>
+              <tr><td><b>crashWithCircle(other)</b></td><td>Check circle overlap</td><td>Another Component</td></tr>
+            </tbody>
+          </table>
+        </details>
+      </blockquote>
+    </article>
+  </fieldset>
+
+  <fieldset id="6" style="display:block">
+    <legend><h2 style="display:inline-block;">Camera Shake</h2></legend>
+    <article>
+      <blockquote>
+        <p>Apply a brief positional jolt to the camera — perfect for explosions, hits, and impacts. It auto-resets after ~42ms.</p>
+        <details>
+          <summary>see more...</summary>
+          <pre><code>function update() {
+    if (explosion) {
+        // Shake the main display camera
+        display.camera.shake(10, 8);  // x offset, y offset
+
+        // If using perform() mode, shake the fake canvas too
+        fake.camera.shake(-10, -8);
+    }
+}</code></pre>
+          <p>✅ The shake offsets the camera by the given amount then resets after 1/24th of a second. For stronger effect combine it with rotation shake.</p>
+          <p><mark><u><b>NOTE: </b>In perform() mode both cameras need to be shaken — display.camera and fake.camera.</u></mark></p>
+          <table>
+            <tbody>
+              <tr><th>Method</th><th>Parameters</th><th>Purpose</th></tr>
+              <tr><td><b>camera.shake(x, y)</b></td><td>x offset, y offset</td><td>Brief position shake</td></tr>
+            </tbody>
+          </table>
+        </details>
+      </blockquote>
+    </article>
+  </fieldset>
+
+  <fieldset id="7" style="display:block">
+    <legend><h2 style="display:inline-block;">Camera Rotation Shake</h2></legend>
+    <article>
+      <blockquote>
+        <p>Rotate the entire canvas briefly for a dramatic twist effect — great for big impacts, boss hits, or screen-crack moments.</p>
+        <details>
+          <summary>see more...</summary>
+          <pre><code>window.addEventListener("dblclick", () => {
+    // Rotation shake — angle in radians (~5–10 degrees works well)
+    display.camera.shakeRotation(0.08);
+
+    // Combine with position shake for maximum impact
+    display.camera.shake(12, 10);
+    display.camera.shakeRotation(0.1);
+});</code></pre>
+          <p>✅ 0.1 radians ≈ 5.7 degrees. Both shakes reset automatically. Combine them for a camera-twist-and-slam effect on big hits.</p>
+          <table>
+            <tbody>
+              <tr><th>Method</th><th>Parameters</th><th>Purpose</th></tr>
+              <tr><td><b>camera.shakeRotation(angle)</b></td><td>angle in radians</td><td>Brief rotation shake</td></tr>
+            </tbody>
+          </table>
+        </details>
+      </blockquote>
+    </article>
+  </fieldset>
+
+  <fieldset id="8" style="display:block">
+    <legend><h2 style="display:inline-block;">Dynamic TileMap Editing</h2></legend>
+    <article>
+      <blockquote>
+        <p>Add and remove tiles at runtime to create destructible environments, growing maps, or puzzle mechanics.</p>
+        <details>
+          <summary>see more...</summary>
+          <pre><code>display.tileMap();
+display.tileFace.show();
+
+// Add a tile at grid position column 3, row 2
+display.tileFace.add(1, 3, 2); // tileId, gridX, gridY
+
+// Remove the tile at column 5, row 1
+display.tileFace.remove(5, 1); // gridX, gridY
+
+// Get the tile object at a position
+const t = display.tileFace.rTile(3, 2);
+console.log(t.x, t.y); // world coordinates
+
+// Get all tiles of a type
+const grassTiles = display.tileFace.tiles(1); // tileId = 1</code></pre>
+          <p>✅ <code>add()</code> and <code>remove()</code> update the map array and refresh automatically. Use this for Minecraft-style terrain editing, breakable blocks, or procedural level changes.</p>
+          <table>
+            <tbody>
+              <tr><th>Method</th><th>Parameters</th><th>Purpose</th></tr>
+              <tr><td><b>tileFace.add(tileId,tx,ty)</b></td><td>tile type, grid x, grid y</td><td>Place a new tile</td></tr>
+              <tr><td><b>tileFace.remove(tx,ty)</b></td><td>grid x, grid y</td><td>Delete a tile</td></tr>
+              <tr><td><b>tileFace.rTile(tx,ty)</b></td><td>grid x, grid y</td><td>Get the Tile object there</td></tr>
+              <tr><td><b>tileFace.tiles(id)</b></td><td>optional tile type id</td><td>Get all tiles (or by type)</td></tr>
+            </tbody>
+          </table>
+        </details>
+      </blockquote>
+    </article>
+  </fieldset>
+
+  <fieldset id="9" style="display:block">
+    <legend><h2 style="display:inline-block;">move.pointTo &amp; move.circle</h2></legend>
+    <article>
+      <blockquote>
+        <p>Rotate a Component to face a world position, or make it orbit continuously using angle-based movement.</p>
+        <details>
+          <summary>see more...</summary>
+          <pre><code>const turret = new Component(40, 20, "gray", 400, 300, "rect");
+const orbiter = new Component(20, 20, "cyan", 400, 200, "rect");
+display.add(turret);
+display.add(orbiter);
+
+function update() {
+    // Turret always faces the mouse
+    move.pointTo(turret, display.x || 0, display.y || 0);
+
+    // Orbiter spins around its own angle
+    move.circle(orbiter, 2); // 2 degrees per frame
+    orbiter.moveAngle();
+}</code></pre>
+          <p>✅ <code>pointTo()</code> sets the angle so the Component's right side faces the target. <code>circle()</code> increments the angle, and <code>moveAngle()</code> moves along that angle using speedX/speedY.</p>
+          <table>
+            <tbody>
+              <tr><th>Method</th><th>Parameters</th><th>Purpose</th></tr>
+              <tr><td><b>move.pointTo(id,x,y)</b></td><td>Component, target x, target y</td><td>Rotate to face a position</td></tr>
+              <tr><td><b>move.circle(id,speed)</b></td><td>Component, degrees per frame</td><td>Increment angle for orbiting</td></tr>
+              <tr><td><b>id.moveAngle()</b></td><td>—</td><td>Move along the current angle</td></tr>
+            </tbody>
+          </table>
+        </details>
+      </blockquote>
+    </article>
+  </fieldset>
+
+  <fieldset id="10" style="display:block">
+    <legend><h2 style="display:inline-block;">Component.fixed() – HUD Anchoring</h2></legend>
+    <article>
+      <blockquote>
+        <p>Keep a Component locked to the screen even when the camera is moving — essential for score displays, health bars, and any UI element.</p>
+        <details>
+          <summary>see more...</summary>
+          <pre><code>const healthBar = new Component(150, 18, "red", 16, 16, "rect");
+display.add(healthBar);
+
+function update() {
+    display.camera.follow(player, true);
+
+    // Without fixed() the health bar would scroll with the world
+    // With fixed() it stays at screen position (aX, aY) regardless of camera
+    healthBar.fixed(); // must call every frame
+}</code></pre>
+          <p>✅ <code>fixed()</code> sets the Component's world position to cancel out the camera offset. Set the initial position with <code>aX</code> and <code>aY</code> (they are stored at construction time from x and y).</p>
+          <p><mark><u><b>NOTE: </b>Call fixed() every frame inside update() — it needs to recalculate as the camera moves.</u></mark></p>
+          <table>
+            <tbody>
+              <tr><th>Property</th><th>Purpose</th></tr>
+              <tr><td><b>aX / aY</b></td><td>Screen-space anchor position (set at construction from x, y)</td></tr>
+              <tr><td><b>fixed(ctx)</b></td><td>Lock to screen position each frame — pass display or fake</td></tr>
+            </tbody>
+          </table>
+        </details>
+      </blockquote>
+    </article>
+  </fieldset>
+
+  <fieldset id="11" style="display:block">
+    <legend><h2 style="display:inline-block;">Top-down Shooter Tutorial</h2></legend>
+    <article>
+      <blockquote>
+        <p>A complete example combining scenes, particles, camera shake, pointTo.</p>
+        <details>
+          <summary>see more...</summary>
+          <pre><code>&lt;script src="epic.js"&gt;&lt;/script&gt;
+&lt;script&gt;
+ const display = new Display();
+display.perform();
+display.start(800, 600);
+display.backgroundColor("lightblue")
+TCJSgameGameArea.width = 1600
+TCJSgameGameArea.height = 1200
+display.camera.worldWidth = 1600;
+display.camera.worldHeight = 1200;
+// display.camera.setZoom(0.75,0.75)
+// display.camera.x-=100
+const particles = new ParticleSystem(display);
+
+// ===== EVENT BUS =====
+const EventBus = {
+    listeners: {},
+    on(event, callback) {
+        if (!this.listeners[event]) this.listeners[event] = [];
+        this.listeners[event].push(callback);
+    },
+    emit(event, data) {
+        if (this.listeners[event]) {
+            this.listeners[event].forEach(cb => cb(data));
+        }
+    }
+};
+
+// ===== PLAYER =====
+const player = new Component(40, 40, "#5b8cff", 700, 500, "rect");
+display.add(player);
+
+// ===== SIMPLE LEVEL (10x10 grid, no procedural generation to avoid bugs) =====
+const level = [
+    [1,1,1,1,1,1,1,1,1,1],
+    [1,0,0,0,0,0,0,0,0,1],
+    [1,0,2,0,0,0,0,2,0,1],
+    [1,0,0,1,1,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,1,1,0,0,1],
+    [1,0,2,0,0,0,0,2,0,1],
+    [1,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,1],
+    [1,1,1,1,1,1,1,1,1,1]
+];
+
+const tileSize = 80; // 800/10 = 80, 600/10 = 60 but we need square
+// Actually for 1600x1200 world, tiles should be 40x40
+const tileW = 40;
+const tileH = 40;
+
+const tiles = [new Component(tileW, tileH, "#654321", 0, 0, "rect"),new Component(25, 25, "gold", 0, 0, "rect")
+]
+fake.canvas.width = 1600
+fake.canvas.height = 1200
+
+const tilemap = new TileMap(fake, level, tiles, 1600, 1200);
+tilemap.show();
+
+// ===== ENEMIES =====
+let enemies = [];
+for (let i = 0; i < 4; i++) {
+    const enemy = new Component(35, 35, "#ff6b6b", 
+        Math.random() * 1400 + 100, 
+        Math.random() * 1000 + 100, "rect");
+    enemy.speed = 60;
+    display.add(enemy);
+    enemies.push(enemy);
+}
+
+// ===== UI =====
+const healthBarBg = new Component(220, 25, "#440000", 20, 50, "rect");
+const healthBarFill = new Component(200, 20, "#00ff44", 30, 52, "rect");
+display.add(healthBarBg);
+display.add(healthBarFill);
+
+const scoreText = new Tctxt("24px", "Arial", "#ffffff", 20, 100, "left", false, "hanging", "rgba(0,0,0,0.5)", 10, 5);
+scoreText.setText("Score: 0");
+display.add(scoreText);
+let hhh = [healthBarBg,healthBarFill, scoreText]
+// ===== GAME STATE =====
+let score = 0;
+let health = 100;
+let invincibleTimer = 0;
+let gameActive = true;
+
+// ===== CUSTOM KNOCKBACK =====
+function applyKnockback(target, fromX, fromY, strength = 150) {
+    const angle = Math.atan2(target.y - fromY, target.x - fromX);
+    target.speedX = Math.cos(angle) * strength;
+    target.speedY = Math.sin(angle) * strength;
+    target.physics = true;
+    setTimeout(() => {
+        target.speedX = 0;
+        target.speedY = 0;
+        target.physics = false;
+    }, 200);
+}
+
+// ===== UPDATE FUNCTION =====
+function update(dt) {
+    if (!gameActive) return;
+    display.camera.follow(player);
+    healthBarBg.fixed()
+    healthBarFill.fixed()
+    scoreText.fixed()
+    particles.update();
+    
+    // Invincibility frames
+    if (invincibleTimer > 0) {
+        invincibleTimer -= dt;
+        player.alpha = 0.5;
+    } else {
+        player.alpha = 1;
+    }
+    
+    // Player movement
+    let mx = 0, my = 0;
+    if (display.keys[37]) mx = -1;
+    if (display.keys[39]) mx = 1;
+    if (display.keys[38]) my = -1;
+    if (display.keys[40]) my = 1;
+    
+    if (mx !== 0 && my !== 0) {
+        mx *= 0.707;
+        my *= 0.707;
+    }
+    
+    player.x += mx * 200 * dt;
+    player.y += my * 200 * dt;
+    
+    // Wall collision
+    if (tilemap.crashWith(player, 1)) {
+        if (mx > 0) player.x -= 10;
+        if (mx < 0) player.x += 10;
+        if (my > 0) player.y -= 10;
+        if (my < 0) player.y += 10;
+    }
+    
+    // Coin collection
+    const coins = tilemap.tiles(2);
+    for (let coin of coins) {
+        if (player.crashWith(coin)) {
+            tilemap.remove(coin.tx, coin.ty);
+            score += 10;
+            scoreText.setText("Score: " + score);
+            move.particles.sparkle(particles, coin.x + coin.width/2, coin.y + coin.height/2);
+            display.camera.shake(2, 2);
+        }
+    }
+    
+    // Enemy AI
+    for (let i = 0; i < enemies.length; i++) {
+        const enemy = enemies[i];
+        
+        // Chase player
+        if (enemy.x < player.x) enemy.x += enemy.speed * dt;
+        if (enemy.x > player.x) enemy.x -= enemy.speed * dt;
+        if (enemy.y < player.y) enemy.y += enemy.speed * dt;
+        if (enemy.y > player.y) enemy.y -= enemy.speed * dt;
+        
+        // Enemy collision with player
+        if (player.crashWith(enemy) && invincibleTimer <= 0) {
+            health -= 15;
+            const healthPercent = Math.max(0, health / 100);
+            healthBarFill.width = 200 * healthPercent;
+            
+            applyKnockback(player, enemy.x, enemy.y, 200);
+            display.camera.shake(6, 6);
+            move.particles.blood(particles, player.x, player.y, 10);
+            invincibleTimer = 1.0;
+            
+            if (health <= 0) {
+                gameActive = false;
+                const gameOverText = new Tctxt("48px", "Arial", "#ff0000", 400+display.camera.x, 300+display.camera.y, "center");
+                gameOverText.setText("GAME OVER - Score: " + score);
+                display.add(gameOverText);
+            }
+        }
+        
+        // Click to defeat enemy
+        if (mouse.down && enemy.clicked()) {
+          console.log("uygiik")
+            move.particles.explosion(particles, enemy.x, enemy.y, 20);
+            score += 50;
+            scoreText.setText("Score: " + score);
+            display.camera.shake(4, 4);
+            enemy.hide();
+            enemies.splice(i, 1);
+            i--;
+        }
+    }
+    
+    // Boundaries
+    player.x = Math.max(0, Math.min(1560, player.x));
+    player.y = Math.max(0, Math.min(1160, player.y));
+}
+&lt;/script&gt;</code></pre>
+          <p>✅ Arrow keys to move. Click enemies to kill. Enemy chases the player. On collision — explosion, camera shake, score increase, enemy respawns.</p>
+        </details>
+      </blockquote>
+    </article>
+  </fieldset>
+
+  <fieldset id="12" style="display:block">
+    <legend><h2 style="display:inline-block;">Quick Reference</h2></legend>
+    <article>
+      <blockquote>
+        <details>
+          <summary>see more...</summary>
+          <table>
+            <tbody>
+              <tr><th>Feature</th><th>How to use</th></tr>
+              <tr><td><b>Scenes</b></td><td>display.add(obj, n); display.scene = n;</td></tr>
+              <tr><td><b>Particles</b></td><td>new ParticleSystem(display); ps.emit(x,y,opts); ps.update();</td></tr>
+              <tr><td><b>Presets</b></td><td>move.particles.explosion(ps, x, y, intensity)</td></tr>
+              <tr><td><b>Emitter</b></td><td>ps.createEmitter(x,y,opts); emitter.start/stop/setPosition</td></tr>
+              <tr><td><b>Circle collision</b></td><td>obj.enableCircleCollision(); obj.crashWithCircle(other)</td></tr>
+              <tr><td><b>Shake</b></td><td>display.camera.shake(x,y)</td></tr>
+              <tr><td><b>Rotation shake</b></td><td>display.camera.shakeRotation(radians)</td></tr>
+              <tr><td><b>TileMap edit</b></td><td>tileFace.add(id,tx,ty); tileFace.remove(tx,ty)</td></tr>
+              <tr><td><b>pointTo</b></td><td>move.pointTo(obj, targetX, targetY)</td></tr>
+              <tr><td><b>Fixed HUD</b></td><td>obj.fixed() — call every frame in update()</td></tr>
+            </tbody>
+          </table>
+        </details>
+      </blockquote>
+    </article>
+  </fieldset>
+
+</main>
+<footer class="footer">
+  <span class="footer-logo"><img id="fl" src="img/logo.png"></span>
+  <span>TCJSGame v4 · Created by Owolabi Kehinde</span>
+  <span style="font-family:'Space Mono',monospace;font-size:11px;">v4.0 · 2026</span>
+</footer>
+</body>
+</html>

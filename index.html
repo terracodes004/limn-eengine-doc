@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Limn Engine — Documentation</title>
+<link rel="stylesheet" href="style.css">
+<script src="head.js"></script>
+<body>
+  <header>
+    <img src="img/logo.png" id="logo">
+    <div class="con">
+      <button id="download"><a href="asset/epic.js" download>Download</a></button>
+      <button>Learn More</button>
+    </div>
+  </header>
+  <nav>
+      <ul>
+      <li title="Home"><a href="index.html">🏠</a></li>
+      <li title="Tutorial"><a href="tutorial.html">📚</a></li>
+      <li title="Reference"><a href="reference.html">🗒</a></li>
+      <li title="Download"><a href="download.html">⬇</a></li>
+    </ul>
+    </nav>
+    <main>
+      <h1> Limn engine</h1>
+      <fieldset>
+        <legend><h2 style="display:inline-block;">What is Limn engine</h2></legend>
+        <article>
+          <p>
+           <b> Limn Engine</b> is the fourth generation of the TCJSGame project, originally created by Owolabi Kehinde. Starting as JGame in 2023, evolving through TCGame and TCJSGame, Limn Engine represents a complete architectural upgrade — bringing a dual-canvas rendering pipeline, a full particle system, circle collision, scene management, and much more.<p>
+<details>
+  <summary>see more...</summary>
+It stays true to its roots: no build tools, no complex setup. Just a single .js file and your creativity.</p>
+          </p>
+          <p>A powerful, beginner-friendly JavaScript 2D game engine for the browser. Built on HTML5 Canvas with a component-based architecture, physics, particles, tilemap support, and a dual-canvas rendering pipeline.
+          Zero‑configuration 2D game engine. One file (epic.js). No npm, no build tools — just HTML + JavaScript.
+Without Limn, you'd need to manually manage canvas drawing, game loop, input handling, and collision. Limn does everything for you.
+          </p>
+          <b>📖 Without an engine:</b> You would have to manually draw pixels, handle keyboard events, manage the game loop, and write collision detection. Limn does all of that for you.</details>
+        </article>
+        <picture>
+        <img src="img/logo.png"></picture>
+      </fieldset>
+      <fieldset>
+        <legend><h2 style="display:inline-block;">Your First Game – Setup</h2></legend>
+        <article>
+          <p>
+            Create an HTML file that includes epic.js. Write the following code – you will see a red square in the centre of a black canvas.
+          <details>
+            <summary>
+              see more...
+            </summary>
+            <pre>
+              <code>
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;&lt;title&gt;My Limn Game&lt;/title&gt;&lt;/head&gt;
+&lt;body&gt;
+&lt;script src="epic.js"&gt;&lt;/script&gt;
+&lt;script&gt;
+const display = new Display();
+display.perform();
+display.start(800, 600);
+
+const player = new Component(50, 50, "red", 400, 300, "rect");
+display.add(player);
+
+function update(deltaTime) {
+    // Game logic will go here
+}
+&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+              </code>
+            </pre>
+            <p>✅ What happens: start() creates an 800×600 canvas, attaches it to the page, and starts the game loop. The red square appears because display.add(player) tells the engine to draw it every frame.</p>
+          </details>
+          </p>
+        </article>
+        <picture>
+        <img src="img/download.png" alt="A tile map"></picture>
+      </fieldset>
+      <fieldset>
+        <legend><h2 style="display:inline-block;">Learn the engine</h2></legend>
+        <article>
+          <p>
+            Limn Engine is structured into four progressive skill levels. Every section in these <a href="tutorial.html"> docs</a> is tagged so you always know what you're ready for.
+            <p><p>
+              If you are after reference click <a href="reference.html">here.</a>
+            </p>
+            If you already know TCJSGame v3 you just need to learn the new function in limn.
+            </p>
+          </p>
+        </article>
+        <img src="img/flogo.jpg" alt="TCJSGame logo">
+      </fieldset>
+      <fieldset>
+        <legend><h2 style="display:inline-block;">Create a space shooting game</h2></legend>
+        <article>
+          <p>
+            Learn how to create your own space-shooting with <a href="alien.html"> limn engine</a> is tagged so you always know what you're ready for.
+            <p><p>
+              If you are after reference click <a href="reference.html">here.</a>
+            </p>
+            </p>
+          </p>
+        </article>
+        <img src="img/flogo.jpg" alt="TCJSGame logo">
+      </fieldset>
+    </main>
+    <footer class="footer">
+  <span class="footer-logo"><img id="fl" src="img/logo.png"></span>
+  <span>TCJSGame v4 · Created by Owolabi Kehinde</span>
+  <span style="font-family:'Space Mono',monospace;font-size:11px;">v4.0 · 2026</span>
+</footer>
+</body>
+</html>

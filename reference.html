@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Limn Engine — Reference</title>
+<link rel="stylesheet" href="style.css">
+<script src="head.js"></script>
+</head>
+<body>
+
+<nav>
+  <ul>
+    <li title="Home"><a href="index.html">🏠</a></li>
+    <li title="Tutorial"><a href="tutorial.html">📚</a></li>
+    <li title="Reference"><a href="reference.html">🗒</a></li>
+    <li title="Download"><a href="asset/epic.js">⬇</a></li>
+    <button id="clickkk" onclick="
+      var a=document.querySelector('aside');
+      a.style.display=a.style.display=='block'?'none':'block';
+    " style="background:rgb(0,3,33);text-align:right;">🍔</button>
+  </ul>
+</nav>
+
+<aside>
+  <ul>
+    <li><a href="#display">Display</a></li>
+    <li><a href="#component">Component</a></li>
+    <li><a href="#camera">Camera</a></li>
+    <li><a href="#move">move utility</a></li>
+    <li><a href="#state">state utility</a></li>
+    <li><a href="#tilemap">TileMap</a></li>
+    <li><a href="#tctxt">Tctxt</a></li>
+    <li><a href="#sound">Sound</a></li>
+    <li><a href="#soundmanager">SoundManager</a></li>
+    <li><a href="#particles">ParticleSystem</a></li>
+    <li><a href="#sprite">Sprite & AnimatedSprite</a></li>
+    <li><a href="#keys">Key code table</a></li>
+  </ul>
+</aside>
+
+<main>
+
+  <fieldset id="display" style="display:block">
+    <legend><h2 style="display:inline-block;">Display</h2></legend>
+    <article>
+      <blockquote>
+        <p>The core class. Creates the canvas, starts the loop, and manages input, camera, and scenes.</p>
+        <details><summary>see more...</summary>
+          <table>
+            <tbody>
+              <tr><th>Method / Property</th><th>Parameters</th><th>Purpose</th></tr>
+              <tr><td><b>new Display()</b></td><td>—</td><td>Create the engine instance. Must be named <code>display</code>.</td></tr>
+              <tr><td><b>display.start(w,h,node)</b></td><td>width, height, node=body</td><td>Create canvas and start game loop</td></tr>
+              <tr><td><b>display.perform()</b></td><td>—</td><td>Activate dual-canvas pipeline — call before start()</td></tr>
+              <tr><td><b>display.add(obj, scene)</b></td><td>Component, scene=0</td><td>Register a Component for rendering</td></tr>
+              <tr><td><b>display.stop()</b></td><td>—</td><td>Pause the game loop</td></tr>
+              <tr><td><b>display.scale(w,h)</b></td><td>width, height</td><td>Resize canvas after start</td></tr>
+              <tr><td><b>display.backgroundColor(c)</b></td><td>color string</td><td>Set canvas background colour</td></tr>
+              <tr><td><b>display.lgradient(to,c1,c2)</b></td><td>direction, color, color</td><td>Linear gradient background</td></tr>
+              <tr><td><b>display.rgradient(c1,c2)</b></td><td>color, color</td><td>Radial gradient background</td></tr>
+              <tr><td><b>display.fullScreen()</b></td><td>—</td><td>Enter fullscreen</td></tr>
+              <tr><td><b>display.exitScreen()</b></td><td>—</td><td>Exit fullscreen</td></tr>
+              <tr><td><b>display.tileMap()</b></td><td>—</td><td>Build TileMap from display.map + display.tile</td></tr>
+              <tr><td><b>display.scene</b></td><td>number</td><td>Active scene — only matching Components render</td></tr>
+              <tr><td><b>display.keys[keyCode]</b></td><td>—</td><td>true while that key is held</td></tr>
+              <tr><td><b>display.x / display.y</b></td><td>—</td><td>Mouse/touch position while pressed, false otherwise</td></tr>
+              <tr><td><b>display.frameNo</b></td><td>—</td><td>Total frames elapsed since start</td></tr>
+              <tr><td><b>display.fps</b></td><td>—</td><td>Current frames per second</td></tr>
+              <tr><td><b>display.deltaTime</b></td><td>—</td><td>Approx 1/fps — use for frame-rate-independent speeds</td></tr>
+              <tr><td><b>display.clearMargin</b></td><td>[w, h]</td><td>Area cleared each frame — set to canvas or world size</td></tr>
+            </tbody>
+          </table>
+        </details>
+      </blockquote>
+    </article>
+  </fieldset>
+
+  <fieldset id="component" style="display:block">
+    <legend><h2 style="display:inline-block;">Component</h2></legend>
+    <article>
+      <blockquote>
+        <p>Every visible game object — player, enemy, bullet, text, image.</p>
+        <details><summary>see more...</summary>
+          <pre><code>new Component(width, height, color, x, y, type)
+// type: "rect" | "image" | "text" | undefined (defaults to rect)</code></pre>
+          <table>
+            <tbody>
+              <tr><th>Property / Method</th><th>Type / Params</th><th>Purpose</th></tr>
+              <tr><td><b>x / y</b></td><td>number</td><td>World position</td></tr>
+              <tr><td><b>width / height</b></td><td>number</td><td>Size</td></tr>
+              <tr><td><b>speedX / speedY</b></td><td>number</td><td>Velocity per frame (applied by move())</td></tr>
+              <tr><td><b>gravity</b></td><td>number</td><td>Downward pull per frame when physics=true</td></tr>
+              <tr><td><b>gravitySpeed</b></td><td>number</td><td>Accumulated vertical velocity from gravity</td></tr>
+              <tr><td><b>bounce</b></td><td>0–1</td><td>Energy kept on floor impact</td></tr>
+              <tr><td><b>angle</b></td><td>radians</td><td>Rotation angle</td></tr>
+              <tr><td><b>physics</b></td><td>boolean</td><td>Enable gravity in move()</td></tr>
+              <tr><td><b>changeAngle</b></td><td>boolean</td><td>Apply rotation transform when drawing</td></tr>
+              <tr><td><b>aX / aY</b></td><td>number</td><td>Original screen-space position for fixed()</td></tr>
+              <tr><td><b>setImage(src)</b></td><td>string</td><td>Switch to image mode</td></tr>
+              <tr><td><b>setColor(color)</b></td><td>string</td><td>Switch to rect/colour mode</td></tr>
+              <tr><td><b>setText(text,font,color)</b></td><td>string,string,string</td><td>Switch to text mode</td></tr>
+              <tr><td><b>move()</b></td><td>—</td><td>Apply velocity and gravity — auto-called each frame</td></tr>
+              <tr><td><b>moveAngle()</b></td><td>—</td><td>Move along the current angle direction</td></tr>
+              <tr><td><b>hitBottom()</b></td><td>—</td><td>Clamp to canvas floor and bounce</td></tr>
+              <tr><td><b>stopMove()</b></td><td>—</td><td>Set speedX and speedY to 0</td></tr>
+              <tr><td><b>clicked()</b></td><td>→ boolean</td><td>True when mouse/touch is pressed over this Component</td></tr>
+              <tr><td><b>crashWith(other)</b></td><td>Component → boolean</td><td>AABB collision, rotation-aware</td></tr>
+              <tr><td><b>enableCircleCollision(r)</b></td><td>optional radius</td><td>Enable circle collision</td></tr>
+              <tr><td><b>crashWithCircle(other)</b></td><td>Component → boolean</td><td>Circle-vs-circle collision</td></tr>
+              <tr><td><b>hide()</b></td><td>—</td><td>Stop drawing this Component</td></tr>
+              <tr><td><b>show()</b></td><td>—</td><td>Resume drawing after hide()</td></tr>
+              <tr><td><b>fixed(ctx)</b></td><td>ctx=display</td><td>Lock to screen position (call every frame)</td></tr>
+            </tbody>
+          </table>
+        </details>
+      </blockquote>
+    </article>
+  </fieldset>
+
+  <fieldset id="camera" style="display:block">
+    <legend><h2 style="display:inline-block;">Camera</h2></legend>
+    <article>
+      <blockquote>
+        <p>Access via <code>display.camera</code>. Translates the canvas so the view follows a target.</p>
+        <details><summary>see more...</summary>
+          <table>
+            <tbody>
+              <tr><th>Property / Method</th><th>Parameters</th><th>Purpose</th></tr>
+              <tr><td><b>camera.x / camera.y</b></td><td>number</td><td>Current camera world offset</td></tr>
+              <tr><td><b>camera.worldWidth / worldHeight</b></td><td>number</td><td>Clamp bounds (default 1000)</td></tr>
+              <tr><td><b>camera.follow(target, smooth)</b></td><td>Component, boolean</td><td>Follow a Component. smooth=true for lerp.</td></tr>
+              <tr><td><b>camera.setZoom(amount)</b></td><td>number</td><td>Scale the view — call every frame to sustain</td></tr>
+              <tr><td><b>camera.shake(x, y)</b></td><td>x offset, y offset</td><td>Brief position shake — auto-resets</td></tr>
+              <tr><td><b>camera.shakeRotation(angle)</b></td><td>radians</td><td>Brief rotation shake — auto-resets</td></tr>
+            </tbody>
+          </table>
+        </details>
+      </blockquote>
+    </article>
+  </fieldset>
+
+  <fieldset id="move" style="display:block">
+    <legend><h2 style="display:inline-block;">move utility</h2></legend>
+    <article>
+      <blockquote>
+        <p>Global object with helper functions for movement, positioning, physics, and particles.</p>
+        <details><summary>see more...</summary>
+          <table>
+            <tbody>
+              <tr><th>Method</th><th>Parameters</th><th>Purpose</th></tr>
+              <tr><td><b>move.teleport(id,x,y)</b></td><td>Component, x, y</td><td>Instantly set position</td></tr>
+              <tr><td><b>move.setX(id,x)</b></td><td>Component, x</td><td>Set X only</td></tr>
+              <tr><td><b>move.setY(id,y)</b></td><td>Component, y</td><td>Set Y only</td></tr>
+              <tr><td><b>move.bound(id)</b></td><td>Component</td><td>Clamp to all canvas edges</td></tr>
+              <tr><td><b>move.boundTo(id,l,r,t,b)</b></td><td>Component, numbers/false</td><td>Clamp to custom boundaries</td></tr>
+              <tr><td><b>move.stamp(id)</b></td><td>Component → Component</td><td>Clone a Component</td></tr>
+              <tr><td><b>move.glideX(id,ms,x)</b></td><td>Component, duration, x</td><td>Ease to X over duration (ms)</td></tr>
+              <tr><td><b>move.glideY(id,ms,y)</b></td><td>Component, duration, y</td><td>Ease to Y over duration (ms)</td></tr>
+              <tr><td><b>move.glideTo(id,ms,x,y)</b></td><td>Component, duration, x, y</td><td>Ease both axes</td></tr>
+              <tr><td><b>move.project(id,v,angle,g,ground)</b></td><td>Component, speed, degrees, gravity, ground</td><td>Projectile motion</td></tr>
+              <tr><td><b>move.pointTo(id,tx,ty)</b></td><td>Component, targetX, targetY</td><td>Rotate to face a world position</td></tr>
+              <tr><td><b>move.turnLeft(id,steps)</b></td><td>Component, radians</td><td>Rotate left</td></tr>
+              <tr><td><b>move.turnRight(id,steps)</b></td><td>Component, radians</td><td>Rotate right</td></tr>
+              <tr><td><b>move.circle(id,speed)</b></td><td>Component, degrees/frame</td><td>Increment angle for orbiting</td></tr>
+              <tr><td><b>move.accelerate(id,ax,ay,mx,my)</b></td><td>Component, accel x/y, max x/y</td><td>Add acceleration up to max speed</td></tr>
+              <tr><td><b>move.decelerate(id,dx,dy)</b></td><td>Component, decel x/y</td><td>Reduce speed toward zero</td></tr>
+              <tr><td><b>move.hitObject(id,other)</b></td><td>Component, floor Component</td><td>Treat another Component as a floor</td></tr>
+              <tr><td><b>move.backward(id,steps)</b></td><td>Component, speed</td><td>Move diagonally backward</td></tr>
+              <tr><td><b>move.position(id,dir,offset)</b></td><td>Component, "top/bottom/left/right/center"</td><td>Snap to a named screen position</td></tr>
+              <tr><td><b>move.particles.*</b></td><td>see Particles section</td><td>Built-in particle presets</td></tr>
+              <tr><td><b>move.sound.*</b></td><td>see SoundManager</td><td>Audio shortcuts</td></tr>
+            </tbody>
+          </table>
+        </details>
+      </blockquote>
+    </article>
+  </fieldset>
+
+  <fieldset id="state" style="display:block">
+    <legend><h2 style="display:inline-block;">state utility</h2></legend>
+    <article>
+      <blockquote>
+        <p>Read-only helpers to query Component properties.</p>
+        <details><summary>see more...</summary>
+          <table>
+            <tbody>
+              <tr><th>Method</th><th>Returns</th><th>Purpose</th></tr>
+              <tr><td><b>state.distance(a,b)</b></td><td>number</td><td>Euclidean distance between two Components</td></tr>
+              <tr><td><b>state.rect(id)</b></td><td>[x,y,w,h]</td><td>Position and size as array</td></tr>
+              <tr><td><b>state.pos(id)</b></td><td>"x,y"</td><td>Position as string</td></tr>
+              <tr><td><b>state.Angle(id)</b></td><td>number</td><td>Current angle in radians</td></tr>
+              <tr><td><b>state.physics(id)</b></td><td>boolean</td><td>Whether physics is enabled</td></tr>
+              <tr><td><b>state.changeAngle(id)</b></td><td>boolean</td><td>Whether rotation rendering is active</td></tr>
+            </tbody>
+          </table>
+        </details>
+      </blockquote>
+    </article>
+  </fieldset>
+
+  <fieldset id="tilemap" style="display:block">
+    <legend><h2 style="display:inline-block;">TileMap</h2></legend>
+    <article>
+      <blockquote>
+        <p>Grid-based level system. Set <code>display.map</code> and <code>display.tile</code> then call <code>display.tileMap()</code>.</p>
+        <details><summary>see more...</summary>
+          <table>
+            <tbody>
+              <tr><th>Method / Property</th><th>Parameters</th><th>Purpose</th></tr>
+              <tr><td><b>display.map</b></td><td>2D number array</td><td>Level layout (0=empty, 1+=tile type)</td></tr>
+              <tr><td><b>display.tile</b></td><td>Component array</td><td>Tile templates (index 0 = tile type 1)</td></tr>
+              <tr><td><b>display.tileMap()</b></td><td>—</td><td>Build the TileMap</td></tr>
+              <tr><td><b>display.tileFace.show()</b></td><td>—</td><td>Render all tiles</td></tr>
+              <tr><td><b>tileFace.crashWith(obj, id)</b></td><td>Component, optional tileId</td><td>Collision against tiles</td></tr>
+              <tr><td><b>tileFace.add(tileId,tx,ty)</b></td><td>type, gridX, gridY</td><td>Place a tile at runtime</td></tr>
+              <tr><td><b>tileFace.remove(tx,ty)</b></td><td>gridX, gridY</td><td>Remove a tile at runtime</td></tr>
+              <tr><td><b>tileFace.rTile(tx,ty)</b></td><td>gridX, gridY</td><td>Get Tile object at position</td></tr>
+              <tr><td><b>tileFace.tiles(id)</b></td><td>optional tileId</td><td>Get all tiles or filter by type</td></tr>
+            </tbody>
+          </table>
+        </details>
+      </blockquote>
+    </article>
+  </fieldset>
+
+  <fieldset id="tctxt" style="display:block">
+    <legend><h2 style="display:inline-block;">Tctxt</h2></legend>
+    <article>
+      <blockquote>
+        <p>Rich text Component with background, padding, alignment, and baseline control.</p>
+        <details><summary>see more...</summary>
+          <pre><code>new Tctxt(size, font, color, x, y, align, stroke, baseline, background, padX, padY)</code></pre>
+          <table>
+            <tbody>
+              <tr><th>Parameter</th><th>Type</th><th>Example</th></tr>
+              <tr><td><b>size</b></td><td>string</td><td>"24px"</td></tr>
+              <tr><td><b>font</b></td><td>string</td><td>"Arial"</td></tr>
+              <tr><td><b>color</b></td><td>string</td><td>"white"</td></tr>
+              <tr><td><b>x / y</b></td><td>number</td><td>20, 40</td></tr>
+              <tr><td><b>align</b></td><td>string</td><td>"left" / "center" / "right"</td></tr>
+              <tr><td><b>stroke</b></td><td>boolean</td><td>false = fill, true = stroke</td></tr>
+              <tr><td><b>baseline</b></td><td>string</td><td>"alphabetic" / "top" / "middle"</td></tr>
+              <tr><td><b>background</b></td><td>string</td><td>"rgba(0,0,0,0.6)"</td></tr>
+              <tr><td><b>padX / padY</b></td><td>number</td><td>12, 6</td></tr>
+              <tr><td><b>setText(txt)</b></td><td>string</td><td>Update displayed text</td></tr>
+              <tr><td><b>textWidth</b></td><td>number</td><td>Auto-updated pixel width</td></tr>
+            </tbody>
+          </table>
+        </details>
+      </blockquote>
+    </article>
+  </fieldset>
+
+  <fieldset id="sound" style="display:block">
+    <legend><h2 style="display:inline-block;">Sound</h2></legend>
+    <article>
+      <blockquote>
+        <p>Load and play a single audio file.</p>
+        <details><summary>see more...</summary>
+          <pre><code>const sfx = new Sound("jump.wav", { volume: 0.8, loop: false });</code></pre>
+          <table>
+            <tbody>
+              <tr><th>Method</th><th>Purpose</th></tr>
+              <tr><td><b>play(volume)</b></td><td>Play the sound. Clones for overlapping if needed.</td></tr>
+              <tr><td><b>stop()</b></td><td>Stop and rewind</td></tr>
+              <tr><td><b>pause()</b></td><td>Pause at current position</td></tr>
+              <tr><td><b>setVolume(0–1)</b></td><td>Change volume</td></tr>
+              <tr><td><b>setLoop(bool)</b></td><td>Enable/disable looping</td></tr>
+              <tr><td><b>isPlaying()</b></td><td>Returns true if currently playing</td></tr>
+            </tbody>
+          </table>
+        </details>
+      </blockquote>
+    </article>
+  </fieldset>
+
+  <fieldset id="soundmanager" style="display:block">
+    <legend><h2 style="display:inline-block;">SoundManager</h2></legend>
+    <article>
+      <blockquote>
+        <p>Full audio pipeline — named sounds, music control, master volume.</p>
+        <details><summary>see more...</summary>
+          <pre><code>window.soundManager = new SoundManager();</code></pre>
+          <table>
+            <tbody>
+              <tr><th>Method / Property</th><th>Purpose</th></tr>
+              <tr><td><b>load(name, src, opts)</b></td><td>Preload a sound by name</td></tr>
+              <tr><td><b>play(name, vol)</b></td><td>Play a sound by name</td></tr>
+              <tr><td><b>stop(name)</b></td><td>Stop a named sound</td></tr>
+              <tr><td><b>playMusic(name, loop)</b></td><td>Start background music</td></tr>
+              <tr><td><b>stopMusic()</b></td><td>Stop current music</td></tr>
+              <tr><td><b>mute() / unmute()</b></td><td>Toggle all audio</td></tr>
+              <tr><td><b>masterVolume</b></td><td>Overall volume multiplier (0–1)</td></tr>
+              <tr><td><b>sfxVolume</b></td><td>SFX volume (0–1)</td></tr>
+              <tr><td><b>musicVolume</b></td><td>Music volume (0–1)</td></tr>
+            </tbody>
+          </table>
+        </details>
+      </blockquote>
+    </article>
+  </fieldset>
+
+  <fieldset id="particles" style="display:block">
+    <legend><h2 style="display:inline-block;">ParticleSystem</h2></legend>
+    <article>
+      <blockquote>
+        <p>Spawn, configure, and auto-clean particles. Must call <code>ps.update()</code> every frame.</p>
+        <details><summary>see more...</summary>
+          <pre><code>const ps = new ParticleSystem(display);</code></pre>
+          <table>
+            <tbody>
+              <tr><th>Method</th><th>Parameters</th><th>Purpose</th></tr>
+              <tr><td><b>emit(x,y,opts)</b></td><td>x, y, options object</td><td>Spawn one particle</td></tr>
+              <tr><td><b>burst(x,y,count,opts)</b></td><td>x, y, count, options</td><td>Spawn many at once</td></tr>
+              <tr><td><b>createEmitter(x,y,opts)</b></td><td>x, y, options</td><td>Continuous emitter — returns emitter object</td></tr>
+              <tr><td><b>update()</b></td><td>—</td><td>Advance all particles — call every frame</td></tr>
+              <tr><td><b>clear()</b></td><td>—</td><td>Remove all particles and emitters</td></tr>
+            </tbody>
+          </table>
+          <p><b>Particle options:</b> life, speedX, speedY, randomSpeed, gravity, friction, alphaFade, scale, scaleFade, rotationSpeed, color, colors, randomColor, width, height, type ("rect"/"circle"/"image")</p>
+          <p><b>Presets via move.particles:</b> explosion, smoke, sparkle, rain, blood, magic</p>
+        </details>
+      </blockquote>
+    </article>
+  </fieldset>
+
+  <fieldset id="sprite" style="display:block">
+    <legend><h2 style="display:inline-block;">Sprite &amp; AnimatedSprite</h2></legend>
+    <article>
+      <blockquote>
+        <p>Spritesheet animation. All frames in one horizontal image.</p>
+        <details><summary>see more...</summary>
+          <pre><code>new Sprite(imageSrc, frameWidth, frameHeight, frameCount, frameSpeed, x, y)
+new AnimatedSprite(imageSrc, frameWidth, frameHeight, x, y)</code></pre>
+          <table>
+            <tbody>
+              <tr><th>Method</th><th>Parameters</th><th>Purpose</th></tr>
+              <tr><td><b>update()</b></td><td>—</td><td>Advance animation timer</td></tr>
+              <tr><td><b>draw(ctx,x,y)</b></td><td>context, x, y</td><td>Draw current frame</td></tr>
+              <tr><td><b>addAnimation(name,s,e,speed,loop)</b></td><td>string,int,int,int,bool</td><td>Define a named clip</td></tr>
+              <tr><td><b>playAnimation(name)</b></td><td>string</td><td>Switch to named animation</td></tr>
+              <tr><td><b>updateAnimation()</b></td><td>—</td><td>Advance the named animation — call in update()</td></tr>
+            </tbody>
+          </table>
+        </details>
+      </blockquote>
+    </article>
+  </fieldset>
+
+  <fieldset id="keys" style="display:block">
+    <legend><h2 style="display:inline-block;">Key Code Table</h2></legend>
+    <article>
+      <blockquote>
+        <p>Common key codes for use with <code>display.keys[keyCode]</code>.</p>
+        <details><summary>see more...</summary>
+          <table>
+            <tbody>
+              <tr><th>Key</th><th>Code</th><th>Key</th><th>Code</th></tr>
+              <tr><td>← Left Arrow</td><td>37</td><td>A</td><td>65</td></tr>
+              <tr><td>↑ Up Arrow</td><td>38</td><td>W</td><td>87</td></tr>
+              <tr><td>→ Right Arrow</td><td>39</td><td>D</td><td>68</td></tr>
+              <tr><td>↓ Down Arrow</td><td>40</td><td>S</td><td>83</td></tr>
+              <tr><td>Space</td><td>32</td><td>Enter</td><td>13</td></tr>
+              <tr><td>Escape</td><td>27</td><td>Shift</td><td>16</td></tr>
+              <tr><td>Z</td><td>90</td><td>X</td><td>88</td></tr>
+              <tr><td>F</td><td>70</td><td>M</td><td>77</td></tr>
+              <tr><td>0–9</td><td>48–57</td><td>F1–F12</td><td>112–123</td></tr>
+            </tbody>
+          </table>
+        </details>
+      </blockquote>
+    </article>
+  </fieldset>
+
+</main>
+<footer class="footer">
+  <span class="footer-logo"><img id="fl" src="img/logo.png"></span>
+  <span>TCJSGame v4 · Created by Owolabi Kehinde</span>
+  <span style="font-family:'Space Mono',monospace;font-size:11px;">v4.0 · 2026</span>
+</footer>
+</body>
+</html>
+

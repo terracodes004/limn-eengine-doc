@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Limn Engine — 10x</title>
+<link rel="stylesheet" href="style.css">
+<script src="head.js"></script>
+</head>
+<body>
+
+<nav>
+  <ul>
+    <li title="Home"><a href="index.html">🏠</a></li>
+    <li title="Tutorial"><a href="tutorial.html">📚</a></li>
+    <li title="Reference"><a href="reference.html">🗒</a></li>
+    <li title="Download"><a href="download.html">⬇</a></li>
+    <button id="clickkk" onclick="
+      var a=document.querySelector('aside');
+      a.style.display=a.style.display=='block'?'none':'block';
+    " style="background:rgb(0,3,33);text-align:right;">🍔</button>
+  </ul>
+</nav>
+
+<aside>
+  <ul>
+    <li><a href="#1">Dual-canvas with perform()</a></li>
+    <li><a href="#2">The fake canvas explained</a></li>
+    <li><a href="#3">Syncing fake & display cameras</a></li>
+    <li><a href="#4">deltaTime-based movement</a></li>
+    <li><a href="#5">clearMargin optimisation</a></li>
+    <li><a href="#6">Custom particle system from scratch</a></li>
+    <li><a href="#7">Extending the engine</a></li>
+    <li><a href="#8">SoundManager</a></li>
+    <li><a href="#9">AnimatedSprite advanced</a></li>
+    <li><a href="#10">Performance checklist</a></li>
+    <li><a href="#11">Open-world demo</a></li>
+    <li><a href="#12">Quick reference</a></li>
+  </ul>
+</aside>
+
+<main>
+
+  <fieldset id="1" style="display:block">
+    <legend><h2 style="display:inline-block;">Dual-Canvas with perform()</h2></legend>
+    <article>
+      <blockquote>
+        <p>Call <code>display.perform()</code> before <code>display.start()</code> to activate Limn's dual-canvas pipeline — the single biggest performance upgrade available.</p>
+        <details>
+          <summary>see more...</summary>
+          <pre><code>const display = new Display();
+
+// MUST come before start()
+display.perform();
+
+display.start(800, 600);
+display.backgroundColor("#111");
+
+// Static objects go on the fake (offscreen) canvas
+const bg = new Component(800, 600, "#222", 0, 0, "rect");
+fake.add(bg);  // ← fake canvas, not display
+
+// Dynamic objects go on the main display as usual
+const player = new Component(40, 40, "blue", 400, 300, "rect");
+display.add(player);
+
+function update() {
+    if (display.keys[39]) player.speedX =  4;
+    if (display.keys[37]) player.speedX = -4;
+    else player.speedX = 0;
+}</code></pre>
+          <p>✅ The fake canvas is drawn once (or when explicitly refreshed) and composited onto the main canvas each frame. Static objects cost almost zero render time. Dynamic objects render normally on top.</p>
+          <p><mark><u><b>NOTE: </b>perform() must be called <b>before</b> start(). Calling it after has no effect.</u></mark></p>
+          <table>
+            <tbody>
+              <tr><th>Method</th><th>Purpose</th></tr>
+              <tr><td><b>display.perform()</b></td><td>Activate dual-canvas pipeline</td></tr>
+              <tr><td><b>fake.add(obj)</b></td><td>Add a static object to the offscreen canvas</td></tr>
+            </tbody>
+          </table>
+        </details>
+      </blockquote>
+    </article>
+  </fieldset>
+
+  <fieldset id="2" style="display:block">
+    <legend><h2 style="display:inline-block;">The fake Canvas Explained</h2></legend>
+    <article>
+      <blockquote>
+        <p><code>fake</code> is a second Display instance created by <code>perform()</code>. It has its own canvas, camera, tile system, and component list — but it renders offscreen and gets pasted onto the main canvas each frame.</p>
+        <details>
+          <summary>see more...</summary>
+          <pre><code>// fake is a full Display — you can use all the same APIs
+fake.tile = [
+    new Component(64, 64, "green",  0, 0),
+    new Component(64, 64, "#555",   0, 0),
+];
+fake.map = [
+    [1,1,2,1,1],
+    [2,1,1,2,1],
+];
+fake.tileMap();
+fake.tileFace.show(); // draws into the offscreen buffer
+
+// You can also add regular components
+const stars = new Component(800, 600, "#000011", 0, 0, "rect");
+fake.add(stars);
+
+// The main canvas gets the fake canvas drawn on it every frame
+// Main canvas then draws dynamic objects on top</code></pre>
+          <p>✅ Think of <code>fake</code> as the background layer. Anything that doesn't move or rarely changes belongs on fake. Anything that moves every frame (player, enemies, bullets, particles) goes on display.</p>
+          <table>
+            <tbody>
+              <tr><th>fake property</th><th>Equivalent on display</th></tr>
+              <tr><td>fake.add(obj)</td><td>display.add(obj)</td></tr>
+              <tr><td>fake.camera</td><td>display.camera</td></tr>
+              <tr><td>fake.tile / fake.map</td><td>display.tile / display.map</td></tr>
+              <tr><td>fake.tileMap()</td><td>display.tileMap()</td></tr>
+            </tbody>
+          </table>
+        </details>
+      </blockquote>
+    </article>
+  </fieldset>
+
+  <fieldset id="3" style="display:block">
+    <legend><h2 style="display:inline-block;">Syncing fake &amp; display cameras</h2></legend>
+    <article>
+      <blockquote>
+        <p>In perform mode both canvases have separate cameras. You must sync them manually so the background stays aligned with the foreground when scrolling.</p>
+        <details>
+          <summary>see more...</summary>
+          <pre><code>function update() {
+    // Main camera follows player
+    display.camera.follow(player, true);
+
+    // Sync fake camera to match
+    fake.camera.x = display.camera.x;
+    fake.camera.y = display.camera.y;
+
+    // If shaking, shake both
+    if (hit) {
+        display.camera.shake(8, 6);
+        fake.camera.shake(-8, -6); // opposite for realism
+    }
+}</code></pre>
+          <p>✅ Without syncing, the foreground (player, enemies) moves with the camera but the background (tiles, stars) stays frozen at the origin — a very obvious bug. Always sync both cameras in update().</p>
+          <p><mark><u><b>NOTE: </b>Sync fake.camera <b>after</b> you call display.camera.follow() so you copy the already-updated values.</u></mark></p>
+        </details>
+      </blockquote>
+    </article>
+  </fieldset>
+
+  <fieldset id="4" style="display:block">
+    <legend><h2 style="display:inline-block;">deltaTime-based Movement</h2></legend>
+    <article>
+      <blockquote>
+        <p>Use <code>display.deltaTime</code> to make movement frame-rate independent. Your game runs at the same speed on 30fps and 60fps machines.</p>
+        <details>
+          <summary>see more...</summary>
+          <pre><code>// Limn passes deltaTime to update()
+function update(dt) {
+    const SPEED = 250; // pixels per second (not per frame)
+
+    if (display.keys[39]) player.speedX =  SPEED * dt;
+    else if (display.keys[37]) player.speedX = -SPEED * dt;
+    else player.speedX = 0;
+
+    if (display.keys[40]) player.speedY =  SPEED * dt;
+    else if (display.keys[38]) player.speedY = -SPEED * dt;
+    else player.speedY = 0;
+}
+
+// Without deltaTime (frame-dependent — bad on slow machines):
+// player.speedX = 4; // moves 4px/frame = 240px/sec at 60fps BUT 120px/sec at 30fps
+
+// With deltaTime (frame-independent — always 250px/sec):
+// player.speedX = 250 * dt;</code></pre>
+          <p>✅ <code>dt</code> is approximately <code>1/fps</code>. At 60fps dt ≈ 0.0167. Speed × dt gives you pixels per second regardless of frame rate. Always define speeds in pixels-per-second when using deltaTime.</p>
+          <table>
+            <tbody>
+              <tr><th>Property</th><th>Value at 60fps</th><th>Value at 30fps</th></tr>
+              <tr><td><b>display.deltaTime</b></td><td>~0.0167</td><td>~0.033</td></tr>
+              <tr><td><b>250 * dt</b></td><td>~4.17 px/frame</td><td>~8.33 px/frame</td></tr>
+              <tr><td><b>Result</b></td><td>250 px/sec ✅</td><td>250 px/sec ✅</td></tr>
+            </tbody>
+          </table>
+        </details>
+      </blockquote>
+    </article>
+  </fieldset>
+
+  <fieldset id="5" style="display:block">
+    <legend><h2 style="display:inline-block;">clearMargin Optimisation</h2></legend>
+    <article>
+      <blockquote>
+        <p><code>display.clearMargin</code> tells the engine how large an area to clear each frame. Setting it correctly avoids clearing unnecessary canvas space.</p>
+        <details>
+          <summary>see more...</summary>
+          <pre><code>const display = new Display();
+display.start(800, 600);
+
+// Default: clears width² × height² (very large — safe but slow for huge worlds)
+// For a standard game, the canvas size is enough:
+display.clearMargin = [800, 600]; // [width, height]
+
+// For scrolling worlds larger than the canvas:
+display.clearMargin = [2000, 2000]; // match your world size
+
+// The engine uses this inside clear():
+// ctx.clearRect(0, 0, clearMargin[0], clearMargin[1])</code></pre>
+          <p>✅ The default is <code>[width², height²]</code> which is intentionally large to handle zoomed/rotated canvases. For most games you can set it to the canvas size or world size to improve performance.</p>
+          <table>
+            <tbody>
+              <tr><th>Value</th><th>Use case</th></tr>
+              <tr><td><b>[800, 600]</b></td><td>Fixed-camera game, no zoom</td></tr>
+              <tr><td><b>[worldW, worldH]</b></td><td>Scrolling world</td></tr>
+              <tr><td><b>[w², h²]</b></td><td>Default — safe for any rotation/zoom</td></tr>
+            </tbody>
+          </table>
+        </details>
+      </blockquote>
+    </article>
+  </fieldset>
+
+  <fieldset id="6" style="display:block">
+    <legend><h2 style="display:inline-block;">Custom Particle System from Scratch</h2></legend>
+    <article>
+      <blockquote>
+        <p>You understand the built-in ParticleSystem — now build a specialised one. The engine is open: draw directly on the context for maximum control.</p>
+        <details>
+          <summary>see more...</summary>
+          <pre><code>// Custom lightweight particle pool
+class TrailSystem {
+    constructor() {
+        this.pool = [];
+    }
+    emit(x, y, color) {
+        this.pool.push({ x, y, color, alpha: 1, size: 6 });
+    }
+    update(ctx) {
+        for (let i = this.pool.length - 1; i >= 0; i--) {
+            const p = this.pool[i];
+            p.alpha -= 0.04;
+            p.size  -= 0.15;
+            if (p.alpha <= 0 || p.size <= 0) {
+                this.pool.splice(i, 1);
+                continue;
+            }
+            ctx.save();
+            ctx.globalAlpha = p.alpha;
+            ctx.fillStyle = p.color;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+        }
+    }
+}
+
+const trail = new TrailSystem();
+
+function update() {
+    trail.emit(player.x + 20, player.y + 20, "#7fffb2");
+    trail.update(display.context);
+}</code></pre>
+          <p>✅ Drawing directly with <code>display.context</code> inside update() gives you pixel-level control. This pattern is faster than adding hundreds of Components to the comm[] array.</p>
+        </details>
+      </blockquote>
+    </article>
+  </fieldset>
+
+  <fieldset id="7" style="display:block">
+    <legend><h2 style="display:inline-block;">Extending the Engine</h2></legend>
+    <article>
+      <blockquote>
+        <p>Limn is open JavaScript — you can patch any class, add methods to Component, or hook into the game loop with no build tools needed.</p>
+        <details>
+          <summary>see more...</summary>
+          <pre><code>// Add a health system to Component
+Component.prototype.setHealth = function(max) {
+    this.hp    = max;
+    this.maxHp = max;
+};
+Component.prototype.damage = function(amount) {
+    this.hp = Math.max(0, this.hp - amount);
+    return this.hp <= 0; // returns true if dead
+};
+Component.prototype.drawHealthBar = function(ctx) {
+    const pct = this.hp / this.maxHp;
+    ctx.fillStyle = "#333";
+    ctx.fillRect(this.x, this.y - 10, this.width, 6);
+    ctx.fillStyle = pct > 0.5 ? "lime" : pct > 0.25 ? "orange" : "red";
+    ctx.fillRect(this.x, this.y - 10, this.width * pct, 6);
+};
+
+// Usage
+player.setHealth(100);
+enemy.setHealth(50);
+
+function update() {
+    if (player.crashWith(enemy)) {
+        const dead = enemy.damage(10);
+        if (dead) enemy.hide();
+    }
+    player.drawHealthBar(display.context);
+    enemy.drawHealthBar(display.context);
+}</code></pre>
+          <p>✅ Prototype extension is the cleanest way to add features without modifying epic.js itself. Your extensions survive engine updates.</p>
+        </details>
+      </blockquote>
+    </article>
+  </fieldset>
+
+  <fieldset id="8" style="display:block">
+    <legend><h2 style="display:inline-block;">SoundManager</h2></legend>
+    <article>
+      <blockquote>
+        <p>SoundManager gives you named sounds, music control, master volume, SFX volume, muting — a complete audio pipeline.</p>
+        <details>
+          <summary>see more...</summary>
+          <pre><code>// Create and attach globally
+window.soundManager = new SoundManager();
+
+// Load sounds by name
+soundManager.load("jump",   "audio/jump.wav");
+soundManager.load("hit",    "audio/hit.wav");
+soundManager.load("music_bg","audio/background.mp3", { loop: true });
+
+// Set volumes (0.0 – 1.0)
+soundManager.masterVolume = 0.8;
+soundManager.sfxVolume    = 1.0;
+soundManager.musicVolume  = 0.5;
+
+// Play background music
+soundManager.playMusic("music_bg");
+
+// Play SFX
+function update() {
+    if (display.keys[32] && player.gravitySpeed >= 0) {
+        soundManager.play("jump");
+        player.gravitySpeed = -10;
+    }
+    if (player.crashWith(enemy)) {
+        soundManager.play("hit");
+    }
+}
+
+// Mute toggle
+window.addEventListener("keydown", e => {
+    if (e.key === "m") soundManager.mute();
+    if (e.key === "u") soundManager.unmute();
+});
+
+// Also available via move.sound.*
+move.sound.playMusic("music_bg");
+move.sound.setMasterVolume(0.5);</code></pre>
+          <p>✅ Sounds prefixed with <code>music_</code> automatically use musicVolume. Others use sfxVolume. Both are scaled by masterVolume.</p>
+          <table>
+            <tbody>
+              <tr><th>Method</th><th>Purpose</th></tr>
+              <tr><td><b>soundManager.load(name,src)</b></td><td>Preload a sound by name</td></tr>
+              <tr><td><b>soundManager.play(name)</b></td><td>Play a sound effect</td></tr>
+              <tr><td><b>soundManager.playMusic(name)</b></td><td>Start looping background music</td></tr>
+              <tr><td><b>soundManager.stopMusic()</b></td><td>Stop current music</td></tr>
+              <tr><td><b>soundManager.mute() / unmute()</b></td><td>Toggle all audio</td></tr>
+            </tbody>
+          </table>
+        </details>
+      </blockquote>
+    </article>
+  </fieldset>
+
+  <fieldset id="9" style="display:block">
+    <legend><h2 style="display:inline-block;">AnimatedSprite Advanced</h2></legend>
+    <article>
+      <blockquote>
+        <p>AnimatedSprite extends Sprite with named animation clips, one-shot animations, and frame-range control per state.</p>
+        <details>
+          <summary>see more...</summary>
+          <pre><code>const hero = new AnimatedSprite("hero_sheet.png", 64, 64, 200, 300);
+
+// addAnimation(name, startFrame, endFrame, speed, loop)
+hero.addAnimation("idle",   0,  3,  10, true);   // loops
+hero.addAnimation("run",    4, 11,   5, true);   // loops
+hero.addAnimation("jump",  12, 15,   4, false);  // plays once
+hero.addAnimation("attack",16, 19,   3, false);  // plays once
+hero.addAnimation("die",   20, 27,   6, false);  // plays once
+display.add(hero);
+
+let attacking = false;
+
+function update() {
+    if (display.keys[39]) {
+        player.speedX = 4;
+        hero.playAnimation("run");
+    } else {
+        player.speedX = 0;
+        hero.playAnimation("idle");
+    }
+    if (display.keys[90] && !attacking) { // Z to attack
+        hero.playAnimation("attack");
+        attacking = true;
+        setTimeout(() => attacking = false, 300);
+    }
+    // updateAnimation() drives the frame counter
+    hero.updateAnimation();
+}</code></pre>
+          <p>✅ <code>loop: false</code> animations hold on their last frame and set <code>paused = true</code>. Check <code>hero.paused</code> to know when a one-shot animation finishes.</p>
+        </details>
+      </blockquote>
+    </article>
+  </fieldset>
+
+  <fieldset id="10" style="display:block">
+    <legend><h2 style="display:inline-block;">Performance Checklist</h2></legend>
+    <article>
+      <blockquote>
+        <p>Everything a 10x developer checks before shipping a Limn game.</p>
+        <details>
+          <summary>see more...</summary>
+          <table>
+            <tbody>
+              <tr><th>Check</th><th>Why it matters</th></tr>
+              <tr><td>✅ Use display.perform()</td><td>Static tiles cost almost nothing to render</td></tr>
+              <tr><td>✅ Static objects on fake, dynamic on display</td><td>Prevents unnecessary redraws</td></tr>
+              <tr><td>✅ Sync fake.camera in update()</td><td>Background stays aligned with foreground</td></tr>
+              <tr><td>✅ Use deltaTime for speeds</td><td>Consistent behaviour across frame rates</td></tr>
+              <tr><td>✅ Set display.clearMargin correctly</td><td>Don't clear more than you need</td></tr>
+              <tr><td>✅ Call ps.update() every frame</td><td>Dead particles are removed, preventing memory growth</td></tr>
+              <tr><td>✅ hide() off-screen objects</td><td>Skips draw calls for invisible components</td></tr>
+              <tr><td>✅ Use scenes for menus/game-over</td><td>No need to create/destroy objects on state change</td></tr>
+              <tr><td>✅ Preload images at startup</td><td>Avoids mid-game stutter on first draw</td></tr>
+              <tr><td>✅ soundManager for all audio</td><td>Volume control, no duplicate Audio objects</td></tr>
+            </tbody>
+          </table>
+        </details>
+      </blockquote>
+    </article>
+  </fieldset>
+
+  <fieldset id="11" style="display:block">
+    <legend><h2 style="display:inline-block;">Open-World Demo</h2></legend>
+    <article>
+      <blockquote>
+        <p>A full 10x-level example combining perform(), fake canvas tilemap, camera sync, deltaTime movement, and HUD anchoring.</p>
+        <details>
+          <summary>see more...</summary>
+          <pre><code>&lt;script src="epic.js"&gt;&lt;/script&gt;
+&lt;script&gt;
+const display = new Display();
+display.perform();           // dual-canvas ON
+display.start(800, 600);
+display.backgroundColor("#0a0a0a");
+display.camera.worldWidth  = 2000;
+display.camera.worldHeight = 2000;
+display.clearMargin = [2000, 2000];
+fake.mapWidth= 2000
+fake.mapHeight = 2000
+fake.canvas.width = 2000
+fake.canvas.height =2000
+TCJSgameGameArea.width = 2000
+TCJSgameGameArea.height =2000
+// ── FAKE CANVAS — static world ──
+fake.tile = [
+    new Component(64, 64, "#1a3a1a", 0, 0), // grass
+    new Component(64, 64, "#2244aa", 0, 0), // water
+    new Component(64, 64, "#555",    0, 0), // stone
+];
+fake.map = [
+    [1,1,1,2,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,1,1,2,2,1,1,1,1,3,3,3,1,1,1,1,1,1,1,3,3,3,1,1,1,1,1,1,1,1],
+    [1,1,1,2,2,2,2,2,1,3,3,3,1,1,1,1,1,1,1,3,3,3,1,1,1,1,1,1,1,1],
+    [1,1,1,1,1,2,2,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+];
+fake.tileMap();
+fake.tileFace.show();
+
+// ── DISPLAY CANVAS — dynamic objects ──
+const player = new Component(36, 36, "blue", 400, 200, "rect");
+display.add(player);
+
+const hud = new Tctxt("16px","Arial","white",12,20,"left",false,"alphabetic","rgba(0,0,0,0.6)",8,4);
+hud.setText("WASD to move");
+display.add(hud);
+
+const ps = new ParticleSystem(display);
+
+const SPEED = 220;
+
+function update(dt) {
+    ps.update();
+
+    // deltaTime movement
+    player.speedX = 0; player.speedY = 0;
+    if (display.keys[87]) player.speedY = -SPEED * dt;
+    if (display.keys[83]) player.speedY =  SPEED * dt;
+    if (display.keys[65]) player.speedX = -SPEED * dt;
+    if (display.keys[68]) player.speedX =  SPEED * dt;
+
+    // Trail
+    move.particles.sparkle(ps, player.x+18, player.y+18);
+
+    // Camera
+    display.camera.follow(player);
+    fake.camera.x = display.camera.x;  // sync!
+    fake.camera.y = display.camera.y;
+
+    // HUD stays fixed
+    hud.setText("X:" + Math.floor(player.x) + " Y:" + Math.floor(player.y));
+    hud.fixed();
+}
+&lt;/script&gt;</code></pre>
+          <p>✅ WASD to move around a 2000×2000 tiled world. Sparkle trail follows the player. HUD shows live position. Camera clamps to world bounds automatically.</p>
+        </details>
+      </blockquote>
+    </article>
+  </fieldset>
+
+  <fieldset id="12" style="display:block">
+    <legend><h2 style="display:inline-block;">Quick Reference</h2></legend>
+    <article>
+      <blockquote>
+        <details>
+          <summary>see more...</summary>
+          <table>
+            <tbody>
+              <tr><th>Feature</th><th>How to use</th></tr>
+              <tr><td><b>perform()</b></td><td>display.perform() — before start()</td></tr>
+              <tr><td><b>fake canvas</b></td><td>fake.add(obj); fake.tileMap(); fake.tileFace.show()</td></tr>
+              <tr><td><b>Camera sync</b></td><td>fake.camera.x = display.camera.x (in update)</td></tr>
+              <tr><td><b>deltaTime</b></td><td>function update(dt) { speed = 250 * dt; }</td></tr>
+              <tr><td><b>clearMargin</b></td><td>display.clearMargin = [w, h]</td></tr>
+              <tr><td><b>Extend engine</b></td><td>Component.prototype.myMethod = function() {}</td></tr>
+              <tr><td><b>SoundManager</b></td><td>window.soundManager = new SoundManager()</td></tr>
+              <tr><td><b>AnimatedSprite</b></td><td>hero.addAnimation(name, s, e, speed, loop)</td></tr>
+              <tr><td><b>Custom particles</b></td><td>Draw direct on display.context in update()</td></tr>
+              <tr><td><b>hide()</b></td><td>obj.hide() — skips draw, obj.show() — restores</td></tr>
+            </tbody>
+          </table>
+        </details>
+      </blockquote>
+    </article>
+  </fieldset>
+
+</main>
+<footer class="footer">
+  <span class="footer-logo"><img id="fl" src="img/logo.png"></span>
+  <span>TCJSGame v4 · Created by Owolabi Kehinde</span>
+  <span style="font-family:'Space Mono',monospace;font-size:11px;">v4.0 · 2026</span>
+</footer>
+</body>
+</html>

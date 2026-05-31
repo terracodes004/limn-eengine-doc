@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Limn Engine — Intermediate</title>
+<link rel="stylesheet" href="style.css">
+<script src="head.js"></script>
+</head>
+<body>
+
+<nav>
+  <ul>
+    <li title="Home"><a href="index.html">🏠</a></li>
+    <li title="Tutorial"><a href="tutorial.html">📚</a></li>
+    <li title="Reference"><a href="reference.html">🗒</a></li>
+    <li title="Download"><a href="download.html">⬇</a></li>
+    <button id="clickkk" onclick="
+      var a=document.querySelector('aside');
+      a.style.display=a.style.display=='block'?'none':'block';
+    " style="background:rgb(0,3,33);text-align:right;">🍔</button>
+  </ul>
+</nav>
+
+<aside>
+  <ul>
+    <li><a href="#1">Physics & gravity</a></li>
+    <li><a href="#2">hitBottom() and bounce</a></li>
+    <li><a href="#3">move.glideX / glideY / glideTo</a></li>
+    <li><a href="#4">move.project (projectile motion)</a></li>
+    <li><a href="#5">Camera follow & smooth follow</a></li>
+    <li><a href="#6">Camera zoom with setZoom()</a></li>
+    <li><a href="#7">Sprite animation</a></li>
+    <li><a href="#8">TileMap basics</a></li>
+    <li><a href="#9">Tctxt – styled text UI</a></li>
+    <li><a href="#10">move.accelerate & decelerate</a></li>
+    <li><a href="#11">Platform game tutorial</a></li>
+    <li><a href="#12">Quick reference</a></li>
+  </ul>
+</aside>
+
+<main>
+
+  <fieldset id="1" style="display:block">
+    <legend><h2 style="display:inline-block;">Physics &amp; Gravity</h2></legend>
+    <article>
+      <blockquote>
+        <p>Enable physics on any Component to give it gravity. The engine applies it every frame automatically.</p>
+        <details>
+          <summary>see more...</summary>
+          <pre><code>const player = new Component(50, 50, "blue", 100, 100, "rect");
+display.add(player);
+
+player.physics = true;   // turn on gravity
+player.gravity  = 0.4;   // downward pull per frame
+player.bounce   = 0.3;   // energy kept on bounce (0–1)
+
+function update() {
+    player.hitBottom(); // stops the player at the canvas floor
+}</code></pre>
+          <p>✅ What happens: every frame the engine adds <code>gravity</code> to an internal <code>gravitySpeed</code> value and applies it to <code>speedY</code>. <code>hitBottom()</code> clamps the player at the bottom edge and bounces them.</p>
+          <p><mark><u><b>NOTE: </b>you must call <b>player.hitBottom()</b> inside update() or the player will fall off screen forever.</u></mark></p>
+          <table>
+            <tbody>
+              <tr><th>Property</th><th>Purpose</th><th>Default</th></tr>
+              <tr><td><b>physics</b></td><td>Enables gravity-based movement</td><td>false</td></tr>
+              <tr><td><b>gravity</b></td><td>Downward acceleration per frame</td><td>0</td></tr>
+              <tr><td><b>gravitySpeed</b></td><td>Accumulated vertical speed from gravity</td><td>0</td></tr>
+              <tr><td><b>bounce</b></td><td>Energy kept on impact (0 = no bounce, 1 = full)</td><td>0.6</td></tr>
+            </tbody>
+          </table>
+        </details>
+      </blockquote>
+    </article>
+  </fieldset>
+
+  <fieldset id="2" style="display:block">
+    <legend><h2 style="display:inline-block;">hitBottom() and bounce</h2></legend>
+    <article>
+      <blockquote>
+        <p>hitBottom() keeps a Component from falling through the floor of the canvas and bounces it based on the bounce value.</p>
+        <details>
+          <summary>see more...</summary>
+          <pre><code>const ball = new Component(30, 30, "red", 200, 0, "rect");
+display.add(ball);
+ball.physics = true;
+ball.gravity = 0.5;
+ball.bounce  = 0.7; // bouncy ball
+
+function update() {
+    ball.hitBottom();
+}</code></pre>
+          <p>✅ The ball falls, hits the canvas floor, and bounces. Each bounce is 70% of the previous height. Set <code>bounce = 0</code> for a dead stop.</p>
+          <p><mark><u><b>NOTE: </b>hitBottom() uses the <b>display canvas height</b> as the floor. If you need custom floors use <code>move.hitObject()</code>.</u></mark></p>
+          <table>
+            <tbody>
+              <tr><th>Method</th><th>Purpose</th><th>Parameters</th></tr>
+              <tr><td><b>hitBottom()</b></td><td>Clamps to canvas floor and bounces</td><td>None</td></tr>
+              <tr><td><b>move.hitObject(id, other)</b></td><td>Treats another Component as a floor</td><td>Component, floor Component</td></tr>
+            </tbody>
+          </table>
+        </details>
+      </blockquote>
+    </article>
+  </fieldset>
+
+  <fieldset id="3" style="display:block">
+    <legend><h2 style="display:inline-block;">move.glideX / glideY / glideTo</h2></legend>
+    <article>
+      <blockquote>
+        <p>Smoothly ease a Component to a target position over a set duration using cubic ease-out. No manual lerp needed.</p>
+        <details>
+          <summary>see more...</summary>
+          <pre><code>const box = new Component(50, 50, "green", 0, 200, "rect");
+display.add(box);
+
+// On keypress, glide to x=700 over 2 seconds
+window.addEventListener("keydown", () => {
+    move.glideX(box, 2000, 700);   // id, duration (ms), target x
+    move.glideY(box, 2000, 400);   // id, duration (ms), target y
+
+    // Or both axes at once:
+    move.glideTo(box, 2000, 700, 400); // id, ms, x, y
+});</code></pre>
+          <p>✅ The Component eases smoothly using cubic ease-out — fast at the start, slowing as it approaches the target. Perfect for UI animations, cutscenes, and enemy patterns.</p>
+          <table>
+            <tbody>
+              <tr><th>Method</th><th>Purpose</th><th>Parameters</th></tr>
+              <tr><td><b>move.glideX()</b></td><td>Ease to target X over duration</td><td>id, duration ms, target x</td></tr>
+              <tr><td><b>move.glideY()</b></td><td>Ease to target Y over duration</td><td>id, duration ms, target y</td></tr>
+              <tr><td><b>move.glideTo()</b></td><td>Ease both axes simultaneously</td><td>id, duration ms, x, y</td></tr>
+            </tbody>
+          </table>
+        </details>
+      </blockquote>
+    </article>
+  </fieldset>
+
+  <fieldset id="4" style="display:block">
+    <legend><h2 style="display:inline-block;">move.project – Projectile Motion</h2></legend>
+    <article>
+      <blockquote>
+        <p>Launch a Component as a real physics projectile — give it an angle and velocity and the engine handles the arc.</p>
+        <details>
+          <summary>see more...</summary>
+          <pre><code>const ball = new Component(20, 20, "orange", 100, 500, "rect");
+display.add(ball);
+
+window.addEventListener("dblclick", () => {
+    // move.project(id, velocity, angle°, gravity, ground)
+    move.project(ball, 10, 45, 0.3);
+    // Launches at 45° upward with gravity pulling it down
+    // Bounces on the canvas floor automatically
+});</code></pre>
+          <p>✅ The angle is in degrees. 0° goes right, 90° goes straight up. Gravity is how fast it pulls down each frame. The ball bounces on the floor using the Component's bounce value.</p>
+          <p><mark><u><b>NOTE: </b>You can pass a custom ground height as the 5th parameter e.g. <b>move.project(ball, 10, 45, 0.3, 400)</b></u></mark></p>
+          <table>
+            <tbody>
+              <tr><th>Parameter</th><th>Purpose</th><th>Example</th></tr>
+              <tr><td><b>velocity</b></td><td>Launch speed</td><td>10</td></tr>
+              <tr><td><b>angle</b></td><td>Launch direction in degrees</td><td>45</td></tr>
+              <tr><td><b>gravity</b></td><td>Downward pull per frame</td><td>0.3</td></tr>
+              <tr><td><b>ground</b></td><td>Y position of floor (optional)</td><td>display.canvas.height</td></tr>
+            </tbody>
+          </table>
+        </details>
+      </blockquote>
+    </article>
+  </fieldset>
+
+  <fieldset id="5" style="display:block">
+    <legend><h2 style="display:inline-block;">Camera Follow &amp; Smooth Follow</h2></legend>
+    <article>
+      <blockquote>
+        <p>The camera can lock onto any Component and follow it — either instantly or with smooth lerped movement.</p>
+        <details>
+          <summary>see more...</summary>
+          <pre><code>const player = new Component(40, 40, "blue", 400, 300, "rect");
+display.add(player);
+
+function update() {
+    // Move player with keys
+    if (display.keys[39]) player.speedX =  4;
+    if (display.keys[37]) player.speedX = -4;
+    if (display.keys[40]) player.speedY =  4;
+    if (display.keys[38]) player.speedY = -4;
+
+    // Instant camera lock
+    display.camera.follow(player);
+
+    // Smooth follow (recommended)
+    display.camera.follow(player, true);
+}</code></pre>
+          <p>✅ With smooth follow the camera eases behind the player using lerp — it feels natural and professional. Without it the camera snaps to the player exactly each frame.</p>
+          <p><mark><u><b>NOTE: </b>Set <b>display.camera.worldWidth</b> and <b>worldHeight</b> to prevent the camera going beyond your world boundaries.</u></mark></p>
+          <table>
+            <tbody>
+              <tr><th>Method / Property</th><th>Purpose</th><th>Default</th></tr>
+              <tr><td><b>camera.follow(target, smooth)</b></td><td>Follow a Component</td><td>smooth = false</td></tr>
+              <tr><td><b>camera.worldWidth</b></td><td>Max world width for clamping</td><td>1000</td></tr>
+              <tr><td><b>camera.worldHeight</b></td><td>Max world height for clamping</td><td>1000</td></tr>
+            </tbody>
+          </table>
+        </details>
+      </blockquote>
+    </article>
+  </fieldset>
+
+  <fieldset id="6" style="display:block">
+    <legend><h2 style="display:inline-block;">Camera Zoom with setZoom()</h2></legend>
+    <article>
+      <blockquote>
+        <p>Scale the entire canvas view in or out. Call it every frame inside update() to maintain the zoom level.</p>
+        <details>
+          <summary>see more...</summary>
+          <pre><code>function update() {
+    display.camera.follow(player, true);
+
+    // Zoom in to 150%
+    display.camera.setZoom(1.5);
+
+    // Zoom out to 80%
+    display.camera.setZoom(0.8);
+
+    // Normal (no zoom)
+    display.camera.setZoom(1.0);
+}</code></pre>
+          <p>✅ Values above 1 zoom in, values below 1 zoom out. Call it every frame — if you stop calling it the zoom resets. Great for menus, cutscenes, or dramatic moments.</p>
+          <table>
+            <tbody>
+              <tr><th>Method</th><th>Purpose</th><th>Parameter</th></tr>
+              <tr><td><b>camera.setZoom(amount)</b></td><td>Scale the canvas view</td><td>number (1.0 = normal)</td></tr>
+            </tbody>
+          </table>
+        </details>
+      </blockquote>
+    </article>
+  </fieldset>
+
+  <fieldset id="7" style="display:block">
+    <legend><h2 style="display:inline-block;">Sprite Animation</h2></legend>
+    <article>
+      <blockquote>
+        <p>The Sprite class animates a spritesheet — all frames in one horizontal image. Use AnimatedSprite for named animation states like "run", "jump", "idle".</p>
+        <details>
+          <summary>see more...</summary>
+          <pre><code>// Basic Sprite
+// Sprite(imageSrc, frameWidth, frameHeight, frameCount, frameSpeed, x, y)
+const hero = new Sprite("hero.png", 64, 64, 8, 6, 100, 200);
+display.add(hero);
+
+function update() {
+    hero.update(); // advance the animation
+}
+
+// ── Named animations with AnimatedSprite ──
+const fighter = new AnimatedSprite("fighter.png", 64, 64, 200, 300);
+fighter.addAnimation("idle",  0, 3,  8, true);
+fighter.addAnimation("run",   4, 11, 5, true);
+fighter.addAnimation("jump", 12, 15, 4, false);
+display.add(fighter);
+
+function update() {
+    if (display.keys[39]) fighter.playAnimation("run");
+    else                   fighter.playAnimation("idle");
+    fighter.updateAnimation();
+}</code></pre>
+          <p>✅ <code>addAnimation(name, startFrame, endFrame, speed, loop)</code> defines a named clip. <code>playAnimation(name)</code> switches to it without restarting if it's already playing.</p>
+          <table>
+            <tbody>
+              <tr><th>Method</th><th>Purpose</th><th>Parameters</th></tr>
+              <tr><td><b>addAnimation()</b></td><td>Define a named frame range</td><td>name, start, end, speed, loop</td></tr>
+              <tr><td><b>playAnimation()</b></td><td>Switch to a named animation</td><td>name</td></tr>
+              <tr><td><b>updateAnimation()</b></td><td>Advance the animation — call in update()</td><td>None</td></tr>
+            </tbody>
+          </table>
+        </details>
+      </blockquote>
+    </article>
+  </fieldset>
+
+  <fieldset id="8" style="display:block">
+    <legend><h2 style="display:inline-block;">TileMap Basics</h2></legend>
+    <article>
+      <blockquote>
+        <p>Build grid-based levels with a 2D number array and tile Component templates. 0 means empty, 1+ means a tile type.</p>
+        <details>
+          <summary>see more...</summary>
+          <pre><code>const display = new Display();
+display.start(800, 600);
+
+// Define tile templates (index 0 = tile type 1, index 1 = tile type 2)
+display.tile = [
+    new Component(64, 64, "green",  0, 0), // grass
+    new Component(64, 64, "#8B4513", 0, 0), // dirt
+];
+
+// 0 = empty, 1 = grass, 2 = dirt
+display.map = [
+    [0, 0, 1, 1, 1, 0],
+    [1, 1, 1, 2, 1, 1],
+    [2, 2, 2, 2, 2, 2],
+];
+
+display.tileMap();        // build the map
+display.tileFace.show();  // render it
+
+// Collision with tiles
+function update() {
+    if (display.tileFace.crashWith(player)) {
+        // player hit a tile
+    }
+}</code></pre>
+          <p>✅ Each number in the map array corresponds to a tile template at that index (minus 1). The engine places them at the correct grid positions automatically.</p>
+          <p><mark><u><b>NOTE: </b>Tile types start at <b>1</b> in the map array but at <b>index 0</b> in the tile array.</u></mark></p>
+          <table>
+            <tbody>
+              <tr><th>Property / Method</th><th>Purpose</th></tr>
+              <tr><td><b>display.map</b></td><td>2D array defining the level layout</td></tr>
+              <tr><td><b>display.mapWidth</b></td><td>Width of the Tilemap</td></tr>
+              <tr><td><b>display.mapHeight</b></td><td>Height of the Tilemap</td></tr>
+              <tr><td><b>display.tile</b></td><td>Array of Component tile templates</td></tr>
+              <tr><td><b>display.tileMap()</b></td><td>Build the TileMap from map + tile</td></tr>
+              <tr><td><b>display.tileFace.show()</b></td><td>Render all tiles</td></tr>
+              <tr><td><b>display.tileFace.crashWith(obj)</b></td><td>Collision check against all tiles</td></tr>
+            </tbody>
+          </table>
+        </details>
+      </blockquote>
+    </article>
+  </fieldset>
+
+  <fieldset id="9" style="display:block">
+    <legend><h2 style="display:inline-block;">Tctxt – Styled Text UI</h2></legend>
+    <article>
+      <blockquote>
+        <p>Tctxt is an upgraded text Component with background fill, padding, alignment, and baseline control — perfect for score displays, dialogue boxes, and HUDs.</p>
+        <details>
+          <summary>see more...</summary>
+          <pre><code>// Tctxt(size, font, color, x, y, align, stroke, baseline, background, padX, padY)
+const scoreText = new Tctxt(
+    "24px", "Arial", "white",
+    20, 40,
+    "left", false, "alphabetic",
+    "rgba(0,0,0,0.6)", 12, 6
+);
+scoreText.setText("Score: 0");
+display.add(scoreText);
+
+let score = 0;
+function update() {
+    score++;
+    scoreText.setText("Score: " + score);
+
+    // Keep text fixed on screen even when camera moves
+    scoreText.fixed();
+}</code></pre>
+          <p>✅ <code>setText()</code> updates the displayed string each frame. <code>fixed()</code> keeps the text locked to the screen regardless of camera position — essential for HUD elements.</p>
+          <table>
+            <tbody>
+              <tr><th>Parameter</th><th>Purpose</th><th>Example</th></tr>
+              <tr><td><b>size</b></td><td>Font size</td><td>"24px"</td></tr>
+              <tr><td><b>font</b></td><td>Font family</td><td>"Arial"</td></tr>
+              <tr><td><b>align</b></td><td>Text alignment</td><td>"left" / "center" / "right"</td></tr>
+              <tr><td><b>background</b></td><td>Background fill colour</td><td>"rgba(0,0,0,0.6)"</td></tr>
+              <tr><td><b>padX / padY</b></td><td>Horizontal/vertical padding</td><td>12, 6</td></tr>
+            </tbody>
+          </table>
+        </details>
+      </blockquote>
+    </article>
+  </fieldset>
+
+  <fieldset id="10" style="display:block">
+    <legend><h2 style="display:inline-block;">move.accelerate &amp; decelerate</h2></legend>
+    <article>
+      <blockquote>
+        <p>Add acceleration to a Component's speed and decelerate it smoothly back to zero — great for vehicle-style or slippery movement.</p>
+        <details>
+          <summary>see more...</summary>
+          <pre><code>const car = new Component(60, 30, "yellow", 100, 300, "rect");
+display.add(car);
+
+function update() {
+    if (display.keys[39]) {
+        // accelerate right, max speed 8
+        move.accelerate(car, 0.5, 0, 8, 0);
+    } else {
+        // decelerate when key is released
+        move.decelerate(car, 0.3, 0);
+    }
+    move.bound(car);
+}</code></pre>
+          <p>✅ <code>accelerate()</code> adds to the current speed each frame, clamped to a max. <code>decelerate()</code> subtracts from speed without overshooting zero — the Component glides to a stop naturally.</p>
+          <table>
+            <tbody>
+              <tr><th>Method</th><th>Parameters</th><th>Purpose</th></tr>
+              <tr><td><b>move.accelerate()</b></td><td>id, accelX, accelY, maxX, maxY</td><td>Add acceleration up to max speed</td></tr>
+              <tr><td><b>move.decelerate()</b></td><td>id, decelX, decelY</td><td>Reduce speed toward zero smoothly</td></tr>
+            </tbody>
+          </table>
+        </details>
+      </blockquote>
+    </article>
+  </fieldset>
+
+  <fieldset id="11" style="display:block">
+    <legend><h2 style="display:inline-block;">Platform Game Tutorial</h2></legend>
+    <article>
+      <blockquote>
+        <p>Put everything together — physics, jumping, camera follow, and a tilemap floor.</p>
+        <details>
+          <summary>see more...</summary>
+          <pre><code>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;&lt;title&gt;Platform Game&lt;/title&gt;&lt;/head&gt;
+&lt;body&gt;
+&lt;script src="epic.js"&gt;&lt;/script&gt;
+&lt;script&gt;
+const display = new Display();
+display.start(800, 400);
+display.backgroundColor("#1a1a2e");
+
+const player = new Component(36, 48, "blue", 100, 100, "rect");
+player.physics = true;
+player.gravity  = 0.5;
+player.bounce   = 0.05;
+display.add(player);
+
+const floor = new Component(800, 20, "#555", 0, 380, "rect");
+display.add(floor);
+
+const scoreText = new Tctxt("20px","Arial","white",12,30,"left",false,"alphabetic","rgba(0,0,0,0.5)",10,4);
+scoreText.setText("Score: 0");
+display.add(scoreText);
+
+let score = 0;
+
+function update() {
+    // Movement
+    if (display.keys[39] || display.keys[68]) move.accelerate(player, 0.6, 0, 6, 0);
+    else if (display.keys[37] || display.keys[65]) move.accelerate(player, -0.6, 0, 6, 0);
+    else move.decelerate(player, 0.4, 0);
+
+    // Jump
+    if ((display.keys[38] || display.keys[87]) && player.gravitySpeed >= 0) {
+        player.gravitySpeed = -10;
+    }
+
+    player.hitBottom();
+    move.hitObject(player, floor);
+    move.bound(player);
+    display.camera.follow(player, true);
+
+    score++;
+    scoreText.setText("Score: " + Math.floor(score/60));
+    scoreText.fixed();
+}
+&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+          <p>✅ Arrow keys or WASD to move. Up/W to jump. The camera follows the player. Score counts up every second.</p>
+        </details>
+      </blockquote>
+    </article>
+  </fieldset>
+
+  <fieldset id="12" style="display:block">
+    <legend><h2 style="display:inline-block;">Quick Reference</h2></legend>
+    <article>
+      <blockquote>
+        <p>Everything covered at intermediate level in one table.</p>
+        <details>
+          <summary>see more...</summary>
+          <table>
+            <tbody>
+              <tr><th>Feature</th><th>How to use</th></tr>
+              <tr><td><b>Physics</b></td><td>player.physics=true; player.gravity=0.4;</td></tr>
+              <tr><td><b>Bounce</b></td><td>player.bounce=0.6; player.hitBottom();</td></tr>
+              <tr><td><b>Glide</b></td><td>move.glideTo(obj, ms, x, y)</td></tr>
+              <tr><td><b>Projectile</b></td><td>move.project(obj, speed, angle, gravity)</td></tr>
+              <tr><td><b>Camera</b></td><td>display.camera.follow(player, true)</td></tr>
+              <tr><td><b>Zoom</b></td><td>display.camera.setZoom(1.5) — call every frame</td></tr>
+              <tr><td><b>Sprite</b></td><td>new Sprite(src, fw, fh, count, speed, x, y)</td></tr>
+              <tr><td><b>TileMap</b></td><td>display.map=[...]; display.tileMap(); display.tileFace.show()</td></tr>
+              <tr><td><b>Tctxt</b></td><td>new Tctxt(size, font, color, x, y, ...)</td></tr>
+              <tr><td><b>Accelerate</b></td><td>move.accelerate(obj, ax, ay, maxX, maxY)</td></tr>
+              <tr><td><b>Decelerate</b></td><td>move.decelerate(obj, dx, dy)</td></tr>
+            </tbody>
+          </table>
+        </details>
+      </blockquote>
+    </article>
+  </fieldset>
+
+</main>
+<footer class="footer">
+  <span class="footer-logo"><img id="fl" src="img/logo.png"></span>
+  <span>TCJSGame v4 · Created by Owolabi Kehinde</span>
+  <span style="font-family:'Space Mono',monospace;font-size:11px;">v4.0 · 2026</span>
+</footer>
+</body>
+</html>

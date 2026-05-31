@@ -1,0 +1,1072 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Limn Engine — Documentation</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --surface2: #18181f;
+    --border: #2a2a38;
+    --accent: #7fffb2;
+    --accent2: #5b8cff;
+    --accent3: #ff6b6b;
+    --text: #e8e8f0;
+    --muted: #6b6b80;
+    --code-bg: #0d0d14;
+    --tag: #1a1a28;
+
+    /* Level colors */
+    --lv1: #7fffb2;   /* green  – Beginner */
+    --lv2: #5b8cff;   /* blue   – Intermediate */
+    --lv3: #ffbb6b;   /* amber  – Advanced */
+    --lv4: #ff6b6b;   /* red    – 10x */
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    font-size: 16px;
+    line-height: 1.7;
+    min-height: 100vh;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.4;
+  }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    position: fixed;
+    left: 0; top: 0; bottom: 0;
+    width: 268px;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    overflow-y: auto;
+    z-index: 100;
+    padding: 0 0 40px;
+  }
+  .sidebar::-webkit-scrollbar { width: 4px; }
+  .sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  .logo { padding: 28px 24px 20px; border-bottom: 1px solid var(--border); margin-bottom: 16px; }
+  .logo-name {
+    font-size: 22px; font-weight: 800; letter-spacing: -0.5px;
+    color: var(--accent); display: flex; align-items: center; gap: 10px;
+  }
+  .logo-name::before { content: '◈'; font-size: 18px; animation: spin 8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .logo-sub { font-size: 11px; color: var(--muted); font-family: 'Space Mono', monospace; letter-spacing: 1px; margin-top: 4px; text-transform: uppercase; }
+
+  .nav-section { padding: 0 16px; margin-bottom: 6px; }
+  .nav-section-title { font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); padding: 8px 8px 4px; font-family: 'Space Mono', monospace; }
+  .nav-link { display: block; padding: 7px 10px; border-radius: 6px; color: #9090a8; text-decoration: none; font-size: 13.5px; font-weight: 500; transition: all .15s; border: 1px solid transparent; }
+  .nav-link:hover { color: var(--accent); background: rgba(127,255,178,.05); border-color: rgba(127,255,178,.12); }
+  .nav-link.active { color: var(--accent); background: rgba(127,255,178,.08); border-color: rgba(127,255,178,.2); }
+  .nav-link .icon { font-size: 12px; margin-right: 6px; opacity: .7; }
+
+  /* level pills in nav */
+  .nav-lvl { display: inline-flex; align-items: center; gap: 3px; margin-left: 4px; font-size: 10px; font-family: 'Space Mono', monospace; padding: 1px 6px; border-radius: 100px; vertical-align: middle; }
+  .nav-lvl.lv1 { background: rgba(127,255,178,.12); color: var(--lv1); }
+  .nav-lvl.lv2 { background: rgba(91,140,255,.12);  color: var(--lv2); }
+  .nav-lvl.lv3 { background: rgba(255,187,107,.12); color: var(--lv3); }
+  .nav-lvl.lv4 { background: rgba(255,107,107,.12); color: var(--lv4); }
+
+  /* ── MAIN ── */
+  .main { margin-left: 268px; min-height: 100vh; }
+
+  /* ── HERO ── */
+  .hero {
+    padding: 80px 80px 60px;
+    border-bottom: 1px solid var(--border);
+    background: radial-gradient(ellipse 80% 60% at 60% -20%, rgba(127,255,178,.06) 0%, transparent 60%);
+    position: relative; overflow: hidden;
+  }
+  .hero::after { content: 'LIMN'; position: absolute; right: -20px; top: 10px; font-size: 160px; font-weight: 800; color: rgba(127,255,178,.03); letter-spacing: -8px; pointer-events: none; user-select: none; }
+  .hero-badge { display: inline-flex; align-items: center; gap: 6px; background: rgba(91,140,255,.1); border: 1px solid rgba(91,140,255,.3); color: var(--accent2); font-size: 11px; font-family: 'Space Mono', monospace; padding: 4px 12px; border-radius: 100px; margin-bottom: 20px; letter-spacing: .5px; }
+  .hero-badge::before { content: '◉'; font-size: 8px; }
+  .hero h1 { font-size: 56px; font-weight: 800; letter-spacing: -2px; line-height: 1.05; margin-bottom: 18px; background: linear-gradient(135deg, var(--text) 40%, var(--accent) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+  .hero-desc { font-size: 17px; color: var(--muted); max-width: 560px; line-height: 1.7; margin-bottom: 32px; }
+  .hero-chips { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 32px; }
+  .chip { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; font-size: 12.5px; font-family: 'Space Mono', monospace; color: #b0b0c8; }
+  .chip-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+  .chip-dot.blue { background: var(--accent2); }
+  .chip-dot.red  { background: var(--accent3); }
+
+  /* ── LEVEL LEGEND ── */
+  .level-legend {
+    display: flex; flex-wrap: wrap; gap: 12px;
+    padding: 20px 28px; background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+  }
+  .level-legend-item { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+  .level-orb { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .level-orb.lv1 { background: var(--lv1); box-shadow: 0 0 8px var(--lv1); }
+  .level-orb.lv2 { background: var(--lv2); box-shadow: 0 0 8px var(--lv2); }
+  .level-orb.lv3 { background: var(--lv3); box-shadow: 0 0 8px var(--lv3); }
+  .level-orb.lv4 { background: var(--lv4); box-shadow: 0 0 8px var(--lv4); }
+  .level-legend-item strong { font-weight: 700; }
+  .level-legend-item span { color: var(--muted); font-size: 12px; }
+
+  /* ── CONTENT ── */
+  .content { padding: 60px 80px; }
+  .section { margin-bottom: 80px; scroll-margin-top: 30px; }
+  .section-label { font-family: 'Space Mono', monospace; font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: var(--accent); margin-bottom: 10px; }
+  .section h2 { font-size: 32px; font-weight: 800; letter-spacing: -1px; color: var(--text); margin-bottom: 16px; }
+  .section > p { color: #9898b0; font-size: 15.5px; max-width: 680px; margin-bottom: 14px; }
+  hr.divider { border: none; border-top: 1px solid var(--border); margin: 48px 0; }
+
+  /* ── SKILL LEVELS GRID ── */
+  .levels-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 20px; margin-top: 28px; }
+  .level-card {
+    border-radius: 14px; padding: 28px 24px; position: relative; overflow: hidden;
+    border: 1px solid;
+  }
+  .level-card.lv1 { background: rgba(127,255,178,.04); border-color: rgba(127,255,178,.2); }
+  .level-card.lv2 { background: rgba(91,140,255,.04);  border-color: rgba(91,140,255,.2); }
+  .level-card.lv3 { background: rgba(255,187,107,.04); border-color: rgba(255,187,107,.2); }
+  .level-card.lv4 { background: rgba(255,107,107,.05); border-color: rgba(255,107,107,.25); }
+  .level-card::after { content: attr(data-num); position: absolute; right: -10px; bottom: -20px; font-size: 100px; font-weight: 800; opacity: .04; letter-spacing: -4px; pointer-events: none; }
+  .level-num { font-family: 'Space Mono', monospace; font-size: 11px; font-weight: 700; letter-spacing: 2px; margin-bottom: 10px; text-transform: uppercase; }
+  .lv1 .level-num { color: var(--lv1); }
+  .lv2 .level-num { color: var(--lv2); }
+  .lv3 .level-num { color: var(--lv3); }
+  .lv4 .level-num { color: var(--lv4); }
+  .level-card h3 { font-size: 20px; font-weight: 800; margin-bottom: 10px; letter-spacing: -.5px; }
+  .lv1 h3 { color: var(--lv1); }
+  .lv2 h3 { color: var(--lv2); }
+  .lv3 h3 { color: var(--lv3); }
+  .lv4 h3 { color: var(--lv4); }
+  .level-card p { font-size: 13.5px; color: #8888a0; line-height: 1.65; margin-bottom: 16px; }
+  .level-skills { list-style: none; display: flex; flex-direction: column; gap: 5px; }
+  .level-skills li { font-size: 12.5px; color: #9898b0; display: flex; align-items: center; gap: 7px; }
+  .level-skills li::before { content: '→'; font-family: 'Space Mono', monospace; font-size: 11px; }
+  .lv1 .level-skills li::before { color: var(--lv1); }
+  .lv2 .level-skills li::before { color: var(--lv2); }
+  .lv3 .level-skills li::before { color: var(--lv3); }
+  .lv4 .level-skills li::before { color: var(--lv4); }
+
+  /* ── EXAMPLES TABS ── */
+  .example-tabs { display: flex; gap: 6px; margin-bottom: 0; flex-wrap: wrap; }
+  .ex-tab {
+    padding: 8px 18px; border-radius: 8px 8px 0 0; font-size: 13px; font-weight: 600;
+    cursor: pointer; border: 1px solid transparent; border-bottom: none;
+    font-family: 'Space Mono', monospace; letter-spacing: .5px; transition: all .15s;
+    background: var(--surface2); color: var(--muted);
+  }
+  .ex-tab.lv1.active, .ex-tab.lv1:hover { background: rgba(127,255,178,.1); border-color: rgba(127,255,178,.25); color: var(--lv1); }
+  .ex-tab.lv2.active, .ex-tab.lv2:hover { background: rgba(91,140,255,.1);  border-color: rgba(91,140,255,.25);  color: var(--lv2); }
+  .ex-tab.lv3.active, .ex-tab.lv3:hover { background: rgba(255,187,107,.1); border-color: rgba(255,187,107,.25); color: var(--lv3); }
+  .ex-tab.lv4.active, .ex-tab.lv4:hover { background: rgba(255,107,107,.1); border-color: rgba(255,107,107,.25); color: var(--lv4); }
+  .ex-pane { display: none; }
+  .ex-pane.active { display: block; }
+  .ex-panel-wrap { border: 1px solid var(--border); border-radius: 0 10px 10px 10px; overflow: hidden; }
+
+  /* ── LEVEL BADGE on methods ── */
+  .lvl-badge {
+    display: inline-flex; align-items: center; gap: 3px;
+    font-family: 'Space Mono', monospace; font-size: 9.5px; font-weight: 700;
+    padding: 2px 7px; border-radius: 100px; white-space: nowrap; flex-shrink: 0;
+  }
+  .lvl-badge.lv1 { background: rgba(127,255,178,.12); color: var(--lv1); border: 1px solid rgba(127,255,178,.25); }
+  .lvl-badge.lv2 { background: rgba(91,140,255,.12);  color: var(--lv2); border: 1px solid rgba(91,140,255,.25); }
+  .lvl-badge.lv3 { background: rgba(255,187,107,.12); color: var(--lv3); border: 1px solid rgba(255,187,107,.25); }
+  .lvl-badge.lv4 { background: rgba(255,107,107,.12); color: var(--lv4); border: 1px solid rgba(255,107,107,.25); }
+
+  /* ── API CARDS ── */
+  .api-grid { display: flex; flex-direction: column; gap: 20px; margin-top: 28px; }
+  .api-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; transition: border-color .2s; }
+  .api-card:hover { border-color: rgba(127,255,178,.2); }
+  .api-card-header { display: flex; align-items: center; justify-content: space-between; padding: 18px 24px; border-bottom: 1px solid var(--border); background: var(--surface2); gap: 12px; }
+  .api-class-name { font-family: 'Space Mono', monospace; font-size: 15px; font-weight: 700; color: var(--accent); }
+  .api-tag { display: inline-block; padding: 2px 10px; background: var(--tag); border: 1px solid var(--border); border-radius: 4px; font-family: 'Space Mono', monospace; font-size: 11px; color: var(--accent2); }
+  .api-card-body { padding: 0; }
+
+  .method-row { border-bottom: 1px solid var(--border); display: grid; grid-template-columns: 260px 1fr auto; align-items: start; padding: 13px 24px; gap: 14px; transition: background .15s; }
+  .method-row:last-child { border-bottom: none; }
+  .method-row:hover { background: rgba(255,255,255,.02); }
+  .method-sig { font-family: 'Space Mono', monospace; font-size: 12px; color: #c8c8e0; word-break: break-word; }
+  .method-sig .method-name { color: var(--accent2); }
+  .method-sig .param { color: #ffbb6b; }
+  .method-desc { font-size: 13px; color: #8888a0; padding-top: 1px; }
+  .method-return { font-family: 'Space Mono', monospace; font-size: 10px; color: var(--muted); white-space: nowrap; padding-top: 3px; }
+
+  /* ── CODE BLOCKS ── */
+  .code-block { background: var(--code-bg); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; margin: 20px 0; }
+  .code-header { display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; border-bottom: 1px solid var(--border); background: var(--surface2); }
+  .code-lang { font-family: 'Space Mono', monospace; font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 1.5px; }
+  .code-dots { display: flex; gap: 5px; }
+  .code-dots span { width: 8px; height: 8px; border-radius: 50%; }
+  .code-dots span:nth-child(1) { background: #ff5f57; }
+  .code-dots span:nth-child(2) { background: #febc2e; }
+  .code-dots span:nth-child(3) { background: #28c840; }
+  pre { padding: 20px 24px; overflow-x: auto; font-family: 'Space Mono', monospace; font-size: 12.5px; line-height: 1.8; color: #b8b8d8; }
+  pre::-webkit-scrollbar { height: 4px; }
+  pre::-webkit-scrollbar-thumb { background: var(--border); }
+  .kw { color: #ff6b8a; } .str { color: #7fffb2; } .num { color: #ffbb6b; }
+  .fn { color: #5b8cff; } .cm { color: #4a4a60; font-style: italic; }
+  .cls { color: #ff9d5b; } .prop { color: #c8c8e0; }
+
+  /* ── CALLOUTS ── */
+  .callout { display: flex; gap: 14px; padding: 16px 20px; border-radius: 8px; margin: 16px 0; border: 1px solid; font-size: 14px; }
+  .callout-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+  .callout.info  { background: rgba(91,140,255,.07);  border-color: rgba(91,140,255,.25);  color: #9ab4ff; }
+  .callout.warn  { background: rgba(255,187,107,.07); border-color: rgba(255,187,107,.25); color: #ffd494; }
+  .callout.tip   { background: rgba(127,255,178,.06); border-color: rgba(127,255,178,.2);  color: #9dffcc; }
+
+  /* ── PROP TABLE ── */
+  .prop-table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 13px; }
+  .prop-table th { text-align: left; padding: 10px 16px; font-family: 'Space Mono', monospace; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); border-bottom: 1px solid var(--border); }
+  .prop-table td { padding: 11px 16px; border-bottom: 1px solid rgba(42,42,56,.6); vertical-align: top; }
+  .prop-table tr:last-child td { border-bottom: none; }
+  .prop-table tr:hover td { background: rgba(255,255,255,.015); }
+  .prop-table code { font-family: 'Space Mono', monospace; font-size: 12px; color: var(--accent2); background: var(--tag); padding: 2px 6px; border-radius: 3px; }
+  .type-badge { font-family: 'Space Mono', monospace; font-size: 10.5px; color: #ffbb6b; }
+
+  /* ── MIGRATION TABLE ── */
+  .migration-table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 13px; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+  .migration-table th { padding: 12px 18px; text-align: left; background: var(--surface2); border-bottom: 1px solid var(--border); font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); font-family: 'Space Mono', monospace; }
+  .migration-table td { padding: 12px 18px; border-bottom: 1px solid rgba(42,42,56,.5); font-family: 'Space Mono', monospace; font-size: 12px; }
+  .migration-table tr:last-child td { border-bottom: none; }
+  .migration-table .v3 { color: var(--accent3); }
+  .migration-table .v4 { color: var(--accent); }
+  .migration-table .note { font-family: 'Syne', sans-serif; color: var(--muted); font-size: 12.5px; }
+
+  /* ── WHAT'S NEW CARDS ── */
+  .feature-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 16px; margin-top: 24px; }
+  .feature-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 22px; transition: all .2s; }
+  .feature-card:hover { border-color: rgba(127,255,178,.25); transform: translateY(-2px); }
+  .feature-card-icon { font-size: 24px; margin-bottom: 12px; }
+  .feature-card h4 { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 8px; letter-spacing: -.3px; }
+  .feature-card p { font-size: 13px; color: var(--muted); line-height: 1.6; }
+
+  /* ── PARTICLES ── */
+  .effect-chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0; }
+  .effect-chip { padding: 5px 14px; background: var(--surface2); border: 1px solid var(--border); border-radius: 100px; font-family: 'Space Mono', monospace; font-size: 12px; color: var(--accent); }
+
+  /* ── INLINE CODE ── */
+  inline-code { font-family: 'Space Mono', monospace; font-size: 12.5px; color: var(--accent2); background: var(--tag); padding: 2px 7px; border-radius: 4px; }
+
+  /* ── FOOTER ── */
+  .footer { border-top: 1px solid var(--border); padding: 30px 80px; display: flex; align-items: center; justify-content: space-between; color: var(--muted); font-size: 13px; margin-left: 268px; }
+  .footer-logo { font-weight: 700; color: var(--accent); font-size: 15px; }
+
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  @media (max-width: 900px) {
+    .sidebar { display: none; }
+    .main { margin-left: 0; }
+    .hero, .content { padding: 40px 24px; }
+    .footer { margin-left: 0; padding: 24px; flex-direction: column; gap: 10px; }
+  }
+
+  .sub-heading { font-size: 18px; font-weight: 700; letter-spacing: -.3px; margin: 30px 0 12px; }
+  .section-divider { border: none; border-top: 1px dashed var(--border); margin: 28px 0; }
+  .muted-label { padding: 14px 24px; border-bottom: 1px solid var(--border); font-size: 12px; color: var(--muted); background: rgba(0,0,0,.15); }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="logo">
+    <div class="logo-name">Limn Engine</div>
+    <div class="logo-sub">v4.0 · TCJSGame successor</div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-title">Overview</div>
+    <a href="#intro"    class="nav-link"><span class="icon">◈</span>Introduction</a>
+    <a href="#levels"   class="nav-link"><span class="icon">▲</span>Skill Levels</a>
+    <a href="#whatsnew" class="nav-link"><span class="icon">✦</span>What's New</a>
+    <a href="#setup"    class="nav-link"><span class="icon">⚡</span>Getting Started</a>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-title">API Reference</div>
+    <a href="#display"   class="nav-link"><span class="icon">▣</span>Display</a>
+    <a href="#component" class="nav-link"><span class="icon">◻</span>Component</a>
+    <a href="#camera"    class="nav-link"><span class="icon">◎</span>Camera</a>
+    <a href="#move"      class="nav-link"><span class="icon">➤</span>move utility</a>
+    <a href="#state"     class="nav-link"><span class="icon">◑</span>state utility</a>
+    <a href="#sound"     class="nav-link"><span class="icon">♪</span>Sound</a>
+    <a href="#sprite"    class="nav-link"><span class="icon">▦</span>Sprite</a>
+    <a href="#tilemap"   class="nav-link"><span class="icon">⊞</span>TileMap</a>
+    <a href="#tctxt"     class="nav-link"><span class="icon">T</span>Tctxt</a>
+    <a href="#particles" class="nav-link"><span class="icon">✦</span>Particles</a>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-title">Guides</div>
+    <a href="#examples"   class="nav-link"><span class="icon">⌘</span>Examples <span class="nav-lvl lv1">L1</span><span class="nav-lvl lv2">L2</span><span class="nav-lvl lv3">L3</span><span class="nav-lvl lv4">L4</span></a>
+    <a href="#migration"  class="nav-link"><span class="icon">↗</span>Migration from v3</a>
+  </div>
+
+  <!-- mini level legend -->
+  <div style="margin: 20px 16px 0; padding: 14px; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px;">
+    <div style="font-family:'Space Mono',monospace;font-size:10px;letter-spacing:1.5px;color:var(--muted);margin-bottom:10px;text-transform:uppercase;">Skill Levels</div>
+    <div style="display:flex;flex-direction:column;gap:7px;">
+      <div style="display:flex;align-items:center;gap:8px;font-size:12px;"><span style="width:8px;height:8px;border-radius:50%;background:var(--lv1);box-shadow:0 0 6px var(--lv1);flex-shrink:0"></span><strong style="color:var(--lv1)">Level 1</strong><span style="color:var(--muted)">Beginner</span></div>
+      <div style="display:flex;align-items:center;gap:8px;font-size:12px;"><span style="width:8px;height:8px;border-radius:50%;background:var(--lv2);box-shadow:0 0 6px var(--lv2);flex-shrink:0"></span><strong style="color:var(--lv2)">Level 2</strong><span style="color:var(--muted)">Intermediate</span></div>
+      <div style="display:flex;align-items:center;gap:8px;font-size:12px;"><span style="width:8px;height:8px;border-radius:50%;background:var(--lv3);box-shadow:0 0 6px var(--lv3);flex-shrink:0"></span><strong style="color:var(--lv3)">Level 3</strong><span style="color:var(--muted)">Advanced</span></div>
+      <div style="display:flex;align-items:center;gap:8px;font-size:12px;"><span style="width:8px;height:8px;border-radius:50%;background:var(--lv4);box-shadow:0 0 6px var(--lv4);flex-shrink:0"></span><strong style="color:var(--lv4)">Level 4</strong><span style="color:var(--muted)">10x</span></div>
+    </div>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-badge">TCJSGame v4 · Codename: Limn Engine</div>
+    <h1>Limn Engine</h1>
+    <p class="hero-desc">A powerful, beginner-friendly JavaScript 2D game engine for the browser. Built on HTML5 Canvas with a component-based architecture, physics, particles, tilemap support, and a dual-canvas rendering pipeline.</p>
+    <div class="hero-chips">
+      <span class="chip"><span class="chip-dot"></span>Dual-Canvas Renderer</span>
+      <span class="chip"><span class="chip-dot blue"></span>Particle System</span>
+      <span class="chip"><span class="chip-dot red"></span>Scene Management</span>
+      <span class="chip"><span class="chip-dot"></span>Circle Collision</span>
+      <span class="chip"><span class="chip-dot blue"></span>Camera Shake</span>
+      <span class="chip"><span class="chip-dot red"></span>TileMaps</span>
+    </div>
+  </div>
+
+  <!-- LEVEL LEGEND BAR -->
+  <div class="level-legend">
+    <div class="level-legend-item"><span class="level-orb lv1"></span><strong style="color:var(--lv1)">Level 1</strong> <span>Beginner — first-time game devs</span></div>
+    <div class="level-legend-item"><span class="level-orb lv2"></span><strong style="color:var(--lv2)">Level 2</strong> <span>Intermediate — comfortable with JS</span></div>
+    <div class="level-legend-item"><span class="level-orb lv3"></span><strong style="color:var(--lv3)">Level 3</strong> <span>Advanced — architecture & systems</span></div>
+    <div class="level-legend-item"><span class="level-orb lv4"></span><strong style="color:var(--lv4)">Level 4</strong> <span>10x — engine internals & optimization</span></div>
+  </div>
+
+  <div class="content">
+
+    <!-- INTRO -->
+    <section class="section" id="intro">
+      <div class="section-label">// 01 · introduction</div>
+      <h2>What is Limn Engine?</h2>
+      <p>Limn Engine is the fourth generation of the TCJSGame project, originally created by Owolabi Kehinde. Starting as JGame in 2023, evolving through TCGame and TCJSGame, Limn Engine represents a complete architectural upgrade — bringing a dual-canvas rendering pipeline, a full particle system, circle collision, scene management, and much more.</p>
+      <p>It stays true to its roots: no build tools, no complex setup. Just a single <inline-code>.js</inline-code> file and your creativity.</p>
+      <div class="callout tip">
+        <span class="callout-icon">💡</span>
+        <span>Limn Engine scales with you. Start at <strong style="color:var(--lv1)">Level 1</strong> drawing shapes and reading keys, and grow all the way to <strong style="color:var(--lv4)">Level 4</strong> where you're customising the dual-canvas pipeline and squeezing maximum fps.</span>
+      </div>
+    </section>
+
+    <hr class="divider">
+
+    <!-- SKILL LEVELS -->
+    <section class="section" id="levels">
+      <div class="section-label">// 02 · skill levels</div>
+      <h2>Skill Levels</h2>
+      <p>Limn Engine is structured into four progressive skill levels. Every section in these docs is tagged so you always know what you're ready for.</p>
+
+      <div class="levels-grid">
+
+        <!-- LV1 -->
+        <div class="level-card lv1" data-num="1">
+          <div class="level-num">Level 1</div>
+          <h3>Beginner</h3>
+          <p>You're writing your first game. You know basic JavaScript — variables, functions, if-statements. Limn Engine gives you instant visual results without boilerplate.</p>
+          <ul class="level-skills">
+            <li>Create a Display and start it</li>
+            <li>Draw shapes with Component</li>
+            <li>Read keyboard &amp; mouse input</li>
+            <li>Move things with speedX / speedY</li>
+            <li>Detect collisions with crashWith()</li>
+            <li>Play sounds with Sound</li>
+          </ul>
+        </div>
+
+        <!-- LV2 -->
+        <div class="level-card lv2" data-num="2">
+          <div class="level-num">Level 2</div>
+          <h3>Intermediate</h3>
+          <p>You've built a game or two. You're comfortable with objects and loops. Now you'll add polish — physics, animations, gliding, and camera work.</p>
+          <ul class="level-skills">
+            <li>Enable physics &amp; gravity</li>
+            <li>Use move.glide* &amp; move.project</li>
+            <li>Follow a target with Camera</li>
+            <li>Animate sprites with Sprite</li>
+            <li>Build levels with TileMap</li>
+            <li>Use Tctxt for styled text UI</li>
+          </ul>
+        </div>
+
+        <!-- LV3 -->
+        <div class="level-card lv3" data-num="3">
+          <div class="level-num">Level 3</div>
+          <h3>Advanced</h3>
+          <p>You're building complete games with multiple systems. You understand architecture and want your game to feel polished and responsive.</p>
+          <ul class="level-skills">
+            <li>Scene management for levels</li>
+            <li>Particle systems &amp; emitters</li>
+            <li>Circle collision detection</li>
+            <li>Camera shake &amp; zoom</li>
+            <li>Accelerate / decelerate patterns</li>
+            <li>Dynamic tilemap editing at runtime</li>
+          </ul>
+        </div>
+
+        <!-- LV4 -->
+        <div class="level-card lv4" data-num="4">
+          <div class="level-num">Level 4</div>
+          <h3>10x</h3>
+          <p>You understand the engine's internals. You're optimising render loops, compositing canvases, batching draws, and pushing browser limits.</p>
+          <ul class="level-skills">
+            <li>Dual-canvas pipeline (perform mode)</li>
+            <li>Offscreen fake canvas buffer</li>
+            <li>deltaTime-based movement</li>
+            <li>requestAnimationFrame mastery</li>
+            <li>Custom particle systems from scratch</li>
+            <li>Engine extension &amp; patching</li>
+          </ul>
+        </div>
+
+      </div>
+    </section>
+
+    <hr class="divider">
+
+    <!-- WHAT'S NEW -->
+    <section class="section" id="whatsnew">
+      <div class="section-label">// 03 · changelog</div>
+      <h2>What's New in Limn Engine</h2>
+      <p>Everything that makes Limn Engine a leap over TCJSGame v3:</p>
+      <div class="feature-grid">
+        <div class="feature-card"><div class="feature-card-icon">⚡</div><h4>Dual-Canvas Renderer</h4><p>A hidden <inline-code>fake</inline-code> canvas handles static content. The main display composites it with dynamic objects — boosting performance via <inline-code>display.perform()</inline-code>.</p></div>
+        <div class="feature-card"><div class="feature-card-icon">✦</div><h4>Particle System</h4><p>Full <inline-code>ParticleSystem</inline-code> with emit, burst, and continuous emitters. Six built-in presets: explosion, smoke, sparkle, rain, blood, and magic.</p></div>
+        <div class="feature-card"><div class="feature-card-icon">◎</div><h4>Camera Shake</h4><p>Positional shake via <inline-code>camera.shake()</inline-code> and rotational shake via <inline-code>camera.shakeRotation()</inline-code>.</p></div>
+        <div class="feature-card"><div class="feature-card-icon">⊙</div><h4>Circle Collision</h4><p>Enable radius-based collision with <inline-code>enableCircleCollision()</inline-code> and detect via <inline-code>crashWithCircle()</inline-code>.</p></div>
+        <div class="feature-card"><div class="feature-card-icon">▣</div><h4>Scene Management</h4><p>Assign components to numbered scenes. Switch the active level instantly via <inline-code>display.scene</inline-code>.</p></div>
+        <div class="feature-card"><div class="feature-card-icon">T</div><h4>Tctxt — Rich Text</h4><p>Background fill, padding, alignment, stroke/fill mode, and baseline control — a major upgrade over basic text.</p></div>
+        <div class="feature-card"><div class="feature-card-icon">🎨</div><h4>Canvas Gradients</h4><p>Linear and radial gradient backgrounds via <inline-code>lgradient()</inline-code> and <inline-code>rgradient()</inline-code>.</p></div>
+        <div class="feature-card"><div class="feature-card-icon">⬛</div><h4>setImage / setColor</h4><p>Swap a component between image and color mode at runtime. Error-safe — falls back to red rect on broken images.</p></div>
+      </div>
+    </section>
+
+    <hr class="divider">
+
+    <!-- GETTING STARTED -->
+    <section class="section" id="setup">
+      <div class="section-label">// 04 · setup</div>
+      <h2>Getting Started</h2>
+      <p>Include <inline-code>limn-engine.js</inline-code>, create a <inline-code>Display</inline-code>, and define <inline-code>update()</inline-code> — that's it.</p>
+
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><span></span><span></span><span></span></div>
+          <div class="code-lang">HTML · Minimal Setup &nbsp;<span class="lvl-badge lv1">Level 1</span></div>
+        </div>
+        <pre><span class="kw">&lt;script</span> <span class="prop">src</span>=<span class="str">"limn-engine.js"</span><span class="kw">&gt;&lt;/script&gt;</span>
+<span class="kw">&lt;script&gt;</span>
+  <span class="kw">const</span> <span class="prop">display</span> = <span class="kw">new</span> <span class="cls">Display</span>();
+  <span class="prop">display</span>.<span class="fn">start</span>(<span class="num">800</span>, <span class="num">600</span>);
+
+  <span class="kw">const</span> <span class="prop">player</span> = <span class="kw">new</span> <span class="cls">Component</span>(<span class="num">40</span>, <span class="num">40</span>, <span class="str">"#7fffb2"</span>, <span class="num">100</span>, <span class="num">100</span>);
+  <span class="prop">display</span>.<span class="fn">add</span>(player);
+
+  <span class="kw">function</span> <span class="fn">update</span>() {
+    <span class="kw">if</span> (<span class="prop">display</span>.keys[<span class="num">39</span>]) player.speedX = <span class="num">3</span>;
+    <span class="kw">if</span> (<span class="prop">display</span>.keys[<span class="num">37</span>]) player.speedX = <span class="num">-3</span>;
+  }
+<span class="kw">&lt;/script&gt;</span></pre>
+      </div>
+
+      <div class="callout info">
+        <span class="callout-icon">ℹ️</span>
+        <span><strong style="color:var(--lv4)">Level 4 tip:</strong> For high object counts (tilemaps, particles), call <inline-code>display.perform()</inline-code> before <inline-code>display.start()</inline-code> to activate the dual-canvas pipeline.</span>
+      </div>
+    </section>
+
+    <hr class="divider">
+
+    <!-- DISPLAY API -->
+    <section class="section" id="display">
+      <div class="section-label">// 05 · api</div>
+      <h2>Display</h2>
+      <p>The core class. Creates the canvas, runs the game loop, handles input, and manages the camera and scenes.</p>
+      <div class="api-grid">
+        <div class="api-card">
+          <div class="api-card-header">
+            <span class="api-class-name">new Display()</span>
+            <span class="api-tag">class</span>
+          </div>
+          <div class="api-card-body">
+            <div class="muted-label">Constructor Properties</div>
+            <table class="prop-table">
+              <tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr>
+              <tr><td><code>canvas</code></td><td class="type-badge">HTMLCanvasElement</td><td>—</td><td>The game canvas</td></tr>
+              <tr><td><code>context</code></td><td class="type-badge">CanvasRenderingContext2D</td><td>—</td><td>2D drawing context</td></tr>
+              <tr><td><code>frameNo</code></td><td class="type-badge">number</td><td>0</td><td>Total frames elapsed</td></tr>
+              <tr><td><code>fps</code></td><td class="type-badge">number</td><td>0</td><td>Current frames per second</td></tr>
+              <tr><td><code>deltaTime</code></td><td class="type-badge">number</td><td>0</td><td>1/fps — for frame-rate-independent movement</td></tr>
+              <tr><td><code>keys</code></td><td class="type-badge">array</td><td>[]</td><td>Boolean array indexed by keyCode</td></tr>
+              <tr><td><code>x / y</code></td><td class="type-badge">number|false</td><td>false</td><td>Mouse/touch position while pressed</td></tr>
+              <tr><td><code>scene</code></td><td class="type-badge">number</td><td>0</td><td>Active scene — only components in this scene render</td></tr>
+              <tr><td><code>camera</code></td><td class="type-badge">Camera</td><td>new Camera()</td><td>Attached Camera instance</td></tr>
+            </table>
+            <div class="muted-label">Methods</div>
+            <div class="method-row"><div class="method-sig"><span class="fn method-name">start</span>(<span class="param">width</span>, <span class="param">height</span>, <span class="param">node?</span>)</div><div class="method-desc">Initialize canvas and start game loop.</div><div class="method-return"><span class="lvl-badge lv1">L1</span></div></div>
+            <div class="method-row"><div class="method-sig"><span class="fn method-name">add</span>(<span class="param">component</span>, <span class="param">scene?</span>)</div><div class="method-desc">Register a component for rendering. Default scene 0.</div><div class="method-return"><span class="lvl-badge lv1">L1</span></div></div>
+            <div class="method-row"><div class="method-sig"><span class="fn method-name">backgroundColor</span>(<span class="param">color</span>)</div><div class="method-desc">Set solid canvas background.</div><div class="method-return"><span class="lvl-badge lv1">L1</span></div></div>
+            <div class="method-row"><div class="method-sig"><span class="fn method-name">borderStyle</span> / <span class="fn method-name">borderSize</span> / <span class="fn method-name">borderColor</span>(<span class="param">val</span>)</div><div class="method-desc">Style the canvas border.</div><div class="method-return"><span class="lvl-badge lv1">L1</span></div></div>
+            <div class="method-row"><div class="method-sig"><span class="fn method-name">fullScreen</span>() / <span class="fn method-name">exitScreen</span>()</div><div class="method-desc">Enter or exit fullscreen mode.</div><div class="method-return"><span class="lvl-badge lv1">L1</span></div></div>
+            <div class="method-row"><div class="method-sig"><span class="fn method-name">stop</span>()</div><div class="method-desc">Stop the game loop.</div><div class="method-return"><span class="lvl-badge lv2">L2</span></div></div>
+            <div class="method-row"><div class="method-sig"><span class="fn method-name">scale</span>(<span class="param">width</span>, <span class="param">height</span>)</div><div class="method-desc">Resize canvas after start.</div><div class="method-return"><span class="lvl-badge lv2">L2</span></div></div>
+            <div class="method-row"><div class="method-sig"><span class="fn method-name">lgradient</span>(<span class="param">direction</span>, <span class="param">c1</span>, <span class="param">c2</span>)</div><div class="method-desc">Set a linear gradient background. e.g. direction <inline-code>"right"</inline-code>.</div><div class="method-return"><span class="lvl-badge lv2">L2</span></div></div>
+            <div class="method-row"><div class="method-sig"><span class="fn method-name">rgradient</span>(<span class="param">c1</span>, <span class="param">c2</span>)</div><div class="method-desc">Set a radial gradient background.</div><div class="method-return"><span class="lvl-badge lv2">L2</span></div></div>
+            <div class="method-row"><div class="method-sig"><span class="fn method-name">tileMap</span>()</div><div class="method-desc">Initialize TileMap from <inline-code>display.map</inline-code> and <inline-code>display.tile</inline-code>.</div><div class="method-return"><span class="lvl-badge lv2">L2</span></div></div>
+            <div class="method-row"><div class="method-sig"><span class="fn method-name">perform</span>()</div><div class="method-desc">Activate dual-canvas pipeline. Call before <inline-code>start()</inline-code>.</div><div class="method-return"><span class="lvl-badge lv4">L4</span></div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <hr class="divider">
+
+    <!-- COMPONENT API -->
+    <section class="section" id="component">
+      <div class="section-label">// 06 · api</div>
+      <h2>Component</h2>
+      <p>Every visible object in your game is a Component — player, wall, bullet, text, image.</p>
+      <div class="code-block">
+        <div class="code-header"><div class="code-dots"><span></span><span></span><span></span></div><div class="code-lang">Constructor &nbsp;<span class="lvl-badge lv1">Level 1</span></div></div>
+        <pre><span class="kw">new</span> <span class="cls">Component</span>(width, height, color, x, y, type)
+<span class="cm">// type: undefined (rect) | "image" | "text"</span></pre>
+      </div>
+      <div class="api-grid">
+        <div class="api-card">
+          <div class="api-card-header"><span class="api-class-name">Component</span><span class="api-tag">class</span></div>
+          <div class="api-card-body">
+            <table class="prop-table">
+              <tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr>
+              <tr><td><code>x / y</code></td><td class="type-badge">number</td><td>0</td><td>Position</td></tr>
+              <tr><td><code>width / height</code></td><td class="type-badge">number</td><td>0</td><td>Dimensions</td></tr>
+              <tr><td><code>speedX / speedY</code></td><td class="type-badge">number</td><td>0</td><td>Velocity per frame</td></tr>
+              <tr><td><code>gravity</code></td><td class="type-badge">number</td><td>0</td><td>Downward acceleration</td></tr>
+              <tr><td><code>bounce</code></td><td class="type-badge">number</td><td>0.6</td><td>Bounce energy (0–1)</td></tr>
+              <tr><td><code>angle</code></td><td class="type-badge">number</td><td>0</td><td>Rotation in radians</td></tr>
+              <tr><td><code>physics</code></td><td class="type-badge">boolean</td><td>false</td><td>Enable gravity in move()</td></tr>
+              <tr><td><code>changeAngle</code></td><td class="type-badge">boolean</td><td>true</td><td>Apply rotation transform on draw</td></tr>
+            </table>
+            <div class="muted-label">Methods</div>
+            <div class="method-row"><div class="method-sig"><span class="fn method-name">move</span>()</div><div class="method-desc">Apply velocity (and gravity if physics=true). Auto-called each frame.</div><div class="method-return"><span class="lvl-badge lv1">L1</span></div></div>
+            <div class="method-row"><div class="method-sig"><span class="fn method-name">update</span>(<span class="param">ctx?</span>)</div><div class="method-desc">Draw the component. Auto-called each frame.</div><div class="method-return"><span class="lvl-badge lv1">L1</span></div></div>
+            <div class="method-row"><div class="method-sig"><span class="fn method-name">stopMove</span>()</div><div class="method-desc">Set speedX and speedY to 0.</div><div class="method-return"><span class="lvl-badge lv1">L1</span></div></div>
+            <div class="method-row"><div class="method-sig"><span class="fn method-name">clicked</span>()</div><div class="method-desc">Returns true if currently clicked — rotation-aware.</div><div class="method-return"><span class="lvl-badge lv1">L1</span></div></div>
+            <div class="method-row"><div class="method-sig"><span class="fn method-name">crashWith</span>(<span class="param">other</span>)</div><div class="method-desc">AABB collision detection, rotation-aware.</div><div class="method-return"><span class="lvl-badge lv1">L1</span></div></div>
+            <div class="method-row"><div class="method-sig"><span class="fn method-name">hitBottom</span>()</div><div class="method-desc">Clamp to canvas bottom and bounce. Call in update().</div><div class="method-return"><span class="lvl-badge lv2">L2</span></div></div>
+            <div class="method-row"><div class="method-sig"><span class="fn method-name">setImage</span>(<span class="param">src</span>)</div><div class="method-desc">Switch to image mode. Falls back to red rect on error.</div><div class="method-return"><span class="lvl-badge lv2">L2</span></div></div>
+            <div class="method-row"><div class="method-sig"><span class="fn method-name">setColor</span>(<span class="param">color</span>)</div><div class="method-desc">Switch back to rect/color mode.</div><div class="method-return"><span class="lvl-badge lv2">L2</span></div></div>
+            <div class="method-row"><div class="method-sig"><span class="fn method-name">hide</span>() / <span class="fn method-name">show</span>()</div><div class="method-desc">Toggle visibility.</div><div class="method-return"><span class="lvl-badge lv2">L2</span></div></div>
+            <div class="method-row"><div class="method-sig"><span class="fn method-name">moveAngle</span>()</div><div class="method-desc">Move along the current angle direction.</div><div class="method-return"><span class="lvl-badge lv3">L3</span></div></div>
+            <div class="method-row"><div class="method-sig"><span class="fn method-name">enableCircleCollision</span>(<span class="param">radius?</span>)</div><div class="method-desc">Enable circle collision with optional custom radius.</div><div class="method-return"><span class="lvl-badge lv3">L3</span></div></div>
+            <div class="method-row"><div class="method-sig"><span class="fn method-name">crashWithCircle</span>(<span class="param">other</span>)</div><div class="method-desc">Circle-vs-circle collision. Falls back to AABB if other is not a circle.</div><div class="method-return"><span class="lvl-badge lv3">L3</span></div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <hr class="divider">
+
+    <!-- CAMERA -->
+    <section class="section" id="camera">
+      <div class="section-label">// 07 · api</div>
+      <h2>Camera</h2>
+      <p>Access via <inline-code>display.camera</inline-code>. Translates the canvas context so the view follows a target.</p>
+      <div class="api-grid">
+        <div class="api-card">
+          <div class="api-card-header"><span class="api-class-name">Camera</span><span class="api-tag">class</span></div>
+          <div class="api-card-body">
+            <div class="method-row"><div class="method-sig"><span class="fn method-name">follow</span>(<span class="param">target</span>, <span class="param">smooth?</span>)</div><div class="method-desc">Follow a component. <inline-code>smooth=true</inline-code> for lerped following. Clamps to world bounds.</div><div class="method-return"><span class="lvl-badge lv2">L2</span></div></div>
+            <div class="method-row"><div class="method-sig"><span class="fn method-name">setZoom</span>(<span class="param">amount</span>)</div><div class="method-desc">Scale the rendering context. Call every frame to sustain zoom.</div><div class="method-return"><span class="lvl-badge lv2">L2</span></div></div>
+            <div class="method-row"><div class="method-sig"><span class="fn method-name">shake</span>(<span class="param">x</span>, <span class="param">y</span>)</div><div class="method-desc">Brief positional screen shake. Auto-resets after ~1 frame.</div><div class="method-return"><span class="lvl-badge lv3">L3</span></div></div>
+            <div class="method-row"><div class="method-sig"><span class="fn method-name">shakeRotation</span>(<span class="param">angle</span>)</div><div class="method-desc">Brief rotational shake. Great for impact hits.</div><div class="method-return"><span class="lvl-badge lv3">L3</span></div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <hr class="divider">
+
+    <!-- MOVE -->
+    <section class="section" id="move">
+      <div class="section-label">// 08 · api</div>
+      <h2>move utility</h2>
+      <p>A global object with helpers for movement, positioning, and physics without manual math.</p>
+      <div class="api-grid">
+        <div class="api-card">
+          <div class="api-card-header"><span class="api-class-name">move</span><span class="api-tag">object</span></div>
+          <div class="api-card-body">
+            <div class="method-row"><div class="method-sig"><span class="fn method-name">teleport</span>(<span class="param">id</span>, <span class="param">x</span>, <span class="param">y</span>)</div><div class="method-desc">Instantly set position.</div><div class="method-return"><span class="lvl-badge lv1">L1</span></div></div>
+            <div class="method-row"><div class="method-sig"><span class="fn method-name">setX</span> / <span class="fn method-name">setY</span>(<span class="param">id</span>, <span class="param">val</span>)</div><div class="method-desc">Set one axis only.</div><div class="method-return"><span class="lvl-badge lv1">L1</span></div></div>
+            <div class="method-row"><div class="method-sig"><span class="fn method-name">bound</span>(<span class="param">id</span>)</div><div class="method-desc">Clamp to horizontal canvas edges.</div><div class="method-return"><span class="lvl-badge lv1">L1</span></div></div>
+            <div class="method-row"><div class="method-sig"><span class="fn method-name">position</span>(<span class="param">id</span>, <span class="param">dir</span>, <span class="param">offset?</span>)</div><div class="method-desc">Snap to "top", "bottom", "left", "right", or "center".</div><div class="method-return"><span class="lvl-badge lv1">L1</span></div></div>
+            <div class="method-row"><div class="method-sig"><span class="fn method-name">stamp</span>(<span class="param">id</span>)</div><div class="method-desc">Clone a component at current position.</div><div class="method-return"><span class="lvl-badge lv1">L1</span></div></div>
+            <div class="method-row"><div class="method-sig"><span class="fn method-name">glideX</span>(<span class="param">id</span>, <span class="param">ms</span>, <span class="param">x</span>)</div><div class="method-desc">Ease to X over duration with cubic ease-out.</div><div class="method-return"><span class="lvl-badge lv2">L2</span></div></div>
+            <div class="method-row"><div class="method-sig"><span class="fn method-name">glideY</span>(<span class="param">id</span>, <span class="param">ms</span>, <span class="param">y</span>)</div><div class="method-desc">Ease to Y over duration.</div><div class="method-return"><span class="lvl-badge lv2">L2</span></div></div>
+            <div class="method-row"><div class="method-sig"><span class="fn method-name">glideTo</span>(<span class="param">id</span>, <span class="param">ms</span>, <span class="param">x</span>, <span class="param">y</span>)</div><div class="method-desc">Ease to both X and Y simultaneously.</div><div class="method-return"><span class="lvl-badge lv2">L2</span></div></div>
+            <div class="method-row"><div class="method-sig"><span class="fn method-name">boundTo</span>(<span class="param">id</span>, <span class="param">l</span>, <span class="param">r</span>, <span class="param">t</span>, <span class="param">b</span>)</div><div class="method-desc">Clamp to custom boundaries. Pass false to skip a side.</div><div class="method-return"><span class="lvl-badge lv2">L2</span></div></div>
+            <div class="method-row"><div class="method-sig"><span class="fn method-name">turnLeft</span> / <span class="fn method-name">turnRight</span>(<span class="param">id</span>, <span class="param">steps</span>)</div><div class="method-desc">Rotate by steps (radians).</div><div class="method-return"><span class="lvl-badge lv2">L2</span></div></div>
+            <div class="method-row"><div class="method-sig"><span class="fn method-name">pointTo</span>(<span class="param">id</span>, <span class="param">tx</span>, <span class="param">ty</span>)</div><div class="method-desc">Face a world coordinate.</div><div class="method-return"><span class="lvl-badge lv2">L2</span></div></div>
+            <div class="method-row"><div class="method-sig"><span class="fn method-name">project</span>(<span class="param">id</span>, <span class="param">vel</span>, <span class="param">angle</span>, <span class="param">gravity</span>, <span class="param">ground?</span>)</div><div class="method-desc">Launch as a projectile. Angle in degrees. Bounces on ground.</div><div class="method-return"><span class="lvl-badge lv3">L3</span></div></div>
+            <div class="method-row"><div class="method-sig"><span class="fn method-name">accelerate</span>(<span class="param">id</span>, <span class="param">ax</span>, <span class="param">ay</span>, <span class="param">maxX?</span>, <span class="param">maxY?</span>)</div><div class="method-desc">Add acceleration, clamped to max speed.</div><div class="method-return"><span class="lvl-badge lv3">L3</span></div></div>
+            <div class="method-row"><div class="method-sig"><span class="fn method-name">decelerate</span>(<span class="param">id</span>, <span class="param">dx</span>, <span class="param">dy</span>)</div><div class="method-desc">Reduce speed toward zero without overshooting.</div><div class="method-return"><span class="lvl-badge lv3">L3</span></div></div>
+            <div class="method-row"><div class="method-sig"><span class="fn method-name">circle</span>(<span class="param">id</span>, <span class="param">speed</span>)</div><div class="method-desc">Orbit using angle-based movement.</div><div class="method-return"><span class="lvl-badge lv3">L3</span></div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <hr class="divider">
+
+    <!-- STATE -->
+    <section class="section" id="state">
+      <div class="section-label">// 09 · api</div>
+      <h2>state utility</h2>
+      <p>Read-only helpers to query component properties without accessing them directly.</p>
+      <div class="api-grid">
+        <div class="api-card">
+          <div class="api-card-header"><span class="api-class-name">state</span><span class="api-tag">object</span></div>
+          <div class="api-card-body">
+            <div class="method-row"><div class="method-sig"><span class="fn method-name">distance</span>(<span class="param">a</span>, <span class="param">b</span>)</div><div class="method-desc">Euclidean distance between two components.</div><div class="method-return"><span class="lvl-badge lv1">L1</span></div></div>
+            <div class="method-row"><div class="method-sig"><span class="fn method-name">rect</span>(<span class="param">id</span>)</div><div class="method-desc">Returns [x, y, width, height].</div><div class="method-return"><span class="lvl-badge lv1">L1</span></div></div>
+            <div class="method-row"><div class="method-sig"><span class="fn method-name">pos</span>(<span class="param">id</span>)</div><div class="method-desc">Returns "x,y" string.</div><div class="method-return"><span class="lvl-badge lv1">L1</span></div></div>
+            <div class="method-row"><div class="method-sig"><span class="fn method-name">Angle</span>(<span class="param">id</span>)</div><div class="method-desc">Returns current angle in radians.</div><div class="method-return"><span class="lvl-badge lv2">L2</span></div></div>
+            <div class="method-row"><div class="method-sig"><span class="fn method-name">physics</span>(<span class="param">id</span>)</div><div class="method-desc">Returns whether physics is active.</div><div class="method-return"><span class="lvl-badge lv2">L2</span></div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <hr class="divider">
+
+    <!-- SOUND -->
+    <section class="section" id="sound">
+      <div class="section-label">// 10 · api</div>
+      <h2>Sound &nbsp;<span class="lvl-badge lv1" style="vertical-align:middle">Level 1</span></h2>
+      <div class="api-grid">
+        <div class="api-card">
+          <div class="api-card-header"><span class="api-class-name">new Sound(src)</span><span class="api-tag">class</span></div>
+          <div class="api-card-body">
+            <div class="method-row"><div class="method-sig"><span class="fn method-name">play</span>()</div><div class="method-desc">Play the audio.</div><div class="method-return"><span class="lvl-badge lv1">L1</span></div></div>
+            <div class="method-row"><div class="method-sig"><span class="fn method-name">stop</span>()</div><div class="method-desc">Pause the audio.</div><div class="method-return"><span class="lvl-badge lv1">L1</span></div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <hr class="divider">
+
+    <!-- SPRITE -->
+    <section class="section" id="sprite">
+      <div class="section-label">// 11 · api</div>
+      <h2>Sprite &nbsp;<span class="lvl-badge lv2" style="vertical-align:middle">Level 2</span></h2>
+      <p>Animated spritesheet — all frames in a single horizontal row.</p>
+      <div class="api-grid">
+        <div class="api-card">
+          <div class="api-card-header"><span class="api-class-name">new Sprite(image, frameW, frameH, frameCount, frameSpeed)</span><span class="api-tag">class</span></div>
+          <div class="api-card-body">
+            <div class="method-row"><div class="method-sig"><span class="fn method-name">update</span>()</div><div class="method-desc">Advance animation timer and step to next frame.</div><div class="method-return"><span class="lvl-badge lv2">L2</span></div></div>
+            <div class="method-row"><div class="method-sig"><span class="fn method-name">draw</span>(<span class="param">ctx</span>, <span class="param">x</span>, <span class="param">y</span>)</div><div class="method-desc">Draw current frame at position.</div><div class="method-return"><span class="lvl-badge lv2">L2</span></div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <hr class="divider">
+
+    <!-- TILEMAP -->
+    <section class="section" id="tilemap">
+      <div class="section-label">// 12 · api</div>
+      <h2>TileMap &nbsp;<span class="lvl-badge lv2" style="vertical-align:middle">Level 2</span></h2>
+      <p>Grid-based levels from a 2D number array and Component tile templates.</p>
+      <div class="code-block">
+        <div class="code-header"><div class="code-dots"><span></span><span></span><span></span></div><div class="code-lang">JavaScript · Setup</div></div>
+        <pre><span class="prop">display</span>.map = [[<span class="num">0</span>,<span class="num">1</span>,<span class="num">1</span>],[<span class="num">1</span>,<span class="num">2</span>,<span class="num">1</span>],[<span class="num">2</span>,<span class="num">2</span>,<span class="num">2</span>]];
+<span class="prop">display</span>.tile = [
+  <span class="kw">new</span> <span class="cls">Component</span>(<span class="num">64</span>,<span class="num">64</span>,<span class="str">"green"</span>,<span class="num">0</span>,<span class="num">0</span>),  <span class="cm">// tile 1</span>
+  <span class="kw">new</span> <span class="cls">Component</span>(<span class="num">64</span>,<span class="num">64</span>,<span class="str">"blue"</span>,<span class="num">0</span>,<span class="num">0</span>),   <span class="cm">// tile 2</span>
+];
+<span class="prop">display</span>.<span class="fn">tileMap</span>();
+<span class="prop">display</span>.tileFace.<span class="fn">show</span>();</pre>
+      </div>
+      <div class="api-grid">
+        <div class="api-card">
+          <div class="api-card-header"><span class="api-class-name">TileMap</span><span class="api-tag">class</span></div>
+          <div class="api-card-body">
+            <div class="method-row"><div class="method-sig"><span class="fn method-name">show</span>()</div><div class="method-desc">Build and render all tiles.</div><div class="method-return"><span class="lvl-badge lv2">L2</span></div></div>
+            <div class="method-row"><div class="method-sig"><span class="fn method-name">tiles</span>(<span class="param">id?</span>)</div><div class="method-desc">Get all tile instances or filter by tile ID.</div><div class="method-return"><span class="lvl-badge lv2">L2</span></div></div>
+            <div class="method-row"><div class="method-sig"><span class="fn method-name">crashWith</span>(<span class="param">obj</span>, <span class="param">id?</span>)</div><div class="method-desc">Collision check against any tile or a specific type.</div><div class="method-return"><span class="lvl-badge lv2">L2</span></div></div>
+            <div class="method-row"><div class="method-sig"><span class="fn method-name">rTile</span>(<span class="param">tx</span>, <span class="param">ty</span>)</div><div class="method-desc">Get Tile at grid position.</div><div class="method-return"><span class="lvl-badge lv2">L2</span></div></div>
+            <div class="method-row"><div class="method-sig"><span class="fn method-name">add</span>(<span class="param">tileId</span>, <span class="param">tx</span>, <span class="param">ty</span>)</div><div class="method-desc">Place a tile at grid position and refresh.</div><div class="method-return"><span class="lvl-badge lv3">L3</span></div></div>
+            <div class="method-row"><div class="method-sig"><span class="fn method-name">remove</span>(<span class="param">tx</span>, <span class="param">ty</span>)</div><div class="method-desc">Remove tile at grid position and refresh.</div><div class="method-return"><span class="lvl-badge lv3">L3</span></div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <hr class="divider">
+
+    <!-- TCTXT -->
+    <section class="section" id="tctxt">
+      <div class="section-label">// 13 · api</div>
+      <h2>Tctxt — Rich Text &nbsp;<span class="lvl-badge lv2" style="vertical-align:middle">Level 2</span></h2>
+      <p>Extended text component with background, padding, alignment, baseline, and stroke mode.</p>
+      <div class="api-grid">
+        <div class="api-card">
+          <div class="api-card-header"><span class="api-class-name">new Tctxt(size, font, color, x, y, align, stroke, baseline, bg, padX, padY)</span><span class="api-tag">extends Component</span></div>
+          <div class="api-card-body">
+            <div class="method-row"><div class="method-sig"><span class="fn method-name">setText</span>(<span class="param">txt</span>)</div><div class="method-desc">Set displayed string. Returns the text value.</div><div class="method-return"><span class="lvl-badge lv2">L2</span></div></div>
+            <div class="method-row"><div class="method-sig"><span class="prop">textWidth</span></div><div class="method-desc">Auto-updated pixel width of current text.</div><div class="method-return"><span class="lvl-badge lv2">L2</span></div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <hr class="divider">
+
+    <!-- PARTICLES -->
+    <section class="section" id="particles">
+      <div class="section-label">// 14 · api</div>
+      <h2>Particle System &nbsp;<span class="lvl-badge lv3" style="vertical-align:middle">Level 3</span></h2>
+      <p>Full particle system with emitters, burst spawning, and 6 built-in presets.</p>
+      <div class="callout tip">
+        <span class="callout-icon">💡</span>
+        <span>Call <inline-code>ps.update()</inline-code> inside your <inline-code>update()</inline-code> function every frame to advance and clean up particles.</span>
+      </div>
+      <div class="api-grid">
+        <div class="api-card">
+          <div class="api-card-header"><span class="api-class-name">ParticleSystem</span><span class="api-tag">class</span></div>
+          <div class="api-card-body">
+            <div class="method-row"><div class="method-sig"><span class="fn method-name">emit</span>(<span class="param">x</span>, <span class="param">y</span>, <span class="param">options?</span>)</div><div class="method-desc">Spawn a single particle.</div><div class="method-return"><span class="lvl-badge lv3">L3</span></div></div>
+            <div class="method-row"><div class="method-sig"><span class="fn method-name">burst</span>(<span class="param">x</span>, <span class="param">y</span>, <span class="param">count</span>, <span class="param">options?</span>)</div><div class="method-desc">Spawn multiple particles at once with randomisation.</div><div class="method-return"><span class="lvl-badge lv3">L3</span></div></div>
+            <div class="method-row"><div class="method-sig"><span class="fn method-name">createEmitter</span>(<span class="param">x</span>, <span class="param">y</span>, <span class="param">options?</span>)</div><div class="method-desc">Continuous emitter at a set rate (particles/sec). Returns emitter with start/stop/setPosition.</div><div class="method-return"><span class="lvl-badge lv3">L3</span></div></div>
+            <div class="method-row"><div class="method-sig"><span class="fn method-name">update</span>()</div><div class="method-desc">Advance all particles/emitters, remove dead ones. Call each frame.</div><div class="method-return"><span class="lvl-badge lv3">L3</span></div></div>
+            <div class="method-row"><div class="method-sig"><span class="fn method-name">clear</span>()</div><div class="method-desc">Destroy all particles and emitters.</div><div class="method-return"><span class="lvl-badge lv3">L3</span></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sub-heading">Built-in Presets &nbsp;<span class="lvl-badge lv3">Level 3</span></div>
+      <p style="font-size:13.5px;color:var(--muted);margin-bottom:12px;">Available via <inline-code>move.particles.*</inline-code></p>
+      <div class="effect-chips">
+        <span class="effect-chip">💥 explosion(ps, x, y, intensity?)</span>
+        <span class="effect-chip">💨 smoke(ps, x, y)</span>
+        <span class="effect-chip">✨ sparkle(ps, x, y)</span>
+        <span class="effect-chip">🌧 rain(ps, x, y, intensity?)</span>
+        <span class="effect-chip">🩸 blood(ps, x, y, amount?)</span>
+        <span class="effect-chip">🔮 magic(ps, x, y)</span>
+      </div>
+
+      <div class="sub-heading">Particle Options</div>
+      <table class="prop-table" style="border:1px solid var(--border);border-radius:10px;overflow:hidden;">
+        <tr><th>Option</th><th>Type</th><th>Default</th><th>Description</th></tr>
+        <tr><td><code>life</code></td><td class="type-badge">number</td><td>60</td><td>Frames until death</td></tr>
+        <tr><td><code>speedX / speedY</code></td><td class="type-badge">number</td><td>0</td><td>Initial velocity</td></tr>
+        <tr><td><code>randomSpeed</code></td><td class="type-badge">number</td><td>—</td><td>Random velocity spread</td></tr>
+        <tr><td><code>gravity</code></td><td class="type-badge">number</td><td>0</td><td>Downward acceleration</td></tr>
+        <tr><td><code>friction</code></td><td class="type-badge">number</td><td>0.98</td><td>Speed multiplier per frame (drag)</td></tr>
+        <tr><td><code>alphaFade</code></td><td class="type-badge">number</td><td>0.02</td><td>Fade-out rate</td></tr>
+        <tr><td><code>scale / scaleFade</code></td><td class="type-badge">number</td><td>1 / 0</td><td>Scale and shrink rate</td></tr>
+        <tr><td><code>rotationSpeed</code></td><td class="type-badge">number</td><td>0</td><td>Rotation per frame (radians)</td></tr>
+        <tr><td><code>colors + randomColor</code></td><td class="type-badge">string[]</td><td>—</td><td>Pick random color per particle</td></tr>
+        <tr><td><code>type</code></td><td class="type-badge">string</td><td>"rect"</td><td>"rect", "circle", or "image"</td></tr>
+      </table>
+    </section>
+
+    <hr class="divider">
+
+    <!-- EXAMPLES -->
+    <section class="section" id="examples">
+      <div class="section-label">// 15 · examples</div>
+      <h2>Examples by Level</h2>
+      <p>Each example is scoped to a specific skill level — pick yours and build from there.</p>
+
+      <div style="margin-top:28px;">
+        <div class="example-tabs">
+          <div class="ex-tab lv1 active" onclick="showTab('lv1',this)">🟢 Level 1 · Beginner</div>
+          <div class="ex-tab lv2" onclick="showTab('lv2',this)">🔵 Level 2 · Intermediate</div>
+          <div class="ex-tab lv3" onclick="showTab('lv3',this)">🟠 Level 3 · Advanced</div>
+          <div class="ex-tab lv4" onclick="showTab('lv4',this)">🔴 Level 4 · 10x</div>
+        </div>
+        <div class="ex-panel-wrap">
+
+          <!-- LV1 -->
+          <div class="ex-pane active" id="pane-lv1">
+            <div class="code-block" style="border-radius:0;margin:0;border:none;border-bottom:1px solid var(--border);">
+              <div class="code-header"><div class="code-dots"><span></span><span></span><span></span></div><div class="code-lang">Catch the Box — mouse-click collision</div></div>
+              <pre><span class="kw">const</span> <span class="prop">display</span> = <span class="kw">new</span> <span class="cls">Display</span>();
+<span class="prop">display</span>.<span class="fn">start</span>(<span class="num">480</span>, <span class="num">270</span>);
+<span class="prop">display</span>.<span class="fn">backgroundColor</span>(<span class="str">"#111"</span>);
+
+<span class="kw">const</span> <span class="prop">box</span> = <span class="kw">new</span> <span class="cls">Component</span>(<span class="num">40</span>, <span class="num">40</span>, <span class="str">"#7fffb2"</span>, <span class="num">200</span>, <span class="num">100</span>);
+<span class="prop">display</span>.<span class="fn">add</span>(box);
+
+<span class="kw">let</span> <span class="prop">score</span> = <span class="num">0</span>;
+
+<span class="kw">function</span> <span class="fn">update</span>() {
+  <span class="cm">// Move box randomly every 60 frames</span>
+  <span class="kw">if</span> (<span class="prop">display</span>.frameNo % <span class="num">60</span> === <span class="num">0</span>) {
+    box.x = Math.<span class="fn">random</span>() * <span class="num">440</span>;
+    box.y = Math.<span class="fn">random</span>() * <span class="num">230</span>;
+  }
+  <span class="cm">// Click detection</span>
+  <span class="kw">if</span> (<span class="prop">display</span>.x && box.<span class="fn">clicked</span>()) {
+    score++;
+    console.<span class="fn">log</span>(<span class="str">"Score:"</span>, score);
+  }
+}</pre>
+            </div>
+            <div class="code-block" style="border-radius:0;margin:0;border:none;">
+              <div class="code-header"><div class="code-dots"><span></span><span></span><span></span></div><div class="code-lang">Arrow Key Player — basic movement</div></div>
+              <pre><span class="kw">const</span> <span class="prop">display</span> = <span class="kw">new</span> <span class="cls">Display</span>();
+<span class="prop">display</span>.<span class="fn">start</span>(<span class="num">480</span>, <span class="num">270</span>);
+
+<span class="kw">const</span> <span class="prop">player</span> = <span class="kw">new</span> <span class="cls">Component</span>(<span class="num">32</span>, <span class="num">32</span>, <span class="str">"#5b8cff"</span>, <span class="num">200</span>, <span class="num">100</span>);
+<span class="prop">display</span>.<span class="fn">add</span>(player);
+
+<span class="kw">function</span> <span class="fn">update</span>() {
+  player.speedX = <span class="num">0</span>;
+  player.speedY = <span class="num">0</span>;
+  <span class="kw">if</span> (<span class="prop">display</span>.keys[<span class="num">37</span>]) player.speedX = <span class="num">-3</span>; <span class="cm">// ←</span>
+  <span class="kw">if</span> (<span class="prop">display</span>.keys[<span class="num">39</span>]) player.speedX =  <span class="num">3</span>; <span class="cm">// →</span>
+  <span class="kw">if</span> (<span class="prop">display</span>.keys[<span class="num">38</span>]) player.speedY = <span class="num">-3</span>; <span class="cm">// ↑</span>
+  <span class="kw">if</span> (<span class="prop">display</span>.keys[<span class="num">40</span>]) player.speedY =  <span class="num">3</span>; <span class="cm">// ↓</span>
+  move.<span class="fn">bound</span>(player);
+}</pre>
+            </div>
+          </div>
+
+          <!-- LV2 -->
+          <div class="ex-pane" id="pane-lv2">
+            <div class="code-block" style="border-radius:0;margin:0;border:none;border-bottom:1px solid var(--border);">
+              <div class="code-header"><div class="code-dots"><span></span><span></span><span></span></div><div class="code-lang">Platform Game — gravity, jump, camera follow</div></div>
+              <pre><span class="kw">const</span> <span class="prop">display</span> = <span class="kw">new</span> <span class="cls">Display</span>();
+<span class="prop">display</span>.<span class="fn">start</span>(<span class="num">800</span>, <span class="num">400</span>);
+
+<span class="kw">const</span> <span class="prop">player</span> = <span class="kw">new</span> <span class="cls">Component</span>(<span class="num">32</span>, <span class="num">48</span>, <span class="str">"#5b8cff"</span>, <span class="num">100</span>, <span class="num">100</span>);
+player.physics = <span class="kw">true</span>;
+player.gravity  = <span class="num">0.4</span>;
+player.bounce   = <span class="num">0.1</span>;
+<span class="prop">display</span>.<span class="fn">add</span>(player);
+
+<span class="kw">const</span> <span class="prop">floor</span> = <span class="kw">new</span> <span class="cls">Component</span>(<span class="num">800</span>, <span class="num">20</span>, <span class="str">"#444"</span>, <span class="num">0</span>, <span class="num">380</span>);
+<span class="prop">display</span>.<span class="fn">add</span>(floor);
+
+<span class="kw">function</span> <span class="fn">update</span>() {
+  player.<span class="fn">hitBottom</span>();
+  <span class="kw">if</span> (<span class="prop">display</span>.keys[<span class="num">39</span>]) player.speedX =  <span class="num">4</span>;
+  <span class="kw">if</span> (<span class="prop">display</span>.keys[<span class="num">37</span>]) player.speedX = <span class="num">-4</span>;
+  <span class="kw">if</span> (<span class="prop">display</span>.keys[<span class="num">38</span>] && player.gravitySpeed >= <span class="num">0</span>) {
+    player.gravitySpeed = <span class="num">-9</span>; <span class="cm">// jump</span>
+  }
+  move.<span class="fn">decelerate</span>(player, <span class="num">0.4</span>, <span class="num">0</span>);
+  <span class="prop">display</span>.camera.<span class="fn">follow</span>(player, <span class="kw">true</span>);
+}</pre>
+            </div>
+            <div class="code-block" style="border-radius:0;margin:0;border:none;">
+              <div class="code-header"><div class="code-dots"><span></span><span></span><span></span></div><div class="code-lang">Score UI — Tctxt with background</div></div>
+              <pre><span class="kw">const</span> <span class="prop">scoreText</span> = <span class="kw">new</span> <span class="cls">Tctxt</span>(
+  <span class="str">"22px"</span>, <span class="str">"Arial"</span>, <span class="str">"white"</span>, <span class="num">20</span>, <span class="num">36</span>,
+  <span class="str">"left"</span>, <span class="kw">false</span>, <span class="str">"alphabetic"</span>,
+  <span class="str">"rgba(0,0,0,0.55)"</span>, <span class="num">14</span>, <span class="num">6</span>
+);
+scoreText.<span class="fn">setText</span>(<span class="str">"Score: 0"</span>);
+<span class="prop">display</span>.<span class="fn">add</span>(scoreText);
+
+<span class="kw">let</span> <span class="prop">pts</span> = <span class="num">0</span>;
+<span class="kw">function</span> <span class="fn">update</span>() {
+  pts++;
+  scoreText.<span class="fn">setText</span>(<span class="str">"Score: "</span> + pts);
+}</pre>
+            </div>
+          </div>
+
+          <!-- LV3 -->
+          <div class="ex-pane" id="pane-lv3">
+            <div class="code-block" style="border-radius:0;margin:0;border:none;border-bottom:1px solid var(--border);">
+              <div class="code-header"><div class="code-dots"><span></span><span></span><span></span></div><div class="code-lang">Click-to-explode — particles + camera shake</div></div>
+              <pre><span class="kw">const</span> <span class="prop">display</span> = <span class="kw">new</span> <span class="cls">Display</span>();
+<span class="prop">display</span>.<span class="fn">start</span>(<span class="num">800</span>, <span class="num">600</span>);
+<span class="kw">const</span> <span class="prop">ps</span> = <span class="kw">new</span> <span class="cls">ParticleSystem</span>(display);
+
+<span class="kw">function</span> <span class="fn">update</span>() {
+  ps.<span class="fn">update</span>();
+  <span class="kw">if</span> (<span class="prop">display</span>.x) {
+    move.particles.<span class="fn">explosion</span>(ps, <span class="prop">display</span>.x, <span class="prop">display</span>.y, <span class="num">50</span>);
+    move.particles.<span class="fn">sparkle</span>(ps, <span class="prop">display</span>.x, <span class="prop">display</span>.y);
+    <span class="prop">display</span>.camera.<span class="fn">shakeRotation</span>(<span class="num">0.04</span>);
+    <span class="prop">display</span>.camera.<span class="fn">shake</span>(<span class="num">6</span>, <span class="num">4</span>);
+  }
+}</pre>
+            </div>
+            <div class="code-block" style="border-radius:0;margin:0;border:none;">
+              <div class="code-header"><div class="code-dots"><span></span><span></span><span></span></div><div class="code-lang">Multi-scene — level switching</div></div>
+              <pre><span class="kw">const</span> <span class="prop">display</span> = <span class="kw">new</span> <span class="cls">Display</span>();
+<span class="prop">display</span>.<span class="fn">start</span>(<span class="num">800</span>, <span class="num">600</span>);
+
+<span class="cm">// Scene 0: main menu button</span>
+<span class="kw">const</span> <span class="prop">btn</span> = <span class="kw">new</span> <span class="cls">Component</span>(<span class="num">160</span>, <span class="num">50</span>, <span class="str">"#7fffb2"</span>, <span class="num">320</span>, <span class="num">260</span>);
+<span class="prop">display</span>.<span class="fn">add</span>(btn, <span class="num">0</span>);
+
+<span class="cm">// Scene 1: gameplay player</span>
+<span class="kw">const</span> <span class="prop">player</span> = <span class="kw">new</span> <span class="cls">Component</span>(<span class="num">40</span>, <span class="num">40</span>, <span class="str">"#5b8cff"</span>, <span class="num">100</span>, <span class="num">100</span>);
+<span class="prop">display</span>.<span class="fn">add</span>(player, <span class="num">1</span>);
+
+<span class="kw">function</span> <span class="fn">update</span>() {
+  <span class="kw">if</span> (<span class="prop">display</span>.scene === <span class="num">0</span> && btn.<span class="fn">clicked</span>()) {
+    <span class="prop">display</span>.scene = <span class="num">1</span>; <span class="cm">// switch to game</span>
+  }
+  <span class="kw">if</span> (<span class="prop">display</span>.scene === <span class="num">1</span>) {
+    <span class="cm">// gameplay code here</span>
+  }
+}</pre>
+            </div>
+          </div>
+
+          <!-- LV4 -->
+          <div class="ex-pane" id="pane-lv4">
+            <div class="code-block" style="border-radius:0;margin:0;border:none;border-bottom:1px solid var(--border);">
+              <div class="code-header"><div class="code-dots"><span></span><span></span><span></span></div><div class="code-lang">Dual-canvas pipeline — perform mode + deltaTime movement</div></div>
+              <pre><span class="kw">const</span> <span class="prop">display</span> = <span class="kw">new</span> <span class="cls">Display</span>();
+
+<span class="cm">// Activate dual-canvas BEFORE start()</span>
+<span class="prop">display</span>.<span class="fn">perform</span>();
+<span class="prop">display</span>.<span class="fn">start</span>(<span class="num">1280</span>, <span class="num">720</span>);
+
+<span class="cm">// Add 500 static tiles to the fake (offscreen) canvas</span>
+<span class="kw">const</span> <span class="prop">tileset</span> = [];
+<span class="kw">for</span> (<span class="kw">let</span> <span class="prop">i</span> = <span class="num">0</span>; <span class="prop">i</span> < <span class="num">500</span>; <span class="prop">i</span>++) {
+  <span class="kw">const</span> <span class="prop">t</span> = <span class="kw">new</span> <span class="cls">Component</span>(<span class="num">32</span>, <span class="num">32</span>, <span class="str">"#333"</span>, (<span class="prop">i</span>%<span class="num">40</span>)*<span class="num">32</span>, Math.<span class="fn">floor</span>(<span class="prop">i</span>/<span class="num">40</span>)*<span class="num">32</span>);
+  fake.<span class="fn">add</span>(t); <span class="cm">// renders to offscreen buffer</span>
+}
+
+<span class="cm">// Dynamic player on main canvas</span>
+<span class="kw">const</span> <span class="prop">player</span> = <span class="kw">new</span> <span class="cls">Component</span>(<span class="num">36</span>, <span class="num">36</span>, <span class="str">"#7fffb2"</span>, <span class="num">200</span>, <span class="num">200</span>);
+<span class="prop">display</span>.<span class="fn">add</span>(player);
+
+<span class="kw">const</span> <span class="prop">SPEED</span> = <span class="num">200</span>; <span class="cm">// pixels per second</span>
+
+<span class="kw">function</span> <span class="fn">update</span>(dt) {
+  <span class="cm">// deltaTime-based movement: frame-rate independent</span>
+  <span class="kw">if</span> (<span class="prop">display</span>.keys[<span class="num">39</span>]) player.x += <span class="prop">SPEED</span> * dt;
+  <span class="kw">if</span> (<span class="prop">display</span>.keys[<span class="num">37</span>]) player.x -= <span class="prop">SPEED</span> * dt;
+  <span class="prop">display</span>.camera.<span class="fn">follow</span>(player, <span class="kw">true</span>);
+  <span class="cm">// fake canvas camera must sync too</span>
+  fake.camera.x = <span class="prop">display</span>.camera.x;
+  fake.camera.y = <span class="prop">display</span>.camera.y;
+}</pre>
+            </div>
+            <div class="code-block" style="border-radius:0;margin:0;border:none;">
+              <div class="code-header"><div class="code-dots"><span></span><span></span><span></span></div><div class="code-lang">Custom continuous rain emitter + performance cleanup</div></div>
+              <pre><span class="kw">const</span> <span class="prop">display</span> = <span class="kw">new</span> <span class="cls">Display</span>();
+<span class="prop">display</span>.<span class="fn">start</span>(<span class="num">800</span>, <span class="num">600</span>);
+<span class="kw">const</span> <span class="prop">ps</span> = <span class="kw">new</span> <span class="cls">ParticleSystem</span>(display);
+
+<span class="cm">// Continuous emitter: 80 raindrops/sec across the sky</span>
+<span class="kw">const</span> <span class="prop">rain</span> = ps.<span class="fn">createEmitter</span>(<span class="num">0</span>, <span class="num">0</span>, {
+  rate: <span class="num">80</span>,
+  randomOffset: <span class="num">800</span>,
+  width: <span class="num">2</span>, height: <span class="num">10</span>,
+  color: <span class="str">"rgba(150,200,255,0.5)"</span>,
+  life: <span class="num">55</span>, speedY: <span class="num">8</span>, speedX: <span class="num">1</span>,
+  gravity: <span class="num">0</span>, friction: <span class="num">1</span>, alphaFade: <span class="num">0.015</span>,
+  type: <span class="str">"rect"</span>
+});
+
+<span class="kw">function</span> <span class="fn">update</span>() {
+  ps.<span class="fn">update</span>(); <span class="cm">// dead particles auto-removed</span>
+
+  <span class="cm">// Pause rain on key press</span>
+  <span class="kw">if</span> (<span class="prop">display</span>.keys[<span class="num">32</span>]) rain.<span class="fn">stop</span>();
+  <span class="kw">else</span> rain.<span class="fn">start</span>();
+}</pre>
+            </div>
+          </div>
+
+        </div><!-- /ex-panel-wrap -->
+      </div>
+    </section>
+
+    <hr class="divider">
+
+    <!-- MIGRATION -->
+    <section class="section" id="migration">
+      <div class="section-label">// 16 · migration</div>
+      <h2>Migration from TCJSGame v3</h2>
+      <p>Limn Engine is largely backwards compatible. Here's what changed:</p>
+      <div class="callout warn">
+        <span class="callout-icon">⚠️</span>
+        <span>The internal component array is now <inline-code>comm</inline-code> (two m's). If you directly referenced <inline-code>com</inline-code> before, update your code.</span>
+      </div>
+      <table class="migration-table">
+        <tr><th>TCJSGame v3</th><th>Limn Engine v4</th><th>Notes</th></tr>
+        <tr><td class="v3">setInterval game loop</td><td class="v4">requestAnimationFrame via ani()</td><td class="note">Smoother, synced to screen refresh</td></tr>
+        <tr><td class="v3">Single canvas rendering</td><td class="v4">Dual-canvas via display.perform()</td><td class="note">Optional — standard mode still works</td></tr>
+        <tr><td class="v3">No particle system</td><td class="v4">ParticleSystem + 6 presets</td><td class="note">New in v4 <span class="lvl-badge lv3" style="margin-left:6px">L3</span></td></tr>
+        <tr><td class="v3">AABB collision only</td><td class="v4">AABB + circle collision</td><td class="note">enableCircleCollision() <span class="lvl-badge lv3" style="margin-left:6px">L3</span></td></tr>
+        <tr><td class="v3">No camera shake</td><td class="v4">camera.shake() + shakeRotation()</td><td class="note">New in v4 <span class="lvl-badge lv3" style="margin-left:6px">L3</span></td></tr>
+        <tr><td class="v3">Basic text via Component</td><td class="v4">Tctxt — rich text component</td><td class="note">Backwards compatible <span class="lvl-badge lv2" style="margin-left:6px">L2</span></td></tr>
+        <tr><td class="v3">No runtime image swap</td><td class="v4">setImage() / setColor()</td><td class="note">New in v4 <span class="lvl-badge lv2" style="margin-left:6px">L2</span></td></tr>
+        <tr><td class="v3">camera.follow(target)</td><td class="v4">camera.follow(target, smooth)</td><td class="note">Added smooth/lerp mode</td></tr>
+        <tr><td class="v3">No gradient backgrounds</td><td class="v4">lgradient() / rgradient()</td><td class="note">New in v4 <span class="lvl-badge lv2" style="margin-left:6px">L2</span></td></tr>
+        <tr><td class="v3">No scene system</td><td class="v4">display.scene + display.add(obj, scene)</td><td class="note">New in v4 <span class="lvl-badge lv3" style="margin-left:6px">L3</span></td></tr>
+        <tr><td class="v3">No deltaTime support</td><td class="v4">display.deltaTime passed to update(dt)</td><td class="note">Frame-rate independent movement <span class="lvl-badge lv4" style="margin-left:6px">L4</span></td></tr>
+      </table>
+      <div class="callout tip">
+        <span class="callout-icon">✅</span>
+        <span>All TCJSGame v3 code runs in Limn Engine without changes. New features are purely additive.</span>
+      </div>
+    </section>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+
+<footer class="footer">
+  <span class="footer-logo">◈ Limn Engine</span>
+  <span>TCJSGame v4 · Created by Owolabi Kehinde</span>
+  <span style="font-family:'Space Mono',monospace;font-size:11px;">v4.0 · 2025</span>
+</footer>
+
+<script>
+  // Tab switching
+  function showTab(level, el) {
+    document.querySelectorAll('.ex-pane').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.ex-tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('pane-' + level).classList.add('active');
+    el.classList.add('active');
+  }
+
+  // Active nav on scroll
+  const sections = document.querySelectorAll('.section[id]');
+  const navLinks  = document.querySelectorAll('.nav-link');
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        navLinks.forEach(l => l.classList.remove('active'));
+        const a = document.querySelector(`.nav-link[href="#${e.target.id}"]`);
+        if (a) a.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+  sections.forEach(s => obs.observe(s));
+</script>
+</body>
+</html>
