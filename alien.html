@@ -8,7 +8,7 @@
 <script src="head.js"></script>
 <body>
   <header>
-    <img src="img/alien.png" id="logo">
+    <img src="img/alien.png" id=\"logo\">
     <div class="con">
       <button id="download"><a href="asset/epic.js" download>Download</a></button>
     </div>
@@ -25,7 +25,94 @@
       <h1> Limn engine - alien game</h1>
       <fieldset>
         <article>
-          
+          <h2>Case Study: Building an Arcade Space Shooter (test9.html)</h2>
+          <p>
+            In the <code>test9.html</code> implementation, Limn Engine's rendering features are used to build a classic top-down space shooter. This project showcases particle systems, screen shakes, shooting loops, and canvas gradients.
+          </p>
+
+          <h3>1. Canvas Setup with Linear Gradients</h3>
+          <p>
+            Instead of a flat background color, the workspace is stylized using a royal-blue-to-dark-blue sky backdrop created directly through the engine context:
+          </p>
+          <pre><code>const display = new Display();
+display.perform(); // Activate internal canvas caching
+display.start(800, 600);
+
+// Fills the background with an elegant linear color trend
+display.lgradient("top", "royalblue", "darkblue");</code></pre>
+
+          <h3>2. Setting up the Particle System and Engine Exhausts</h3>
+          <p>
+            To make the spaceship feel alive, we can hook up a <code>ParticleSystem</code> object. By emitting particles at the player's base during each frame update, we simulate moving rocket thrusters:
+          </p>
+          <pre><code>const particles = new ParticleSystem(display);
+
+function update() {
+    particles.update(); // Keep calculations rendering continuously
+
+    // Create a streaming rocket exhaust stream trailing behind the spaceship
+    particles.emit(player.x + 20, player.y + 40, { 
+        color: "orange", 
+        life: 15, 
+        size: 4, 
+        speedX: (Math.random() - 0.5) * 2, 
+        speedY: 2 
+    });
+}</code></pre>
+
+          <h3>3. Automated Enemy Spawning and Array Loops</h3>
+          <p>
+            Enemies are pushed into a tracking array map layout. As they slide down the layout grid via <code>speedY</code>, we inspect their coordinate limits and apply structural score penalties if they escape the bottom edge:
+          </p>
+          <pre><code>let enemies = [];
+
+function createEnemy() {
+    const e = new Component(35, 35, "red", Math.random() * 750, -35, "rect");
+    e.speedY = 1.50; // Sets uniform downward movement speed
+    display.add(e);
+    enemies.push(e);
+}
+
+// Inside the update loop, check for off-screen boundaries:
+if (enemies[i] && enemies[i].y > 650) {
+    enemies[i].hide();
+    score -= 12; // Apply points penalty for missing an alien intruder
+    scoreText.setText("Score: " + score);
+    enemies.splice(i, 1);
+    i--;
+}</code></pre>
+
+          <h3>4. Handling Collisions, Custom Explosions, and Camera Shakes</h3>
+          <p>
+            When projectiles strike an enemy structure, we clear the elements and use the particle system to generate an explosive burst, alongside a physical screen shake on the camera view:
+          </p>
+          <pre><code>if (e.crashWith(bullets[j])) {
+    // Generate 20 bursting explosion debris rings at the collision coordinates
+    move.particles.explosion(particles, e.x, e.y, 20);
+    
+    score += 10;
+    scoreText.setText("Score: " + score);
+    
+    // Shakes the viewport canvas horizontally and vertically to signify impact force
+    display.camera.shake(3, 3);
+    
+    e.hide(); 
+    bullets[j].hide();
+    enemies.splice(i, 1); 
+    bullets.splice(j, 1);
+    i--; 
+    break;
+}</code></pre>
+
+          <h3>5. Tracking Lives and Restarting the Game</h3>
+          <p>
+            When a player takes damage, we temporarily subtract a life state and use standard browser alerts combined with structural location commands to instantly wipe parameters and reload the window state:
+          </p>
+          <pre><code>if (lives <= 0 || score < 0) {
+    display.stop(); // Terminates active internal frame requests
+    alert("Game Over! Score: " + score);
+    location.reload(); // Instantly resets all parameters by reloading the browser tab
+}</code></pre>
         </article>
       </fieldset>
     </main>
