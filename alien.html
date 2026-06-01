@@ -8,7 +8,7 @@
 <script src="head.js"></script>
 <body>
   <header>
-    <img src="img/alien.png" id=\"logo\">
+    <img src="img/alien.png" id="logo">
     <div class="con">
       <button id="download"><a href="asset/epic.js" download>Download</a></button>
     </div>
@@ -113,6 +113,124 @@ if (enemies[i] && enemies[i].y > 650) {
     alert("Game Over! Score: " + score);
     location.reload(); // Instantly resets all parameters by reloading the browser tab
 }</code></pre>
+<h3>Full and complete code</h3>
+<pre>
+  <code>
+    const display = new Display();
+display.perform();
+display.start(800, 600);
+const particles = new ParticleSystem(display);
+
+// Player
+const player = new Component(40, 40, "cyan", 400, 520, "rect");
+display.add(player);
+display.lgradient("top", "royalblue", "darkblue")
+// UI
+const scoreText = new Tctxt("32px", "Arial", "white", 20, 50);
+scoreText.setText("Score: 0");
+display.add(scoreText);
+
+const livesText = new Tctxt("24px", "Arial", "red", 20, 100);
+livesText.setText("Lives: 3: "+" Bullets: 12");
+display.add(livesText);
+
+// Game state
+let enemies = [], bullets = [], score = 0, lives = 3, enemyTimer = 0, invincibleFrames = 0;
+
+function createEnemy() {
+    const e = new Component(35, 35, "red", Math.random() * 750, -35, "rect");
+    e.speedY = 1.50;
+    display.add(e);
+    enemies.push(e);
+}
+let bulletCounts = 12
+function shoot() {
+  if(bulletCounts >0){
+    const b = new Component(5, 10, "yellow", player.x + 17.5, player.y, "rect");
+    b.speedY = -5.00;
+    display.add(b);
+    bullets.push(b);
+    bulletCounts -= 1
+    livesText.setText("Lives: " + lives+", Bullet: "+  bulletCounts);
+  }
+}
+setInterval(()=>{
+  bulletCounts = 12
+},7000)
+function update(dt) {
+    particles.update();
+display.camera.follow(player);
+
+scoreText.x = 20+display.camera.x
+scoreText.y = 50+display.camera.y
+  livesText.x = 20+display.camera.x
+livesText.y = 100+display.camera.y
+    // Invincibility blinking
+    if (invincibleFrames > 0) {
+        invincibleFrames--;
+        player.alpha = 0.5;
+    } else player.alpha = 1;
+
+    // Player movement
+    if (display.keys[37]) player.speedX = -400 * dt;
+    else if (display.keys[39]) player.speedX = 400 * dt;
+    else player.speedX = 0;
+    move.bound(player);
+
+    // Shoot with SPACE
+    if (display.keys[32]) { shoot(); display.keys[32] = false; }
+
+    // Spawn enemies
+    if (++enemyTimer > 45) { enemyTimer = 0; createEnemy(); }
+
+    // Bullet update
+    for (let i = 0; i < bullets.length; i++) {
+        bullets[i].y += bullets[i].speedY * dt;
+        if (bullets[i].y < -50) { bullets[i].hide(); bullets.splice(i,1); i--; }
+    }
+
+    // Enemy logic and collisions
+    for (let i = 0; i < enemies.length; i++) {
+        const e = enemies[i];
+        e.y += e.speedY * dt;
+
+        // Enemy vs player
+        if (e.crashWith(player) && invincibleFrames === 0) {
+            lives--;
+            livesText.setText("Lives: " + lives+", Bullet: "+  bulletCounts);
+            invincibleFrames = 60;
+            display.camera.shake(8, 8);
+            e.hide(); enemies.splice(i,1); i--;
+            if (lives <= 0) { display.stop(); alert("Game Over! Score: " + score); location.reload(); }
+            continue;
+        }
+
+        // Enemy vs bullet
+        for (let j = 0; j < bullets.length; j++) {
+            if (e.crashWith(bullets[j])) {
+                move.particles.explosion(particles, e.x, e.y, 20);
+                score += 10;
+                scoreText.setText("Score: " + score);
+                display.camera.shake(3, 3);
+                e.hide(); bullets[j].hide();
+                enemies.splice(i,1); bullets.splice(j,1);
+                i--; break;
+            }
+        }
+
+        if (enemies[i] && enemies[i].y > 650) { enemies[i].hide();score-=12;scoreText.setText("Score: " + score); enemies.splice(i,1); i--;
+                                              if(score<0){
+                                                display.stop(); alert("Game Over! Score: " + score); location.reload();
+                                              }
+                                              }
+    }
+
+    // Engine exhaust particles
+    particles.emit(player.x + 20, player.y + 40, { color: "orange", life: 15, alphaFade: 0.07, speedY: 1, width: 5, height: 5, type: "circle" });
+}
+  </code>
+</pre>
+<h3>Live example <a href="test9.html" target="_blank">Click here</a></h3>
         </article>
       </fieldset>
     </main>
