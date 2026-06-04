@@ -154,8 +154,12 @@ class Display {
         }
         comm.forEach(component => {
             if(component.scene == this.scene){
+                if(component.x.angularMovement){
+                  component.x.moveAngle()
+                }else{
+                  component.x.move();
 
-                component.x.move();
+                }
                 try {
                     component.x.update(this.context);
                     
@@ -173,6 +177,7 @@ class Component {
         this.width = width;
         this.height = height;
         this.color = color;
+        this.angularMovement = false
         this.type = type;
         this.angle = 0;
         this.x = x;
@@ -209,7 +214,15 @@ class Component {
         };
         this.image.src = src;
     }
-    
+    destroy(){
+      let index = comm.findIndex(c => c.x ===this);
+      if(index>-1)comm.splice(index,1)
+      this.update = null
+      
+      index = commp.findIndex(c => c.x ===this);
+      if(index>-1)commp.splice(index,1)
+      this.update = null
+    }
     setColor(newColor) {
         this.type = "rect";
         this.color = newColor;
@@ -673,8 +686,8 @@ class Camera {
     }
     follow(target, smooth = false) {
         if (smooth) {
-            this.x += (target.x - this.x) * 0.1;
-            this.y += (target.y - this.y) * 0.1;
+            this.x += (target.x - (this.x + display.canvas.width / 2)) * 0.1;
+            this.y += (target.y  - (this.y + display.canvas.height / 2)) * 0.1;
         } else {
             this.x = target.x - display.canvas.width / 2;
             this.y = target.y - display.canvas.height / 2;
@@ -688,9 +701,12 @@ class Camera {
 const comm = [];
 let move ={
     backward : function(id, steps){
-        id.physics = true;
-        id.speedX = -steps;
-        id.speedY = -steps;
+        id.speedX = -steps * Math.cos(id.angle);
+        id.speedY = -steps * Math.sin(id.angle);
+    },
+    forward:function(id,steps){
+        id.speedX = steps * Math.cos(id.angle);
+        id.speedY = steps * Math.sin(id.angle);
     },
     teleport : function(id, x, y){
         id.x = x
@@ -710,7 +726,7 @@ let move ={
     circle : function(id, speed){
         id.physics = true;
         id.changeAngle = true
-        id.angle = speed * Math.PI / 180;
+        id.angle += speed * Math.PI / 180;
     },
     dot : function(id){
         let ctx = display.context
@@ -1121,7 +1137,7 @@ class Sprite extends Component {
 
 class Tile extends Component{
     constructor(tx, ty,tid,com) {
-        super(com.width, com.height, com.color, com.x, com.y)
+        super(com.width, com.height, com.color, com.x, com.y,com.type)
         this.x = com.x
         this.color = com.color
         this.tx = tx
@@ -1134,49 +1150,55 @@ class Tile extends Component{
         this.type = com.type;
     }
 }
+let tileComm = [];
 class TileMap {
     constructor(render, map, tile, width, height, scene = 0) {
-        this.map = map;
+        this.map = [map];
         this.width = width;
         this.height = height;
+        fake.canvas.width = width
+        fake.canvas.height = height
         this.tile = tile;
         this.tile.unshift(0);
-        this.tileHeight = this.height / this.map.length;
+        this.tileHeight = this.height / this.map[0].length;
         this.scene = scene;
-        this.tileWidth = this.width / this.map[0].length;
+        this.tileWidth = this.width / this.map[0][0].length;
         this.tileList = [];
         this.render = render;
     }
     
-    show() {
+    show(layer=0) {
+      tileComm = []
+      fake.scene = layer
         let yy = 0;
         let tyy = 0;
         let xx = 0;
-        
         this.tileList = [];
         
-        for (let row = 0; row < this.map.length; row++) {
-            for (let col = 0; col < this.map[row].length; col++) {
-                const tileId = this.map[row][col];
+        for (let row = 0; row < this.map[layer].length; row++) {
+            for (let col = 0; col < this.map[layer][row].length; col++) {
+                const tileId = this.map[layer][row][col];
                 if (tileId && this.tile[tileId]) {
                     const tileTemplate = this.tile[tileId];
                     const tile = new Tile(col, row, tileId, tileTemplate);
-                    tile.width = this.tileWidth;
-                    tile.height = this.tileHeight;
+                    tile.width = this.tileWidth + 0.5; 
+                    tile.height = this.tileHeight + 0.5;
+
                     tile.x = col * this.tileWidth;
                     tile.y = row * this.tileHeight;
-                    
                     this.tileList.push(tile);
-                    
                     // Add to fake canvas cache only
+                    tileComm.push({x : tile, layer : layer})
                     
-                    fake.add(tile, this.scene);
+                    
                     
                 }
             }
         }
     }
-    
+    addMap(map){
+      this.map.push(map)
+    }
     tiles(id = 0) {
         if (id === 0) return this.tileList;
         return this.tileList.filter(tile => tile.tid === id);
@@ -1187,17 +1209,19 @@ class TileMap {
         return tilesToCheck.some(tile => tile.crashWith(obj));
     }
     
-    add(id, tx, ty) {
-        if (this.map[ty] && this.map[ty][tx] !== undefined) {
-            this.map[ty][tx] = id;
+    add(id, tx, ty,layer=0) {
+        if (this.map[layer][ty] && this.map[layer][ty][tx] !== undefined) {
+            this.map[layer][ty][tx] = id;
             this.show(); // Refresh tilemap
+            fake.refresh()
         }
     }
     
-    remove(tx, ty) {
-        if (this.map[ty] && this.map[ty][tx] !== undefined) {
-            this.map[ty][tx] = 0;
+    remove(tx, ty,layer=0) {
+        if (this.map[layer][ty] && this.map[layer][ty][tx] !== undefined) {
+            this.map[layer][ty][tx] = 0;
             this.show(); // Refresh tilemap
+            fake.refresh()
         }
     }
     
@@ -1317,6 +1341,7 @@ class Tctxt extends Component{
     
     fake.refresh = function() {
         fake.clear()
+        display.once = true;
         // Don't call fake.updat() here - the ani() loop handles rendering
         // If you need to force a refresh, you might need to modify the approach
     }
@@ -1334,41 +1359,73 @@ class Tctxt extends Component{
         console.log(display.clearMargin)
         TCJSgameGameArea = new Component(display.clearMargin[0], display.clearMargin[1], "black", display.camera.x, display.camera.y)
         this.interval = ani()
-        
+        display.timing = 0
         this.mapWidth = this.canvas.width;
         this.mapHeight = this.canvas.height;
         this.cachePic;
+        this.time;
+        display.contTime = 1;//develop's business
         this.addEventListeners();
-      this.once = true
-        setInterval(()=>{
-            display.deltaTime = 1/ display.fps
-            refresh = true
-        }, 1000)
+        this.once = true
         fake.start()
     }
 }
-
-      function ani() {
+      function ani(time) {
         display.frame++
-        // Update delta time logic
-        if (refresh) {
-            display.fps = display.frame
-            display.frame = 0
-            refresh = false
-            display.deltaTime = 1 / display.fps
+        display.time =time
+        
+        display.timing = display.time - display.contTime
+        if(time< 1000){
+          display.deltaTime = 0
+        }else{
+          display.deltaTime = 1 / display.fps
         }
         
+        // Update delta time logic
+        
+       if(display.timing>=1000){
+        display.contTime = display.time
+
+         display.fps = display.frame
+          display.frame = 0
+          refresh = false
+          
+          display.deltaTime = 1 / display.fps
+       }
+        //if (refresh) {
+            
+        //}
         // STEP 1: Render to fake canvas (offscreen buffer)
         if(display.once){
-        fake.clear()
+        fake.context.clearRect(0,0,fake.canvas.width, fake.canvas.height)
         fake.context.save()
-        
         fake.context.translate(-fake.camera.x, -fake.camera.y)
         
         // Render all components to fake canvas
+        tileComm.forEach(component => {
+                    if(component.layer == fake.scene){
+
+                        if(component.x.angularMovement){
+                  component.x.moveAngle()
+                }else{
+                  component.x.move();
+
+                }
+                        try {
+                            component.x.update(fake.context);
+                        } catch {
+                            //pass
+                        }
+                    }
+                });
         commp.forEach(component => {
             if (component.scene == fake.scene) {
-                component.x.move()
+                if(component.x.angularMovement){
+                  component.x.moveAngle()
+                }else{
+                  component.x.move();
+
+                }
                 try {
                     // Use the bUpdate method which doesn't have angle transformations
                     component.x.bUpdate(fake.context)
@@ -1380,9 +1437,9 @@ class Tctxt extends Component{
         fake.context.restore()
           if (display.frame > 2) {
             display.once = false
-            display.cachePic = new Component(fake.canvas.width, fake.canvas.height,
-            fake.canvas.toDataURL(),
-            0, 0, "image")
+            //display.cachePic = new Component(fake.canvas.width, fake.canvas.height,
+            //fake.canvas.toDataURL(),
+            //0, 0, "image")
           }
         }
         // STEP 2: Now render fake canvas content to main display
@@ -1401,11 +1458,9 @@ class Tctxt extends Component{
         // Draw the cached fake canvas as an image to main display
         
         
-        try{
-          display.cachePic.update(display.context)
-        }catch{
-          
-        }
+        
+          display.context.drawImage(fake.canvas,0,0)
+        
           
         
         
@@ -1422,7 +1477,12 @@ class Tctxt extends Component{
         // Also render any dynamic components that need real-time updates
         comm.forEach(component => {
             if (component.scene == display.scene) {
-                component.x.move()
+                if(component.x.angularMovement){
+                  component.x.moveAngle()
+                }else{
+                  component.x.move();
+
+                }
                 if(TCJSgameGameArea.crashWith(component.x)){
                     try {
                         component.x.update(display.context)
