@@ -331,8 +331,8 @@ class Component {
         }
     }
 
-    hitBottom() {
-        const rockbottom = display.canvas.height - this.height;
+    hitBottom(height = display.canvas.height) {
+        const rockbottom = height - this.height;
         if (this.y > rockbottom) {
             this.y = rockbottom;
             this.gravitySpeed = -(this.gravitySpeed * this.bounce);
