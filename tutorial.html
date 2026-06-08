@@ -3,120 +3,139 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Limn Engine — Documentation</title>
+<title>Limn Engine — Tutorial</title>
 <link rel="stylesheet" href="style.css">
-<script src="head.js"></script>
+<script src="head.js" defer></script>
+</head>
 <body>
-  <nav>
-      <ul>
-      <li title="Home"><a href="index.html">🏠</a></li>
-      <li title="Tutorial"><a href="tutorial.html">📚</a></li>
-      <li title="Reference"><a href="reference.html">🗒</a></li>
-      <li title="Download"><a href="asset/epic.js" download>⬇</a></li>
-    </ul>
-    </nav>
-    <main>
-      <fieldset>
-        <legend><h2 style="display:inline-block;">Beginner level</h2></legend>
-        <article>
-          <p>
-            You're writing your first game. You know basic JavaScript — variables, functions, if-statements. Limn Engine gives you instant visual results without boilerplate.
-            <ol>
-              <li>Create a Display and start it</li>
-              <li>Draw shapes with Component</li>
-              <li>Read keyboard & mouse input</li>
-              <li>Move things with speedX / speedY</li>
-              <li>Detect collisions with crashWith()</li>
-              <li>Play sounds with Sound</li>
-            </ol>
-            <a href="beginner.html">Start here</a>
-          </p>
-        </article>
-        <img src="img/logo.png">
-      </fieldset>
-      <fieldset>
-        <legend><h2 style="display:inline-block;">Intermidate level</h2></legend>
-        <article>
-          <p>
-            You've built a game or two. You're comfortable with objects and loops. Now you'll add polish — physics, animations, gliding, and camera work.
-            <ol>
-              <li>Enable physics & gravity</li>
-              <li>Use move.glide* & move.project</li>
-              <li>Follow a target with Camera</li>
-              <li>Animate sprites with Sprite</li>
-              <li>Build levels with TileMap</li>
-              <li>Use Tctxt for styled text UI</li>
-            </ol>
-            <a href="intermidate.html">Start here</a>
-          </p>
-        </article>
-        <img src="img/logo.png">
-      </fieldset>
-      <fieldset>
-        <legend><h2 style="display:inline-block;">Advance level</h2></legend>
-        <article>
-          <p>
-            You're building complete games with multiple systems. You understand architecture and want your game to feel polished and responsive.
-            <ol>
-              <li>Scene management for levels</li>
-              <li>Particle systems & emitters</li>
-              <li>Circle collision detection</li>
-              <li>Camera shake & zoom</li>
-              <li>Accelerate / decelerate patterns</li>
-              <li>Dynamic tilemap editing at runtime</li>
-            </ol>
-            <a href="advance.html">Start here</a>
-          </p>
-        </article>
-        <img src="img/logo.png">
-      </fieldset>
-      <fieldset>
-      <legend><h2 style="display:inline-block;">10X level</h2></legend>
-       <article>
-          <p>
-           You understand the engine's internals. You're optimising render loops, compositing canvases, batching draws, and pushing browser limits.
-            <ol>
-              <li>Dual-canvas pipeline (perform mode)</li>
-              <li>Offscreen fake canvas buffer</li>
-              <li>Circle collision detection</li>
-              <li>requestAnimationFrame mastery</li>
-              <li>Custom particle systems from scratch</li>
-              <li>Engine extension & patching</li>
-            </ol>
-            <a href="10x.html">Start here</a>
-          </p>
-        </article>
-        <img src="img/logo.png">
-      </fieldset>
-      <fieldset>
-      <legend><h2 style="display:inline-block;">What's New</h2></legend>
-       <article>
-          <p>
-            <ol>
-              <li>Dual-Canvas Renderer</li>
-              <li>Better performance</li>
-              <li>Particle System</li>
-              <li>Camera Shake</li>
-              <li>Circle Collision</li>
-              <li>Component fixed on camera</li>
-              <li>Tctxt — Rich Text</li>
-              <li>setImage / setColor</li>
-              <li>A more advance Spirte class and animator.</li>
-              <li>Better audio system</li>
-              <li>Clear margin</li>
-              <li>Fixed bugs</li>
-            </ol>
-           
-            <!-- <a href=".html">Start here</a> -->
-          </p>
-        </article>
-        <img src="img/what's-new.png">
-      </fieldset>
-    </main>
-     <footer class="footer">
-  <span class="footer-logo"><img id="fl" src="img/logo.png"></span>
+<nav>
+  <ul>
+    <li><a href="index.html">🏠 Home</a></li>
+    <li><a href="tutorial.html">📚 Tutorial</a></li>
+    <li><a href="reference.html">🗒 Reference</a></li>
+    <li><a href="download.html">⬇ Download</a></li>
+    <li class="nav-spacer"></li>
+    <button class="nav-burger" id="nav-burger">☰</button>
+  </ul>
+</nav>
+
+<main>
+  <h1>📚 Tutorials</h1>
+
+  <div class="tut-grid">
+
+    <div class="tut-card">
+      <h3><span class="lv-dot" style="background:#7fffb2"></span>Level 1 — Beginner <span class="badge lv1">L1</span></h3>
+      <p>First-time game devs. You know basic JavaScript — variables, functions, if-statements. Get instant results without boilerplate.</p>
+      <ol>
+        <li>Create a Display and start it</li>
+        <li>Draw shapes with Component</li>
+        <li>Read keyboard &amp; mouse input</li>
+        <li>Move things with speedX / speedY</li>
+        <li>Detect collisions with crashWith()</li>
+        <li>Play sounds with Sound</li>
+        <li>Game states with display.scene</li>
+        <li>Images with setImage()</li>
+        <li>Text with Tctxt</li>
+        <li>Coin collector tutorial</li>
+      </ol>
+      <a href="beginner.html" class="start-btn">Start here →</a>
+    </div>
+
+    <div class="tut-card">
+      <h3><span class="lv-dot" style="background:#5b8cff"></span>Level 2 — Intermediate <span class="badge lv2">L2</span></h3>
+      <p>You've built a game or two. Comfortable with objects and loops. Now add polish — physics, animations, gliding, and camera work.</p>
+      <ol>
+        <li>Enable physics &amp; gravity</li>
+        <li>hitBottom() and bounce</li>
+        <li>move.glideX / glideY / glideTo</li>
+        <li>move.project — projectile motion</li>
+        <li>Camera follow &amp; smooth follow</li>
+        <li>Camera zoom</li>
+        <li>Sprite &amp; AnimatedSprite</li>
+        <li>TileMap basics</li>
+        <li>Tctxt styled text UI</li>
+        <li>Platform game tutorial</li>
+      </ol>
+      <a href="intermidate.html" class="start-btn">Start here →</a>
+    </div>
+
+    <div class="tut-card">
+      <h3><span class="lv-dot" style="background:#ffbb6b"></span>Level 3 — Advanced <span class="badge lv3">L3</span></h3>
+      <p>Building complete games with multiple systems. You understand architecture and want polished, responsive games.</p>
+      <ol>
+        <li>Scene management</li>
+        <li>Particle system basics</li>
+        <li>Built-in particle presets</li>
+        <li>Continuous emitters</li>
+        <li>Circle collision</li>
+        <li>Camera shake &amp; rotation shake</li>
+        <li>Dynamic TileMap editing</li>
+        <li>move.pointTo &amp; move.circle</li>
+        <li>fixed() — HUD anchoring</li>
+        <li>Top-down shooter tutorial</li>
+      </ol>
+      <a href="advance.html" class="start-btn">Start here →</a>
+    </div>
+
+    <div class="tut-card">
+      <h3><span class="lv-dot" style="background:#ff6b6b"></span>Level 4 — 10x <span class="badge lv4">L4</span></h3>
+      <p>You understand the engine's internals. Optimising render loops, compositing canvases, batching draws, pushing limits.</p>
+      <ol>
+        <li>Dual-canvas with perform()</li>
+        <li>The fake canvas explained</li>
+        <li>Syncing fake &amp; display cameras</li>
+        <li>deltaTime-based movement</li>
+        <li>clearMargin optimisation</li>
+        <li>Custom particle system</li>
+        <li>Extending the engine</li>
+        <li>SoundManager deep-dive</li>
+        <li>AnimatedSprite advanced</li>
+        <li>Performance checklist</li>
+      </ol>
+      <a href="10x.html" class="start-btn">Start here →</a>
+    </div>
+
+  </div>
+
+  <fieldset style="margin-top:24px;">
+    <legend><h2>Case Studies</h2></legend>
+    <article>
+      <p>Real games built with Limn Engine, explained step by step.</p>
+      <table>
+        <tr><th>Game</th><th>Concepts covered</th><th>Level</th><th>Link</th></tr>
+        <tr><td><b>Space Shooter</b></td><td>Particles, camera shake, bullet arrays, enemy spawning, lives, deltaTime</td><td><span class="badge lv3">L3</span></td><td><a href="alien.html">Read →</a></td></tr>
+        <tr><td><b>Ball Game</b></td><td>deltaTime physics, bounce, paddle collision, speed scaling</td><td><span class="badge lv2">L2</span></td><td><a href="ballgame.html">Read →</a></td></tr>
+      </table>
+    </article>
+  </fieldset>
+
+  <fieldset>
+    <legend><h2>What's New in v4</h2></legend>
+    <article>
+      <ol>
+        <li>Dual-Canvas Renderer — <code>display.perform()</code></li>
+        <li>Better performance via offscreen fake canvas</li>
+        <li>Full Particle System with 6 presets</li>
+        <li>Camera Shake — positional and rotational</li>
+        <li>Circle Collision Detection</li>
+        <li><code>fixed()</code> — Component anchored to screen (HUD)</li>
+        <li><code>destroy()</code> — properly removes from render loop</li>
+        <li>Tctxt — Rich Text with background &amp; padding</li>
+        <li>AnimatedSprite with named animation clips</li>
+        <li>Full SoundManager audio system</li>
+        <li>clearMargin for render area control</li>
+        <li>Bug fixes from TCJSGame v3</li>
+      </ol>
+    </article>
+  </fieldset>
+
+</main>
+
+<footer>
+  <span class="footer-logo"><img id="fl" src="img/logo.png" alt="">Limn Engine</span>
   <span>TCJSGame v4 · Created by Owolabi Kehinde</span>
   <span style="font-family:'Space Mono',monospace;font-size:11px;">v4.0 · 2026</span>
 </footer>
-    </body>
-  </html>
+</body>
+</html>
