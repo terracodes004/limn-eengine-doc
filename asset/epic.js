@@ -1324,7 +1324,7 @@ class Tctxt extends Component{
         // Add event listeners for fake canvas if needed
         fake.addEventListeners()
     }
-    
+    fake.bgComm = false;
     fake.add = function(x, scene = 0) {
         com = {
             x: x,
@@ -1396,11 +1396,25 @@ class Tctxt extends Component{
             
         //}
         // STEP 1: Render to fake canvas (offscreen buffer)
+        
         if(display.once){
         fake.context.clearRect(0,0,fake.canvas.width, fake.canvas.height)
         fake.context.save()
         fake.context.translate(-fake.camera.x, -fake.camera.y)
-        
+        if(fake.bgComm){
+          //garii
+           if(fake.bgComm.angularMovement){
+                  fake.bgComm.moveAngle()
+                }else{
+                  fake.bgComm.move();
+
+                }
+                        try {
+                            fake.bgComm.update(fake.context);
+                        } catch {
+                            //pass
+                        }
+        }
         // Render all components to fake canvas
         tileComm.forEach(component => {
                     if(component.layer == fake.scene){
