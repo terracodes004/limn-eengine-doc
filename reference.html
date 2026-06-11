@@ -31,300 +31,745 @@
     <li><a href="#soundmanager">SoundManager</a></li>
     <li><a href="#particles">ParticleSystem</a></li>
     <li><a href="#sprite">Sprite &amp; AnimatedSprite</a></li>
+    <li><a href="#fake">Fake Canvas &amp; bgComm</a></li>
     <li><a href="#keys">Key code table</a></li>
   </ul>
 </aside>
 <main>
   <h1>🗒 API Reference</h1>
 
+  <!-- ==================== DISPLAY ==================== -->
   <fieldset id="display">
     <legend><h2>Display <span class="badge lv1">L1</span></h2></legend>
     <article>
-      <blockquote>The core class. Canvas, game loop, input, camera, scenes.</blockquote>
-      <details><summary>see more...</summary>
-        <div class="warn">⚠️ Must be assigned to a variable named <code>display</code>.</div>
-        <table>
-          <tr><th>Method / Property</th><th>Parameters</th><th>Purpose</th></tr>
-          <tr><td><code>new Display()</code></td><td>—</td><td>Create the engine instance</td></tr>
-          <tr><td><code>display.start(w,h,node)</code></td><td>width, height, node=body</td><td>Create canvas, start game loop</td></tr>
-          <tr><td><code>display.perform()</code></td><td>—</td><td>Activate dual-canvas pipeline — before start() <span class="badge lv4">L4</span></td></tr>
-          <tr><td><code>display.add(obj, scene)</code></td><td>Component, scene=0</td><td>Register a Component for rendering</td></tr>
-          <tr><td><code>display.stop()</code></td><td>—</td><td>Pause the game loop</td></tr>
-          <tr><td><code>display.scale(w,h)</code></td><td>width, height</td><td>Resize canvas after start</td></tr>
-          <tr><td><code>display.backgroundColor(c)</code></td><td>CSS color</td><td>Set background colour</td></tr>
-          <tr><td><code>display.lgradient(to,c1,c2)</code></td><td>direction, color, color</td><td>Linear gradient background</td></tr>
-          <tr><td><code>display.rgradient(c1,c2)</code></td><td>color, color</td><td>Radial gradient background</td></tr>
-          <tr><td><code>display.fullScreen()</code></td><td>—</td><td>Enter fullscreen</td></tr>
-          <tr><td><code>display.exitScreen()</code></td><td>—</td><td>Exit fullscreen</td></tr>
-          <tr><td><code>display.tileMap()</code></td><td>—</td><td>Build TileMap from display.map + display.tile</td></tr>
-          <tr><td><code>display.scene</code></td><td>number</td><td>Active scene — only matching Components render <span class="badge lv3">L3</span></td></tr>
-          <tr><td><code>display.keys[keyCode]</code></td><td>—</td><td>true while key is held</td></tr>
-          <tr><td><code>display.x / display.y</code></td><td>—</td><td>Mouse/touch position while pressed, false otherwise</td></tr>
-          <tr><td><code>display.frameNo</code></td><td>—</td><td>Total frames elapsed since start</td></tr>
-          <tr><td><code>display.fps</code></td><td>—</td><td>Frames per second</td></tr>
-          <tr><td><code>display.deltaTime</code></td><td>—</td><td>~1/fps — for frame-rate-independent movement <span class="badge lv4">L4</span></td></tr>
-          <tr><td><code>display.clearMargin</code></td><td>[w, h]</td><td>Canvas clear area per frame <span class="badge lv4">L4</span></td></tr>
+      <blockquote>
+        <strong>The <code>Display</code> class is the heart of every Limn Engine game.</strong> 
+        It creates the canvas, runs the game loop, captures input, manages the camera, and controls which scene is active. 
+        Every game must create exactly one <code>Display</code> instance and name it <code>display</code> (lowercase) for internal systems to find it.
+      </blockquote>
+      <details>
+        <summary>📖 Full reference & examples</summary>
+        
+        <h3>Constructor</h3>
+        <pre><code>const display = new Display();</code></pre>
+        <p>Creates a new display manager. The canvas is not yet created — you must call <code>.start()</code> to begin.</p>
+
+        <h3>Properties</h3>
+        <table class="prop-table">
+          <thead><tr><th>Property</th><th>Type</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>.canvas</code></td><td>HTMLCanvasElement</td><td>The game canvas (created after <code>.start()</code>).</td></tr>
+            <tr><td><code>.context</code></td><td>CanvasRenderingContext2D</td><td>The 2D drawing context — use for custom drawing.</td></tr>
+            <tr><td><code>.keys</code></td><td>Array</td><td>Boolean array indexed by keyCode — <code>true</code> while key is pressed.</td></tr>
+            <tr><td><code>.scene</code></td><td>Number</td><td>Current active scene (0 by default). Only components with matching scene render.</td></tr>
+            <tr><td><code>.camera</code></td><td>Camera</td><td>The attached camera instance — controls viewport.</td></tr>
+            <tr><td><code>.deltaTime</code></td><td>Number</td><td>Time since last frame (seconds). Use for frame‑rate independent movement.</td></tr>
+            <tr><td><code>.fps</code></td><td>Number</td><td>Current frames per second (updated every second).</td></tr>
+            <tr><td><code>.frameNo</code></td><td>Number</td><td>Total frames elapsed since game started.</td></tr>
+            <tr><td><code>.x / .y</code></td><td>Number | false</td><td>Mouse/touch position while pressed, <code>false</code> otherwise.</td></tr>
+          </tbody>
         </table>
+
+        <h3>Methods</h3>
+        
+        <h4><code>.start(width, height, parentNode)</code></h4>
+        <p><strong>Initialises the canvas and starts the game loop.</strong> Parameters: <code>width</code> (default 480), <code>height</code> (default 270), <code>parentNode</code> (default <code>document.body</code>). After this call, the canvas appears on the page and <code>update()</code> is called every frame.</p>
+        <pre><code>display.start(800, 600); // Creates an 800x600 canvas</code></pre>
+
+        <h4><code>.perform()</code></h4>
+        <p><strong>Activates high‑performance dual‑canvas rendering.</strong> Must be called <em>before</em> <code>.start()</code>. It replaces the basic interval loop with <code>requestAnimationFrame</code> and creates an offscreen <code>fake</code> canvas for static backgrounds and tilemaps.</p>
+        <pre><code>display.perform();
+display.start(800, 600); // Now using dual‑canvas mode</code></pre>
+
+        <h4><code>.add(component, sceneId)</code></h4>
+        <p><strong>Registers a component into the engine.</strong> The component will be updated and drawn every frame, but only if its assigned <code>sceneId</code> matches the current <code>display.scene</code> value.</p>
+        <pre><code>const player = new Component(40, 40, "blue", 100, 100);
+display.add(player, 1); // Adds to scene 1 (gameplay)</code></pre>
+
+        <h4><code>.backgroundColor(color)</code></h4>
+        <p><strong>Sets a solid CSS colour behind the canvas.</strong> Useful as a fallback or for simple games.</p>
+        <pre><code>display.backgroundColor("#0a0a2a"); // Dark blue background</code></pre>
+
+        <h4><code>.lgradient(direction, color1, color2)</code></h4>
+        <p><strong>Applies a linear gradient background.</strong> <code>direction</code> can be <code>"top"</code>, <code>"right"</code>, <code>"bottom"</code>, <code>"left"</code>, or combinations like <code>"top left"</code>.</p>
+        <pre><code>display.lgradient("top", "royalblue", "darkblue");</code></pre>
+
+        <h4><code>.rgradient(color1, color2)</code></h4>
+        <p><strong>Applies a radial gradient background, centred on the canvas.</strong> Creates a circular glow effect from the centre outward.</p>
+        <pre><code>display.rgradient("#ffaa00", "#442200"); // Sunburst effect</code></pre>
+
+        <h4><code>.stop()</code></h4>
+        <p><strong>Halts the game loop immediately.</strong> Use when the game ends or for debugging.</p>
+        <pre><code>if (player.health <= 0) display.stop();</code></pre>
+
+        <h4><code>.scale(width, height)</code></h4>
+        <p><strong>Resizes the canvas after the game has started.</strong> Updates <code>.clearMargin</code> and the culling area accordingly.</p>
+        <pre><code>display.scale(1024, 768); // Switch to full HD</code></pre>
+
+        <h4><code>.fullScreen() / .exitScreen()</code></h4>
+        <p><strong>Requests full‑screen mode or exits it.</strong> Uses the browser's fullscreen API.</p>
+        <pre><code>display.fullScreen(); // Enter fullscreen mode</code></pre>
+
+        <h4><code>.borderStyle(style) / .borderSize(size) / .borderColor(color)</code></h4>
+        <p><strong>Styles the canvas border.</strong> Useful for debugging or for a polished embedded look.</p>
+        <pre><code>display.borderStyle("solid");
+display.borderSize("4px");
+display.borderColor("white");</code></pre>
+
+        <h4><code>.tileMap()</code></h4>
+        <p><strong>Initialises the TileMap system from <code>display.map</code> and <code>display.tile</code>.</strong> Creates the <code>display.tileFace</code> object.</p>
+
+        <p><strong>Pro tip:</strong> Always name your main <code>Display</code> instance <code>display</code> (lowercase) – the engine relies on this name internally for culling and camera systems.</p>
       </details>
     </article>
   </fieldset>
 
+  <!-- ==================== COMPONENT ==================== -->
   <fieldset id="component">
     <legend><h2>Component <span class="badge lv1">L1</span></h2></legend>
     <article>
-      <blockquote>Every visible game object — player, enemy, bullet, text, image.</blockquote>
-      <details><summary>see more...</summary>
-        <pre><code>new Component(width, height, color, x, y, type)
-// type: "rect" | "image" | "text" | undefined → defaults to rect</code></pre>
-        <table>
-          <tr><th>Property / Method</th><th>Type / Params</th><th>Purpose</th><th>Level</th></tr>
-          <tr><td><code>x / y</code></td><td>number</td><td>World position</td><td><span class="badge lv1">L1</span></td></tr>
-          <tr><td><code>width / height</code></td><td>number</td><td>Size in pixels</td><td><span class="badge lv1">L1</span></td></tr>
-          <tr><td><code>speedX / speedY</code></td><td>number</td><td>Velocity per frame</td><td><span class="badge lv1">L1</span></td></tr>
-          <tr><td><code>physics</code></td><td>boolean</td><td>Enable gravity in move()</td><td><span class="badge lv2">L2</span></td></tr>
-          <tr><td><code>gravity</code></td><td>number</td><td>Downward pull per frame</td><td><span class="badge lv2">L2</span></td></tr>
-          <tr><td><code>gravitySpeed</code></td><td>number</td><td>Accumulated vertical velocity</td><td><span class="badge lv2">L2</span></td></tr>
-          <tr><td><code>bounce</code></td><td>0–1</td><td>Energy on floor impact</td><td><span class="badge lv2">L2</span></td></tr>
-          <tr><td><code>angle</code></td><td>radians</td><td>Rotation angle</td><td><span class="badge lv2">L2</span></td></tr>
-          <tr><td><code>aX / aY</code></td><td>number</td><td>Screen-space anchor for fixed()</td><td><span class="badge lv3">L3</span></td></tr>
-          <tr><td><code>setImage(src)</code></td><td>string</td><td>Switch to image mode — safe loading</td><td><span class="badge lv1">L1</span></td></tr>
-          <tr><td><code>setColor(color)</code></td><td>string</td><td>Switch back to rect mode</td><td><span class="badge lv1">L1</span></td></tr>
-          <tr><td><code>move()</code></td><td>—</td><td>Apply velocity and gravity — auto-called</td><td><span class="badge lv1">L1</span></td></tr>
-          <tr><td><code>moveAngle()</code></td><td>—</td><td>Move along current angle direction</td><td><span class="badge lv3">L3</span></td></tr>
-          <tr><td><code>hitBottom()</code></td><td>—</td><td>Clamp to canvas floor and bounce</td><td><span class="badge lv2">L2</span></td></tr>
-          <tr><td><code>stopMove()</code></td><td>—</td><td>Set speedX and speedY to 0</td><td><span class="badge lv1">L1</span></td></tr>
-          <tr><td><code>clicked()</code></td><td>→ boolean</td><td>True when mouse/touch pressed over this Component</td><td><span class="badge lv1">L1</span></td></tr>
-          <tr><td><code>crashWith(other)</code></td><td>Component → boolean</td><td>AABB collision, rotation-aware</td><td><span class="badge lv1">L1</span></td></tr>
-          <tr><td><code>enableCircleCollision(r)</code></td><td>optional radius</td><td>Enable circle collision</td><td><span class="badge lv3">L3</span></td></tr>
-          <tr><td><code>crashWithCircle(other)</code></td><td>Component → boolean</td><td>Circle-vs-circle collision</td><td><span class="badge lv3">L3</span></td></tr>
-          <tr><td><code>hide()</code></td><td>—</td><td>Stop drawing — use show() to restore</td><td><span class="badge lv2">L2</span></td></tr>
-          <tr><td><code>show()</code></td><td>—</td><td>Resume drawing after hide()</td><td><span class="badge lv2">L2</span></td></tr>
-          <tr><td><code>fixed(ctx)</code></td><td>ctx=display</td><td>Lock to screen position — call every frame</td><td><span class="badge lv3">L3</span></td></tr>
-          <tr><td><code>destroy()</code></td><td>—</td><td>Remove from engine permanently</td><td><span class="badge lv3">L3</span></td></tr>
+      <blockquote>
+        <strong>Every visible or interactive object in Limn Engine is a <code>Component</code>.</strong> 
+        It combines position, size, appearance, velocity, physics, and collision detection in one unified object — no separate “sprite” and “body” classes.
+      </blockquote>
+      <details>
+        <summary>📖 Full reference & examples</summary>
+
+        <h3>Constructor</h3>
+        <pre><code>new Component(width, height, color, x, y, type)</code></pre>
+        <p><strong>Creates a game object.</strong> <code>type</code> can be <code>"rect"</code> (default), <code>"image"</code>, or <code>"text"</code>. For images, set <code>color</code> to the image path and later call <code>.setImage()</code>. For rich text, use <code>Tctxt</code> instead.</p>
+        <pre><code>const player = new Component(40, 40, "blue", 100, 100);
+const coin = new Component(30, 30, "gold", 200, 300);
+const label = new Component("24px", "Arial", "white", 50, 50, "text");</code></pre>
+
+        <h3>Properties</h3>
+        <table class="prop-table">
+          <thead><tr><th>Property</th><th>Type</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>.x , .y</code></td><td>Number</td><td>Position in world coordinates (pixels).</td></tr>
+            <tr><td><code>.aX , .aY</code></td><td>Number</td><td>Anchor position for <code>.fixed()</code> method (usually the initial spawn point).</td></tr>
+            <tr><td><code>.width , .height</code></td><td>Number</td><td>Dimensions in pixels.</td></tr>
+            <tr><td><code>.speedX , .speedY</code></td><td>Number</td><td>Velocity in pixels per second (when using delta‑time movement).</td></tr>
+            <tr><td><code>.angle</code></td><td>Number</td><td>Rotation angle in radians.</td></tr>
+            <tr><td><code>.angularMovement</code></td><td>Boolean</td><td>If <code>true</code>, <code>moveAngle()</code> is used instead of <code>move()</code> — moves along <code>.angle</code> direction.</td></tr>
+            <tr><td><code>.physics</code></td><td>Boolean</td><td>If <code>true</code>, gravity is applied to <code>gravitySpeed</code> each frame.</td></tr>
+            <tr><td><code>.gravity</code></td><td>Number</td><td>Downward acceleration (pixels per frame²).</td></tr>
+            <tr><td><code>.gravitySpeed</code></td><td>Number</td><td>Current vertical speed (affected by gravity).</td></tr>
+            <tr><td><code>.bounce</code></td><td>Number</td><td>Energy retained after hitting ground (0 = no bounce, 1 = perfect bounce).</td></tr>
+            <tr><td><code>.changeAngle</code></td><td>Boolean</td><td>If <code>true</code>, the component is drawn rotated by <code>.angle</code>.</td></tr>
+            <tr><td><code>.isCircle</code></td><td>Boolean</td><td>Set by <code>.enableCircleCollision()</code> – uses circular hitbox.</td></tr>
+          </tbody>
         </table>
+
+        <h3>Methods</h3>
+
+        <h4><code>.setImage(src)</code></h4>
+        <p><strong>Loads an image and switches the component to image mode.</strong> Falls back to a red rectangle on error.</p>
+        <pre><code>player.setImage("assets/hero.png");</code></pre>
+
+        <h4><code>.setColor(newColor)</code></h4>
+        <p><strong>Switches back to rectangle/colour mode.</strong> Useful for power‑ups or debugging.</p>
+        <pre><code>player.setColor("red"); // Temporary damage colour</code></pre>
+
+        <h4><code>.setText(text, font, color)</code></h4>
+        <p><strong>Switches the component to text mode.</strong> For rich text with backgrounds, use <code>Tctxt</code> instead.</p>
+        <pre><code>label.setText("Score: 100", "24px Arial", "white");</code></pre>
+
+        <h4><code>.crashWith(other)</code></h4>
+        <p><strong>Rectangle (AABB) collision detection.</strong> Returns <code>true</code> if the bounding boxes overlap. Takes rotation into account.</p>
+        <pre><code>if (player.crashWith(coin)) { score++; }</code></pre>
+
+        <h4><code>.enableCircleCollision(radius)</code></h4>
+        <p><strong>Enables circular collision detection.</strong> Sets <code>.isCircle = true</code> and stores the radius.</p>
+        <pre><code>coin.enableCircleCollision(15);</code></pre>
+
+        <h4><code>.crashWithCircle(other)</code></h4>
+        <p><strong>Circle‑to‑circle or circle‑to‑rectangle collision.</strong> Use after enabling circle collision. Automatically falls back to rectangle detection if needed.</p>
+        <pre><code>if (bullet.crashWithCircle(orb)) { explode(); }</code></pre>
+
+        <h4><code>.fixed(ctx)</code></h4>
+        <p><strong>Locks the component to the camera view.</strong> Call this every frame inside <code>update()</code> to make UI elements stay in place while the world scrolls. Pass <code>fake</code> as argument for fake canvas components.</p>
+        <pre><code>healthBar.fixed(); // Health bar follows camera</code></pre>
+
+        <h4><code>.hide() / .show()</code></h4>
+        <p><strong>Hides or shows the component.</strong> Hidden components are not drawn, but they still run their logic.</p>
+        <pre><code>enemy.hide(); // Enemy disappears but still moves</code></pre>
+
+        <h4><code>.destroy()</code></h4>
+        <p><strong>Permanently removes the component from the engine.</strong> Splices it out of both <code>comm</code> and <code>commp</code> arrays and nullifies its <code>update</code> method. Critical for memory management.</p>
+        <pre><code>bullet.destroy(); // Completely removes the bullet</code></pre>
+
+        <h4><code>.move()</code></h4>
+        <p><strong>Updates position based on speed and gravity.</strong> Called automatically by the engine each frame – you should not need to call it manually unless <code>angularMovement</code> is true.</p>
+
+        <h4><code>.moveAngle()</code></h4>
+        <p><strong>Moves the component along its current angle direction.</strong> Used for angular movement (e.g., orbiting, turning). Set <code>.angularMovement = true</code> on the component to enable this automatically.</p>
+        <pre><code>orbiter.angularMovement = true; // Now moves according to .angle</code></pre>
+
+        <h4><code>.hitBottom(groundY)</code></h4>
+        <p><strong>Clamps the component to a ground level and applies bouncing.</strong> Call this in <code>update()</code> for platformers. Optionally pass a custom ground Y.</p>
+        <pre><code>player.hitBottom(display.canvas.height - player.height);</code></pre>
+
+        <h4><code>.clicked()</code></h4>
+        <p><strong>Returns <code>true</code> if the component was clicked or tapped.</strong> Takes rotation into account.</p>
+        <pre><code>if (button.clicked()) { startGame(); }</code></pre>
+
+        <p><strong>Pro tip:</strong> Components are extremely flexible – you can animate them by changing <code>.x</code>, <code>.y</code>, <code>.angle</code>, and <code>.color</code> directly every frame.</p>
       </details>
     </article>
   </fieldset>
 
+  <!-- ==================== CAMERA ==================== -->
   <fieldset id="camera">
     <legend><h2>Camera <span class="badge lv2">L2</span></h2></legend>
     <article>
-      <blockquote>Access via <code>display.camera</code>. Translates the canvas so the view follows a target.</blockquote>
-      <details><summary>see more...</summary>
-        <table>
-          <tr><th>Property / Method</th><th>Parameters</th><th>Purpose</th></tr>
-          <tr><td><code>camera.x / camera.y</code></td><td>number</td><td>Current world offset</td></tr>
-          <tr><td><code>camera.worldWidth / worldHeight</code></td><td>number</td><td>Clamp bounds (default 1000)</td></tr>
-          <tr><td><code>camera.follow(target, smooth)</code></td><td>Component, boolean</td><td>Follow a Component. smooth=true for lerp.</td></tr>
-          <tr><td><code>camera.setZoom(amount)</code></td><td>number</td><td>Scale view — call every frame to sustain</td></tr>
-          <tr><td><code>camera.shake(x, y)</code></td><td>offset x, offset y</td><td>Brief position shake — auto-resets <span class="badge lv3">L3</span></td></tr>
-          <tr><td><code>camera.shakeRotation(angle)</code></td><td>radians</td><td>Brief rotation shake — auto-resets <span class="badge lv3">L3</span></td></tr>
+      <blockquote>
+        <strong>The <code>Camera</code> class defines what part of the game world is visible on screen.</strong> 
+        It can follow a target, zoom in/out, and create shake effects. Every <code>Display</code> instance contains its own camera.
+      </blockquote>
+      <details>
+        <summary>📖 Full reference & examples</summary>
+
+        <h3>Constructor</h3>
+        <pre><code>new Camera(x, y, worldWidth, worldHeight)</code></pre>
+        <p><strong>Creates a camera with a world boundary.</strong> Usually you don’t create cameras manually – they are automatically created by <code>Display</code>.</p>
+
+        <h3>Properties</h3>
+        <table class="prop-table">
+          <tr><td><code>.x , .y</code></td><td>Camera position in world coordinates.</td></tr>
+          <tr><td><code>.worldWidth , .worldHeight</code></td><td>Size of the game world (camera will not show outside these bounds).</td></tr>
+          <tr><td><code>.rotationShake</code></td><td>Current rotational shake angle (used internally).</td></tr>
         </table>
+
+        <h3>Methods</h3>
+
+        <h4><code>.follow(target, smooth)</code></h4>
+        <p><strong>Makes the camera track a component.</strong> If <code>smooth</code> is <code>true</code>, the camera moves with a 10% lerp (easing) for a gentle lag. <code>false</code> gives instant centering.</p>
+        <pre><code>display.camera.follow(player, true); // Smooth follow</code></pre>
+
+        <h4><code>.setZoom(scale)</code></h4>
+        <p><strong>Changes the canvas draw scale.</strong> <code>1</code> = normal, <code>2</code> = zoom in (closer), <code>0.5</code> = zoom out. Call this every frame to maintain zoom.</p>
+        <pre><code>display.camera.setZoom(1.5); // 150% zoom</code></pre>
+
+        <h4><code>.shake(intensityX, intensityY)</code></h4>
+        <p><strong>Adds a temporary, random screen shake.</strong> The camera oscillates around its target position for about one frame. Use small values (3–5) for subtle impacts, 10+ for explosions.</p>
+        <pre><code>display.camera.shake(8, 8); // Shake 8px in both axes</code></pre>
+
+        <h4><code>.shakeRotation(angleRadians)</code></h4>
+        <p><strong>Rotational shake.</strong> The canvas rotates back and forth by the given angle (e.g., <code>0.05</code> radians) for about one frame. Great for heavy hits.</p>
+        <pre><code>display.camera.shakeRotation(0.07);</code></pre>
+
+        <p><strong>Pro tip:</strong> For long shakes, call <code>shake()</code> repeatedly over several frames, or use a timer to call it every frame for a duration.</p>
       </details>
     </article>
   </fieldset>
 
+  <!-- ==================== MOVE UTILITY ==================== -->
   <fieldset id="move">
     <legend><h2>move utility <span class="badge lv1">L1</span></h2></legend>
     <article>
-      <blockquote>Global object with helpers for movement, positioning, physics, and particles.</blockquote>
-      <details><summary>see more...</summary>
-        <table>
-          <tr><th>Method</th><th>Parameters</th><th>Purpose</th><th>Level</th></tr>
-          <tr><td><code>move.teleport(id,x,y)</code></td><td>Component,x,y</td><td>Instantly set position</td><td><span class="badge lv1">L1</span></td></tr>
-          <tr><td><code>move.setX(id,x)</code></td><td>Component,x</td><td>Set X only</td><td><span class="badge lv1">L1</span></td></tr>
-          <tr><td><code>move.setY(id,y)</code></td><td>Component,y</td><td>Set Y only</td><td><span class="badge lv1">L1</span></td></tr>
-          <tr><td><code>move.bound(id)</code></td><td>Component</td><td>Clamp to all canvas edges</td><td><span class="badge lv1">L1</span></td></tr>
-          <tr><td><code>move.boundTo(id,l,r,t,b)</code></td><td>Component, numbers/false</td><td>Clamp to custom boundaries</td><td><span class="badge lv1">L1</span></td></tr>
-          <tr><td><code>move.stamp(id)</code></td><td>Component → Component</td><td>Clone a Component</td><td><span class="badge lv1">L1</span></td></tr>
-          <tr><td><code>move.position(id,dir,offset)</code></td><td>Component, direction string</td><td>Snap to "top/bottom/left/right/center"</td><td><span class="badge lv1">L1</span></td></tr>
-          <tr><td><code>move.glideX(id,ms,x)</code></td><td>Component,duration,x</td><td>Ease to X over ms</td><td><span class="badge lv2">L2</span></td></tr>
-          <tr><td><code>move.glideY(id,ms,y)</code></td><td>Component,duration,y</td><td>Ease to Y over ms</td><td><span class="badge lv2">L2</span></td></tr>
-          <tr><td><code>move.glideTo(id,ms,x,y)</code></td><td>Component,duration,x,y</td><td>Ease both axes</td><td><span class="badge lv2">L2</span></td></tr>
-          <tr><td><code>move.project(id,v,angle,g,ground)</code></td><td>Component,speed,degrees,gravity,ground</td><td>Projectile motion</td><td><span class="badge lv2">L2</span></td></tr>
-          <tr><td><code>move.hitObject(id,floor)</code></td><td>Component, floor Component</td><td>Land on a Component surface</td><td><span class="badge lv2">L2</span></td></tr>
-          <tr><td><code>move.accelerate(id,ax,ay,mx,my)</code></td><td>Component,accel,max</td><td>Add acceleration up to max speed</td><td><span class="badge lv2">L2</span></td></tr>
-          <tr><td><code>move.decelerate(id,dx,dy)</code></td><td>Component,decel</td><td>Reduce speed to zero smoothly</td><td><span class="badge lv2">L2</span></td></tr>
-          <tr><td><code>move.pointTo(id,tx,ty)</code></td><td>Component,targetX,targetY</td><td>Rotate to face a world position</td><td><span class="badge lv3">L3</span></td></tr>
-          <tr><td><code>move.turnLeft(id,steps)</code></td><td>Component,radians</td><td>Rotate left by steps</td><td><span class="badge lv3">L3</span></td></tr>
-          <tr><td><code>move.turnRight(id,steps)</code></td><td>Component,radians</td><td>Rotate right by steps</td><td><span class="badge lv3">L3</span></td></tr>
-          <tr><td><code>move.circle(id,speed)</code></td><td>Component,degrees/frame</td><td>Increment angle for orbiting</td><td><span class="badge lv3">L3</span></td></tr>
-          <tr><td><code>move.forward(id,steps)</code></td><td>Component,speed</td><td>Move forward along current angle</td><td><span class="badge lv3">L3</span></td></tr>
-          <tr><td><code>move.backward(id,steps)</code></td><td>Component,speed</td><td>Move backward along current angle</td><td><span class="badge lv3">L3</span></td></tr>
-          <tr><td><code>move.particles.*</code></td><td>see Particles</td><td>Built-in particle presets</td><td><span class="badge lv3">L3</span></td></tr>
-          <tr><td><code>move.sound.*</code></td><td>see SoundManager</td><td>Audio shortcuts</td><td><span class="badge lv4">L4</span></td></tr>
-        </table>
+      <blockquote>
+        <strong><code>move</code> is a global object that provides ready‑made kinematic functions for common game motions.</strong> 
+        Instead of writing manual trigonometry or interpolation, you call one readable function like <code>move.glideTo()</code> or <code>move.pointTo()</code>.
+      </blockquote>
+      <details>
+        <summary>📖 Full reference & examples</summary>
+
+        <h3>Movement methods</h3>
+
+        <h4><code>move.bound(obj)</code></h4>
+        <p><strong>Prevents an object from leaving the canvas edges.</strong> Clamps both <code>x</code> and <code>y</code> to the visible area.</p>
+        <pre><code>move.bound(player); // Keeps player on screen</code></pre>
+
+        <h4><code>move.boundTo(obj, left, right, top, bottom)</code></h4>
+        <p><strong>Clamps an object to custom boundaries.</strong> Pass <code>false</code> for any side you don’t want to restrict.</p>
+        <pre><code>move.boundTo(player, 50, 750, 100, 500); // Confined to arena</code></pre>
+
+        <h4><code>move.forward(obj, steps) / move.backward(obj, steps)</code></h4>
+        <p><strong>Moves the object along its current angle.</strong> Inspired by Python Turtle – very intuitive for angular movement.</p>
+        <pre><code>move.forward(player, 5); // Moves 5 pixels in direction of .angle</code></pre>
+
+        <h4><code>move.turnLeft(obj, radians) / move.turnRight(obj, radians)</code></h4>
+        <p><strong>Rotates the object by a given angle.</strong> Works with <code>.changeAngle = true</code> (the default).</p>
+        <pre><code>move.turnLeft(turret, 0.1); // Rotate left by 0.1 rad</code></pre>
+
+        <h4><code>move.teleport(obj, x, y)</code></h4>
+        <p><strong>Instantly moves the object to new coordinates.</strong></p>
+        <pre><code>move.teleport(player, 400, 300); // Center the player</code></pre>
+
+        <h4><code>move.stamp(obj)</code></h4>
+        <p><strong>Creates a clone of the object at its current position.</strong> Useful for particle‑like duplication.</p>
+        <pre><code>const clone = move.stamp(enemy);</code></pre>
+
+        <h4><code>move.glideX(obj, durationMs, targetX)</code></h4>
+        <p><strong>Moves the object horizontally from its current <code>x</code> to <code>targetX</code> over <code>durationMs</code> milliseconds.</strong> Uses cubic ease‑out for smooth deceleration.</p>
+        <pre><code>move.glideX(coin, 500, 800); // Glide to x=800 in 0.5 seconds</code></pre>
+
+        <h4><code>move.glideY(obj, durationMs, targetY)</code></h4>
+        <p><strong>Same as <code>glideX</code> but for vertical movement.</strong></p>
+        <pre><code>move.glideY(platform, 1000, 400); // Move down to y=400 in 1 second</code></pre>
+
+        <h4><code>move.glideTo(obj, durationMs, targetX, targetY)</code></h4>
+        <p><strong>Simultaneous X and Y glide.</strong> Smoothly moves the object to a point. Ideal for enemy movement or UI animations.</p>
+        <pre><code>move.glideTo(player, 800, 600, 300);</code></pre>
+
+        <h4><code>move.project(obj, speed, angleDeg, gravity, groundY)</code></h4>
+        <p><strong>Launches the object as a projectile.</strong> <code>speed</code> in pixels per second, <code>angleDeg</code> from horizontal (0° = right, 90° = up). <code>gravity</code> is added each frame. Optionally bounces off <code>groundY</code>.</p>
+        <pre><code>move.project(arrow, 300, 45, 0.5); // Arcing arrow</code></pre>
+
+        <h4><code>move.pointTo(obj, targetX, targetY)</code></h4>
+        <p><strong>Rotates the object to face the given world coordinates.</strong> Uses <code>Math.atan2</code> and sets the <code>.angle</code> property.</p>
+        <pre><code>move.pointTo(turret, mouse.x, mouse.y);</code></pre>
+
+        <h4><code>move.circle(obj, angularSpeedRad)</code></h4>
+        <p><strong>Updates the object's angle for circular motion.</strong> Use with <code>angularMovement = true</code> to create orbiting or circular motion.</p>
+        <pre><code>move.circle(orbiter, 0.05);</code></pre>
+
+        <h4><code>move.accelerate(obj, accelX, accelY, maxSpeedX, maxSpeedY)</code></h4>
+        <p><strong>Adds acceleration to the object's speed, capping at maximum values.</strong> Perfect for smooth vehicle movement or wind effects.</p>
+        <pre><code>move.accelerate(player, 0.5, 0, 8, 8);</code></pre>
+
+        <h4><code>move.decelerate(obj, decelX, decelY)</code></h4>
+        <p><strong>Reduces speed toward zero by the given amounts per frame.</strong> Useful for friction or braking.</p>
+        <pre><code>move.decelerate(player, 0.3, 0.3); // Slows down gradually</code></pre>
+
+        <h4><code>move.position(obj, direction, offset)</code></h4>
+        <p><strong>Snaps the object to a screen edge or the centre.</strong> Directions: <code>"top"</code>, <code>"bottom"</code>, <code>"left"</code>, <code>"right"</code>, <code>"center"</code>. Offset is optional margin.</p>
+        <pre><code>move.position(healthBar, "top", 20); // Place near top edge</code></pre>
       </details>
     </article>
   </fieldset>
 
+  <!-- ==================== STATE UTILITY ==================== -->
   <fieldset id="state">
     <legend><h2>state utility <span class="badge lv1">L1</span></h2></legend>
     <article>
-      <blockquote>Read-only helpers for querying Component properties.</blockquote>
-      <details><summary>see more...</summary>
-        <table>
-          <tr><th>Method</th><th>Returns</th><th>Purpose</th></tr>
-          <tr><td><code>state.distance(a,b)</code></td><td>number</td><td>Euclidean distance between two Components</td></tr>
-          <tr><td><code>state.rect(id)</code></td><td>[x,y,w,h]</td><td>Position and size as array</td></tr>
-          <tr><td><code>state.pos(id)</code></td><td>"x,y"</td><td>Position as string</td></tr>
-          <tr><td><code>state.Angle(id)</code></td><td>number</td><td>Current angle in radians</td></tr>
-          <tr><td><code>state.physics(id)</code></td><td>boolean</td><td>Whether physics is enabled</td></tr>
-        </table>
+      <blockquote>
+        <strong><code>state</code> provides read‑only query functions for components and game status.</strong> 
+        These helpers let you inspect positions, distances, and physics flags without directly accessing properties.
+      </blockquote>
+      <details>
+        <summary>📖 Full reference & examples</summary>
+
+        <h3>Methods</h3>
+
+        <h4><code>state.distance(a, b)</code></h4>
+        <p><strong>Returns the Euclidean distance (in pixels) between the centres of two components.</strong> Useful for proximity triggers or enemy AI range checks.</p>
+        <pre><code>if (state.distance(player, enemy) < 50) { attack(); }</code></pre>
+
+        <h4><code>state.rect(obj)</code></h4>
+        <p><strong>Returns an array <code>[x, y, width, height]</code> representing the component's axis‑aligned bounding box.</strong> Useful for debugging or manual collision.</p>
+        <pre><code>const rect = state.rect(player); // [x, y, w, h]</code></pre>
+
+        <h4><code>state.physics(obj)</code></h4>
+        <p><strong>Returns <code>true</code> if the component has <code>physics = true</code>.</strong> Helps decide when to apply custom forces.</p>
+
+        <h4><code>state.changeAngle(obj)</code></h4>
+        <p><strong>Returns the current state of the <code>changeAngle</code> flag.</strong> Indicates whether the component will rotate when drawn.</p>
+
+        <h4><code>state.Angle(obj)</code></h4>
+        <p><strong>Returns the current angle (in radians).</strong> Useful for custom rendering or projectile aiming.</p>
+        <pre><code>const angle = state.Angle(turret);</code></pre>
+
+        <h4><code>state.pos(obj)</code></h4>
+        <p><strong>Returns a formatted string <code>"x,y"</code> for quick logging or saving.</strong></p>
+        <pre><code>console.log("Player at: " + state.pos(player));</code></pre>
       </details>
     </article>
   </fieldset>
 
+  <!-- ==================== TILEMAP ==================== -->
   <fieldset id="tilemap">
     <legend><h2>TileMap <span class="badge lv2">L2</span></h2></legend>
     <article>
-      <blockquote>Grid-based level system. Set <code>display.map</code> and <code>display.tile</code>, then call <code>display.tileMap()</code>.</blockquote>
-      <details><summary>see more...</summary>
-        <table>
-          <tr><th>Property / Method</th><th>Parameters</th><th>Purpose</th></tr>
-          <tr><td><code>display.map</code></td><td>2D number array</td><td>Level layout — 0=empty, 1+=tile type</td></tr>
-          <tr><td><code>display.tile</code></td><td>Component array</td><td>Tile templates — index 0 = tile type 1</td></tr>
-          <tr><td><code>display.tileMap()</code></td><td>—</td><td>Build the TileMap</td></tr>
-          <tr><td><code>display.tileFace.show()</code></td><td>—</td><td>Render all tiles</td></tr>
-          <tr><td><code>tileFace.crashWith(obj,id)</code></td><td>Component, optional tileId</td><td>Collision against tiles</td></tr>
-          <tr><td><code>tileFace.add(tileId,tx,ty)</code></td><td>type,gridX,gridY</td><td>Place a tile at runtime <span class="badge lv3">L3</span></td></tr>
-          <tr><td><code>tileFace.remove(tx,ty)</code></td><td>gridX,gridY</td><td>Remove a tile at runtime <span class="badge lv3">L3</span></td></tr>
-          <tr><td><code>tileFace.rTile(tx,ty)</code></td><td>gridX,gridY</td><td>Get Tile object at position</td></tr>
-          <tr><td><code>tileFace.tiles(id)</code></td><td>optional tileId</td><td>Get all tiles or filter by type</td></tr>
-        </table>
+      <blockquote>
+        <strong><code>TileMap</code> turns a 2D array of numbers into a grid of interactive components.</strong> 
+        It's designed for level design without external tools – you write levels directly in JavaScript. Tiles become full <code>Component</code> instances, so they can have collision, images, and even movement.
+      </blockquote>
+      <details>
+        <summary>📖 Full reference & examples</summary>
+
+        <h3>Setup</h3>
+        <pre><code>// Define tile templates (index 0 is always empty)
+display.tile = [
+    new Component(32, 32, "black", 0, 0), // ID 0 (empty)
+    new Component(32, 32, "green", 0, 0), // ID 1 (grass)
+    new Component(32, 32, "brown", 0, 0)  // ID 2 (dirt)
+];
+
+// Build a level (row × column)
+display.map = [
+    [1,1,1,1,1],
+    [1,0,2,0,1],
+    [1,1,1,1,1]
+];
+
+// Initialise the tilemap system
+display.tileMap();           // Creates display.tileFace
+display.tileFace.show();     // Renders the level</code></pre>
+
+        <h3>Methods</h3>
+
+        <h4><code>.tiles(tileId)</code></h4>
+        <p><strong>Returns an array of all tiles. If <code>tileId</code> is given, only tiles with that ID are returned.</strong> Useful for grouping walls or coins.</p>
+        <pre><code>const allWalls = display.tileFace.tiles(1);</code></pre>
+
+        <h4><code>.crashWith(obj, tileId)</code></h4>
+        <p><strong>Checks collision between <code>obj</code> and any tile (or only tiles with <code>tileId</code>).</strong> Returns boolean.</p>
+        <pre><code>if (display.tileFace.crashWith(player, 1)) { /* hit a wall */ }</code></pre>
+
+        <h4><code>.add(tileId, tx, ty, layer)</code></h4>
+        <p><strong>Places a tile at grid column <code>tx</code>, row <code>ty</code> on the specified layer.</strong> Then calls <code>.show()</code> and <code>fake.refresh()</code> to update the cache. Great for destructible blocks.</p>
+        <pre><code>display.tileFace.add(2, 5, 3, 0); // Place dirt at (5,3) on layer 0</code></pre>
+
+        <h4><code>.remove(tx, ty, layer)</code></h4>
+        <p><strong>Removes the tile at the specified grid position on the given layer.</strong> Same refresh behaviour as <code>.add()</code>.</p>
+        <pre><code>display.tileFace.remove(5, 3, 0); // Delete tile</code></pre>
+
+        <h4><code>.rTile(tx, ty)</code></h4>
+        <p><strong>Returns the actual <code>Tile</code> component at grid column <code>tx</code>, row <code>ty</code>, or <code>null</code> if empty.</strong> Useful for inspecting tile properties at runtime.</p>
+        <pre><code>const tile = display.tileFace.rTile(2, 1);
+tile.color = "red"; // Change tile colour dynamically</code></pre>
+
+        <h4><code>.addMap(layerMap)</code></h4>
+        <p><strong>Adds a new layer to the tilemap.</strong> The engine supports swicthable multiple layers tile world.</p>
+        <pre><code>display.tileFace.addMap([ [1,1], [0,1] ]);</code></pre>
+
+        <h4><code>.show(layer)</code></h4>
+        <p><strong>Renders the specified layer into the fake canvas buffer.</strong> Call show(1)</code> to swicth layers.</p>
       </details>
     </article>
   </fieldset>
 
+  <!-- ==================== TCTXT ==================== -->
   <fieldset id="tctxt">
     <legend><h2>Tctxt <span class="badge lv1">L1</span></h2></legend>
     <article>
-      <blockquote>Rich text Component with background, padding, alignment, and baseline control.</blockquote>
-      <details><summary>see more...</summary>
-        <pre><code>new Tctxt(size, font, color, x, y, align, stroke, baseline, background, padX, padY)</code></pre>
-        <table>
-          <tr><th>Parameter</th><th>Type</th><th>Example</th></tr>
-          <tr><td>size</td><td>string</td><td>"22px"</td></tr>
-          <tr><td>font</td><td>string</td><td>"Arial"</td></tr>
-          <tr><td>color</td><td>string</td><td>"white"</td></tr>
-          <tr><td>x / y</td><td>number</td><td>20, 40</td></tr>
-          <tr><td>align</td><td>string</td><td>"left" / "center" / "right"</td></tr>
-          <tr><td>stroke</td><td>boolean</td><td>false=fill, true=stroke</td></tr>
-          <tr><td>baseline</td><td>string</td><td>"alphabetic" / "top" / "middle"</td></tr>
-          <tr><td>background</td><td>string</td><td>"rgba(0,0,0,0.6)"</td></tr>
-          <tr><td>padX / padY</td><td>number</td><td>12, 6</td></tr>
-          <tr><td><code>setText(txt)</code></td><td>string</td><td>Update displayed text</td></tr>
-        </table>
+      <blockquote>
+        <strong><code>Tctxt</code> is a specialised text component with built‑in background, padding, alignment, and stroke support.</strong> 
+        It extends <code>Component</code> and behaves like any other game object – you can move it, rotate it, and even animate it.
+      </blockquote>
+      <details>
+        <summary>📖 Full reference & examples</summary>
+
+        <h3>Constructor</h3>
+        <pre><code>new Tctxt(size, font, color, x, y, align, stroke, baseline, bgColor, padX, padY)</code></pre>
+        <p><strong>Creates a styled text label.</strong> Parameters:</p>
+        <ul>
+          <li><code>size</code> – font size (e.g., <code>"24px"</code>)</li>
+          <li><code>font</code> – font family (e.g., <code>"Arial"</code>)</li>
+          <li><code>color</code> – text colour (e.g., <code>"white"</code>)</li>
+          <li><code>x, y</code> – position</li>
+          <li><code>align</code> – <code>"left"</code>, <code>"center"</code>, or <code>"right"</code></li>
+          <li><code>stroke</code> – <code>true</code> for outline, <code>false</code> for fill</li>
+          <li><code>baseline</code> – <code>"alphabetic"</code>, <code>"top"</code>, <code>"middle"</code>, etc.</li>
+          <li><code>bgColor</code> – background colour (or <code>null</code> for transparent)</li>
+          <li><code>padX, padY</code> – padding around text</li>
+        </ul>
+        <pre><code>const scoreUI = new Tctxt("24px", "Arial", "white", 20, 40, "left", false, "alphabetic", "rgba(0,0,0,0.5)", 10, 5);
+scoreUI.setText("Score: 0");
+display.add(scoreUI);</code></pre>
+
+        <h3>Methods</h3>
+
+        <h4><code>.setText(newText)</code></h4>
+        <p><strong>Changes the displayed string.</strong> Automatically updates the background rectangle size. Returns the new text for chaining.</p>
+        <pre><code>scoreUI.setText("Score: " + score);</code></pre>
+
+        <h4><code>.fixed()</code></h4>
+        <p><strong>Locks the text to the camera view.</strong> Call this each frame to keep the text at a fixed screen position.</p>
+        <pre><code>scoreUI.fixed(); // Score follows camera</code></pre>
       </details>
     </article>
   </fieldset>
 
+  <!-- ==================== SOUND ==================== -->
   <fieldset id="sound">
     <legend><h2>Sound <span class="badge lv1">L1</span></h2></legend>
     <article>
-      <blockquote>Load and play a single audio file.</blockquote>
-      <details><summary>see more...</summary>
-        <pre><code>const sfx = new Sound("jump.wav", { volume: 0.8, loop: false });</code></pre>
-        <table>
-          <tr><th>Method</th><th>Purpose</th></tr>
-          <tr><td><code>play(vol)</code></td><td>Play sound. Clones automatically for overlapping SFX.</td></tr>
-          <tr><td><code>stop()</code></td><td>Stop and rewind to beginning</td></tr>
-          <tr><td><code>pause()</code></td><td>Pause at current position</td></tr>
-          <tr><td><code>setVolume(0–1)</code></td><td>Change volume</td></tr>
-          <tr><td><code>setLoop(bool)</code></td><td>Enable/disable loop</td></tr>
-          <tr><td><code>isPlaying()</code></td><td>Returns true if currently playing</td></tr>
-        </table>
+      <blockquote>
+        <strong>The <code>Sound</code> class loads and plays a single audio file.</strong> 
+        It handles overlapping sounds automatically by cloning, so you can fire the same effect many times without cutting off previous instances.
+      </blockquote>
+      <details>
+        <summary>📖 Full reference & examples</summary>
+
+        <h3>Constructor</h3>
+        <pre><code>new Sound(src, options)</code></pre>
+        <p><strong>Creates a sound object.</strong> Options include <code>volume</code> (0–1), <code>loop</code> (boolean), and <code>autoplay</code>.</p>
+        <pre><code>const jumpSound = new Sound("jump.wav", { volume: 0.7 });</code></pre>
+
+        <h3>Methods</h3>
+
+        <h4><code>.play(volume)</code></h4>
+        <p><strong>Plays the sound.</strong> If the sound is already playing and <code>loop</code> is <code>false</code>, creates a clone to allow overlapping. Optionally override the volume.</p>
+        <pre><code>jumpSound.play();</code></pre>
+
+        <h4><code>.stop()</code></h4>
+        <p><strong>Stops the sound and resets its playback position to the beginning.</strong></p>
+
+        <h4><code>.pause()</code></h4>
+        <p><strong>Pauses the sound at its current position.</strong></p>
+
+        <h4><code>.setVolume(value)</code></h4>
+        <p><strong>Changes the volume (0.0 to 1.0) of the sound instance.</strong> Does not affect clones already playing.</p>
+
+        <h4><code>.setLoop(loop)</code></h4>
+        <p><strong>Enables or disables looping.</strong></p>
+
+        <h4><code>.isPlaying()</code></h4>
+        <p><strong>Returns <code>true</code> if the sound is currently playing.</strong></p>
       </details>
     </article>
   </fieldset>
 
+  <!-- ==================== SOUNDMANAGER ==================== -->
   <fieldset id="soundmanager">
     <legend><h2>SoundManager <span class="badge lv4">L4</span></h2></legend>
     <article>
-      <blockquote>Full audio pipeline — named sounds, music, master volume, mute.</blockquote>
-      <details><summary>see more...</summary>
+      <blockquote>
+        <strong><code>SoundManager</code> is a central hub for loading, organising, and mixing multiple sounds.</strong> 
+        It separates music from sound effects, provides global volume controls, and preloads assets to avoid delays during gameplay.
+      </blockquote>
+      <details>
+        <summary>📖 Full reference & examples</summary>
+
+        <h3>Constructor</h3>
         <pre><code>window.soundManager = new SoundManager();</code></pre>
-        <table>
-          <tr><th>Method / Property</th><th>Purpose</th></tr>
-          <tr><td><code>load(name,src,opts)</code></td><td>Preload a sound by name</td></tr>
-          <tr><td><code>play(name,vol)</code></td><td>Play a sound by name</td></tr>
-          <tr><td><code>stop(name)</code></td><td>Stop a named sound</td></tr>
-          <tr><td><code>playMusic(name,loop)</code></td><td>Start background music</td></tr>
-          <tr><td><code>stopMusic()</code></td><td>Stop current music</td></tr>
-          <tr><td><code>mute() / unmute()</code></td><td>Toggle all audio</td></tr>
-          <tr><td><code>masterVolume</code></td><td>Overall multiplier (0–1)</td></tr>
-          <tr><td><code>sfxVolume</code></td><td>SFX volume (0–1)</td></tr>
-          <tr><td><code>musicVolume</code></td><td>Music volume (0–1)</td></tr>
-        </table>
+        <p><strong>Creates a sound manager instance.</strong> Store it globally for easy access.</p>
+
+        <h3>Methods</h3>
+
+        <h4><code>.load(name, src, options)</code></h4>
+        <p><strong>Loads a sound and assigns it a <code>name</code> key.</strong> The same <code>options</code> as <code>Sound</code> constructor.</p>
+
+        <h4><code>.preload(soundList, callback)</code></h4>
+        <p><strong>Loads multiple sounds in parallel.</strong> Each element should be <code>{name, src, options}</code>. Calls <code>callback</code> when all are ready.</p>
+
+        <h4><code>.play(name, volume)</code></h4>
+        <p><strong>Plays the sound associated with <code>name</code>.</strong> Uses <code>sfxVolume</code> by default (unless the name starts with <code>"music_"</code>, then it uses <code>musicVolume</code>).</p>
+
+        <h4><code>.stop(name)</code></h4>
+        <p><strong>Stops a specific sound by name.</strong></p>
+
+        <h4><code>.playMusic(name, loop)</code></h4>
+        <p><strong>Stops any currently playing music and starts the new track.</strong> Looping is enabled by default.</p>
+
+        <h4><code>.stopMusic()</code></h4>
+        <p><strong>Stops the current background music.</strong></p>
+
+        <h4><code>.setMasterVolume(value)</code></h4>
+        <p><strong>Global volume multiplier (0–1) applied to all sounds and music.</strong></p>
+
+        <h4><code>.setSFXVolume(value)</code></h4>
+        <p><strong>Sets the volume for sound effects (0–1).</strong></p>
+
+        <h4><code>.setMusicVolume(value)</code></h4>
+        <p><strong>Sets the volume for background music (0–1).</strong></p>
+
+        <h4><code>.mute() / .unmute()</code></h4>
+        <p><strong>Silences all audio without unloading assets.</strong></p>
       </details>
     </article>
   </fieldset>
 
+  <!-- ==================== PARTICLESYSTEM ==================== -->
   <fieldset id="particles">
     <legend><h2>ParticleSystem <span class="badge lv3">L3</span></h2></legend>
     <article>
-      <blockquote>Spawn and manage particles. Must call <code>ps.update()</code> every frame.</blockquote>
-      <details><summary>see more...</summary>
+      <blockquote>
+        <strong><code>ParticleSystem</code> creates and manages hundreds of small visual effects like sparks, smoke, or explosions.</strong> 
+        It automatically handles physics, fading, and removal, so you only need to emit particles or create emitters.
+      </blockquote>
+      <details>
+        <summary>📖 Full reference & examples</summary>
+
+        <h3>Constructor</h3>
         <pre><code>const ps = new ParticleSystem(display);</code></pre>
-        <table>
-          <tr><th>Method</th><th>Parameters</th><th>Purpose</th></tr>
-          <tr><td><code>emit(x,y,opts)</code></td><td>x,y,options</td><td>Spawn one particle</td></tr>
-          <tr><td><code>burst(x,y,count,opts)</code></td><td>x,y,count,options</td><td>Spawn many at once</td></tr>
-          <tr><td><code>createEmitter(x,y,opts)</code></td><td>x,y,options</td><td>Continuous emitter — returns emitter object</td></tr>
-          <tr><td><code>update()</code></td><td>—</td><td>Advance all particles — call every frame</td></tr>
-          <tr><td><code>clear()</code></td><td>—</td><td>Remove all particles and emitters</td></tr>
-        </table>
-        <p><b>Particle options:</b> life, speedX, speedY, randomSpeed, gravity, friction, alphaFade, scale, scaleFade, rotationSpeed, color, colors[], randomColor, width, height, type</p>
-        <p><b>move.particles presets:</b></p>
+        <p><strong>Creates a particle manager linked to a specific display.</strong> Call <code>.update()</code> every frame inside your game's <code>update()</code> function.</p>
+
+        <h3>Methods</h3>
+
+        <h4><code>.emit(x, y, options)</code></h4>
+        <p><strong>Creates a single particle.</strong> Options can include <code>life</code> (frames), <code>gravity</code>, <code>alphaFade</code>, <code>speedX/Y</code>, <code>color</code>, <code>type</code> (<code>"rect"</code>, <code>"circle"</code>).</p>
+
+        <h4><code>.burst(x, y, count, options)</code></h4>
+        <p><strong>Emits <code>count</code> particles at once.</strong> Perfect for explosions.</p>
+
+        <h4><code>.createEmitter(x, y, options)</code></h4>
+        <p><strong>Creates a continuous emitter that produces particles every frame.</strong> The returned object has <code>start()</code>, <code>stop()</code>, and <code>setPosition()</code> methods. <code>options.rate</code> controls particles per second.</p>
+
+        <h4><code>.update()</code></h4>
+        <p><strong>Must be called every frame.</strong> Advances all particles, fades them, and removes dead ones. Also updates emitters.</p>
+
+        <h4><code>.clear()</code></h4>
+        <p><strong>Removes all particles and emitters.</strong></p>
+
+        <h3>Built-in Presets (via <code>move.particles</code>)</h3>
         <table>
           <tr><th>Preset</th><th>Call</th></tr>
-          <tr><td>Explosion</td><td><code>move.particles.explosion(ps,x,y,intensity)</code></td></tr>
-          <tr><td>Smoke</td><td><code>move.particles.smoke(ps,x,y)</code></td></tr>
-          <tr><td>Sparkle</td><td><code>move.particles.sparkle(ps,x,y)</code></td></tr>
-          <tr><td>Rain</td><td><code>move.particles.rain(ps,x,y,intensity)</code></td></tr>
-          <tr><td>Blood</td><td><code>move.particles.blood(ps,x,y,amount)</code></td></tr>
-          <tr><td>Magic</td><td><code>move.particles.magic(ps,x,y)</code></td></tr>
+          <tr><td><code>explosion</code></td><td><code>move.particles.explosion(ps, x, y, intensity)</code></td></tr>
+          <tr><td><code>smoke</code></td><td><code>move.particles.smoke(ps, x, y)</code></td></tr>
+          <tr><td><code>sparkle</code></td><td><code>move.particles.sparkle(ps, x, y)</code></td></tr>
+          <tr><td><code>rain</code></td><td><code>move.particles.rain(ps, x, y, intensity)</code></td></tr>
+          <tr><td><code>blood</code></td><td><code>move.particles.blood(ps, x, y, amount)</code></td></tr>
+          <tr><td><code>magic</code></td><td><code>move.particles.magic(ps, x, y)</code></td></tr>
         </table>
       </details>
     </article>
   </fieldset>
 
+  <!-- ==================== SPRITE ==================== -->
   <fieldset id="sprite">
     <legend><h2>Sprite &amp; AnimatedSprite <span class="badge lv2">L2</span></h2></legend>
     <article>
-      <blockquote>Spritesheet animation. All frames in one horizontal image.</blockquote>
-      <details><summary>see more...</summary>
-        <pre><code>new Sprite(src, frameW, frameH, frameCount, frameSpeed, x, y)
-new AnimatedSprite(src, frameW, frameH, x, y)</code></pre>
-        <table>
-          <tr><th>Method</th><th>Parameters</th><th>Purpose</th></tr>
-          <tr><td><code>update()</code></td><td>—</td><td>Advance animation frame — Sprite only</td></tr>
-          <tr><td><code>addAnimation(name,s,e,spd,loop)</code></td><td>string,int,int,int,bool</td><td>Define named clip — AnimatedSprite</td></tr>
-          <tr><td><code>playAnimation(name)</code></td><td>string</td><td>Switch to named animation</td></tr>
-          <tr><td><code>updateAnimation()</code></td><td>—</td><td>Drive the frame counter — call every frame</td></tr>
-          <tr><td><code>paused</code></td><td>boolean</td><td>True when a one-shot animation finishes</td></tr>
-        </table>
+      <blockquote>
+        <strong><code>Sprite</code> turns a horizontal sprite sheet into an animated component.</strong> 
+        <code>AnimatedSprite</code> extends it with named animation clips (idle, run, jump) that you can switch by name.
+      </blockquote>
+      <details>
+        <summary>📖 Full reference & examples</summary>
+
+        <h3>Sprite Constructor</h3>
+        <pre><code>new Sprite(image, frameWidth, frameHeight, frameCount, frameSpeed, x, y)</code></pre>
+        <p><strong>Creates a sprite from a spritesheet.</strong> <code>frameCount</code> is the number of frames in the sheet, <code>frameSpeed</code> controls animation speed (lower = faster).</p>
+
+        <h3>AnimatedSprite Constructor</h3>
+        <pre><code>new AnimatedSprite(image, frameWidth, frameHeight, x, y)</code></pre>
+
+        <h3>AnimatedSprite Methods</h3>
+
+        <h4><code>.addAnimation(name, startFrame, endFrame, speed, loop)</code></h4>
+        <p><strong>Defines a named animation clip.</strong> <code>startFrame</code> and <code>endFrame</code> are zero‑based indices. <code>loop</code> determines whether it repeats.</p>
+
+        <h4><code>.playAnimation(name)</code></h4>
+        <p><strong>Switches to the named animation.</strong> The sprite will start from the first frame of that clip.</p>
+
+        <h4><code>.updateAnimation()</code></h4>
+        <p><strong>Advance the frame counter.</strong> Must be called every frame in <code>update()</code>.</p>
+
+        <h4><code>.faceLeft() / .faceRight()</code></h4>
+        <p><strong>Flip the sprite horizontally</strong> without changing the underlying frames.</p>
+
+        <pre><code>const hero = new AnimatedSprite("hero.png", 64, 64, 400, 300);
+hero.addAnimation("idle", 0, 0, 1, true);
+hero.addAnimation("run", 1, 4, 6, true);
+hero.addAnimation("jump", 5, 6, 4, false);
+display.add(hero);
+
+function update() {
+    if (moving) hero.playAnimation("run");
+    else hero.playAnimation("idle");
+    hero.updateAnimation();
+}</code></pre>
       </details>
     </article>
   </fieldset>
 
+  <!-- ==================== FAKE CANVAS & bgComm ==================== -->
+  <fieldset id="fake">
+    <legend><h2>Fake Canvas &amp; bgComm <span class="badge lv4">L4</span></h2></legend>
+    <article>
+      <blockquote>
+        <strong>The <code>fake</code> canvas is an offscreen buffer used for high‑performance dual‑canvas rendering.</strong> 
+        Static content (tilemaps, backgrounds) renders once to the fake canvas, then is drawn as a single image each frame. 
+        <code>fake.bgComm</code> is a special component that renders <strong>behind everything else</strong> – perfect for skies, parallax backgrounds, and ambient effects.
+      </blockquote>
+      <details>
+        <summary>📖 Full reference & examples</summary>
+
+        <h3>What is the Fake Canvas?</h3>
+        <p>When you call <code>display.perform()</code>, the engine creates a hidden canvas called <code>fake</code>. Any component added with <code>fake.add()</code> is rendered to this offscreen buffer instead of the main display. The buffer is then drawn to the main canvas using <code>drawImage(fake.canvas, 0, 0)</code> – a single extremely fast operation.</p>
+
+        <h3>What is <code>fake.bgComm</code>?</h3>
+        <p><strong><code>fake.bgComm</code> is a special background component that renders before anything else on the fake canvas.</strong> It is drawn <em>before</em> tilemaps, foreground objects, and all other fake canvas content – making it perfect for skyboxes, distant mountains, clouds, or any scenery that should appear behind the game world.</p>
+
+        <h3>Properties</h3>
+        <table class="prop-table">
+          <tr><th>Property</th><th>Type</th><th>Description</th></tr>
+          <tr><td><code>fake.bgComm</code></td><td>Component | false</td><td>If set to a Component, that component renders behind everything else on the fake canvas.</td></tr>
+          <tr><td><code>fake.scene</code></td><td>Number</td><td>Current scene of the fake canvas – only components with matching scene are rendered.</td></tr>
+        </table>
+
+        <h3>Methods</h3>
+
+        <h4><code>fake.add(component, scene)</code></h4>
+        <p><strong>Adds a static component to the fake canvas.</strong> The component will be rendered once (or when the cache refreshes) and is perfect for background walls, decorations, or any object that doesn't move.</p>
+
+        <h4><code>fake.refresh()</code></h4>
+        <p><strong>Forces the fake canvas to redraw on the next frame.</strong> Call this after making changes to static components (e.g., destroying a wall) to update the cached image.</p>
+
+        <h3>Usage Example</h3>
+        <pre><code>// Activate dual-canvas mode
+display.perform();
+display.start(800, 600);
+
+// Set a sky background that renders behind everything
+fake.bgComm = new Component(1600, 1200, null, 0, 0, "image");
+fake.bgComm.setImage("sky.png");
+
+// Add clouds that also render behind tiles
+const clouds = new Component(1600, 400, null, 0, 100, "image");
+clouds.setImage("clouds.png");
+fake.add(clouds);
+
+// Tilemap renders on top of bgComm and clouds
+const tilemap = new TileMap(display, level, tiles, 1600, 1200);
+tilemap.show();
+
+// Trees and decorations render on top of tilemap
+const tree = new Component(64, 64, null, 400, 300, "image");
+tree.setImage("tree.png");
+fake.add(tree);
+
+// Player renders on main display (top layer)
+const player = new Component(36, 36, "blue", 400, 200);
+display.add(player);</code></pre>
+
+        <h3>Render Order</h3>
+        <ol>
+          <li><strong><code>fake.bgComm</code></strong> – lowest layer (sky, distant scenery)</li>
+          <li><strong><code>tileComm</code></strong> – tilemap layers (ground, walls)</li>
+          <li><strong><code>commp</code></strong> – other fake canvas components (trees, decorations)</li>
+          <li><strong><code>comm</code></strong> – main display components (player, enemies, UI with <code>.fixed()</code>)</li>
+        </ol>
+
+        <div class="tip">
+          💡 Use <code>fake.bgComm</code> for large, static background images – it renders only once and requires no per‑frame updates, making it extremely performant.
+        </div>
+
+        <div class="warn">
+          ⚠️ Components added to <code>fake</code> are not automatically updated – they are static. Only use <code>fake.add()</code> for objects that don't move. Dynamic objects (players, enemies, moving platforms) must go to <code>display.add()</code>.
+        </div>
+      </details>
+    </article>
+  </fieldset>
+
+  <!-- ==================== KEY CODE TABLE ==================== -->
   <fieldset id="keys">
     <legend><h2>Key Code Table</h2></legend>
     <article>
-      <blockquote>Common codes for <code>display.keys[keyCode]</code>.</blockquote>
-      <details><summary>see more...</summary>
+      <blockquote>
+        <strong>Use these numeric codes with <code>display.keys[keyCode]</code> to detect key presses.</strong> 
+        The array is updated automatically by the engine. Check it inside your <code>update()</code> function every frame.
+      </blockquote>
+      <details>
+        <summary>see full table...</summary>
         <table>
-          <tr><th>Key</th><th>Code</th><th>Key</th><th>Code</th></tr>
-          <tr><td>← Left Arrow</td><td>37</td><td>A</td><td>65</td></tr>
-          <tr><td>↑ Up Arrow</td><td>38</td><td>W</td><td>87</td></tr>
-          <tr><td>→ Right Arrow</td><td>39</td><td>D</td><td>68</td></tr>
-          <tr><td>↓ Down Arrow</td><td>40</td><td>S</td><td>83</td></tr>
-          <tr><td>Space</td><td>32</td><td>Enter</td><td>13</td></tr>
-          <tr><td>Escape</td><td>27</td><td>Shift</td><td>16</td></tr>
-          <tr><td>Z</td><td>90</td><td>X</td><td>88</td></tr>
-          <tr><td>F</td><td>70</td><td>M</td><td>77</td></tr>
-          <tr><td>0–9</td><td>48–57</td><td>F1–F12</td><td>112–123</td></tr>
+          <tbody>
+            <tr><th>Key</th><th>Code</th><th>Key</th><th>Code</th></tr>
+            <tr><td>← Left Arrow</td><td>37</td><td>A</td><td>65</td></tr>
+            <tr><td>↑ Up Arrow</td><td>38</td><td>W</td><td>87</td></tr>
+            <tr><td>→ Right Arrow</td><td>39</td><td>D</td><td>68</td></tr>
+            <tr><td>↓ Down Arrow</td><td>40</td><td>S</td><td>83</td></tr>
+            <tr><td>Space</td><td>32</td><td>Enter</td><td>13</td></tr>
+            <tr><td>Escape</td><td>27</td><td>Shift</td><td>16</td></tr>
+            <tr><td>Z</td><td>90</td><td>X</td><td>88</td></tr>
+            <tr><td>F</td><td>70</td><td>M</td><td>77</td></tr>
+            <tr><td>0–9</td><td>48–57</td><td>F1–F12</td><td>112–123</td></tr>
+          </tbody>
         </table>
+        <p><strong>Tip:</strong> For WASD controls, use codes 65 (A), 87 (W), 68 (D), 83 (S) – they are adjacent on most keyboards and comfortable for left‑hand movement.</p>
       </details>
     </article>
   </fieldset>
