@@ -3,9 +3,74 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Limn Engine — Intermediate</title>
+<title>Limn Engine — Intermediate Guide</title>
 <link rel="stylesheet" href="style.css">
 <script src="head.js" defer></script>
+<style>
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 10px;
+    font-weight: bold;
+    margin-left: 8px;
+  }
+  .badge.lv1 { background: #7fffb2; color: #1a1a2e; }
+  .badge.lv2 { background: #5b8cff; color: white; }
+  .badge.lv3 { background: #ffbb6b; color: #1a1a2e; }
+  .badge.lv4 { background: #ff6b6b; color: white; }
+  .tip {
+    border-left: 4px solid #4caf50;
+    padding: 10px 15px;
+    margin: 15px 0;
+    border-radius: 4px;
+  }
+  .warn {
+    border-left: 4px solid #ff9800;
+    padding: 10px 15px;
+    margin: 15px 0;
+    border-radius: 4px;
+  }
+  details {
+    margin-top: 15px;
+  }
+  summary {
+    cursor: pointer;
+    font-weight: bold;
+    color: #2c3e50;
+  }
+  pre {
+    background: #1e1e1e;
+    color: #d4d4d4;
+    padding: 15px;
+    border-radius: 8px;
+    overflow-x: auto;
+    font-family: monospace;
+    font-size: 13px;
+    margin: 15px 0;
+  }
+  code {
+    font-family: monospace;
+    padding: 2px 5px;
+    border-radius: 3px;
+    font-size: 13px;
+  }
+  pre code {
+    background: transparent;
+    padding: 0;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 15px 0;
+  }
+  th, td {
+    border: 1px solid #ddd;
+    padding: 8px 12px;
+    text-align: left;
+  }
+
+</style>
 </head>
 <body>
 <nav>
@@ -39,35 +104,25 @@
 <main>
   <h1>🔵 Level 2 — Intermediate <span class="badge lv2">L2</span></h1>
 
+  <!-- ==================== SECTION 1: PHYSICS & GRAVITY ==================== -->
   <fieldset id="s1">
     <legend><h2>1. Physics &amp; Gravity</h2></legend>
     <article>
       <blockquote>
-        Enabling <code>physics</code> on a Component tells Limn Engine to apply gravity
-        to it automatically every frame — accumulating downward speed into a
-        <code>gravitySpeed</code> value that compounds over time just like real freefall.
+        <strong>Enabling <code>physics</code> on a Component tells Limn Engine to apply gravity to it automatically every frame.</strong> 
+        The engine accumulates downward speed into a <code>gravitySpeed</code> value that compounds over time, creating realistic freefall motion.
       </blockquote>
       <details>
-        <summary>see more...</summary>
+        <summary>📖 Full explanation & examples</summary>
         <p>
-          When <code>player.physics = true</code>, the engine's internal <code>move()</code>
-          method adds <code>this.gravity</code> to <code>this.gravitySpeed</code> on every
-          frame and then adds the total <code>gravitySpeed</code> to the Component's Y
-          position, so the downward acceleration builds up naturally over time rather than
-          jumping to a fixed speed.
-          The <code>gravity</code> property controls the pull strength per frame —
-          a value of <code>0.4</code> adds 0.4 to <code>gravitySpeed</code> every frame,
-          so after 10 frames the object is falling at 4px/frame and accelerating.
-          The <code>bounce</code> property controls how much energy is kept on impact —
-          <code>0</code> means a dead stop, <code>1</code> means a perfect bounce that
-          never loses height, and values like <code>0.6</code> produce a realistic
-          gradually-decaying bounce.
-          Physics is applied inside the Component's <code>move()</code> call which the
-          engine makes automatically each frame, but you must still call
-          <code>player.hitBottom()</code> inside your own <code>update()</code> function
-          to stop the player at the canvas floor — without it the physics works but the
-          player falls off screen.
+          When <code>player.physics = true</code>, the engine's internal <code>move()</code> method adds <code>this.gravity</code> to <code>this.gravitySpeed</code> on every frame, then adds the total <code>gravitySpeed</code> to the Component's Y position. This causes downward acceleration to build up naturally over time — after 10 frames of gravity 0.4, the object falls at 4px per frame and continues accelerating.
         </p>
+        <p>
+          The <code>gravity</code> property controls the pull strength per frame. A value of <code>0.4</code> adds 0.4 to <code>gravitySpeed</code> every frame. The <code>bounce</code> property (0–1) controls energy retained on impact — <code>0</code> means dead stop, <code>1</code> means perfect bounce, and values like <code>0.6</code> produce realistic decaying bounces.
+        </p>
+        <div class="warn">
+          ⚠️ You must call <code>player.hitBottom()</code> inside <code>update()</code> — the engine applies gravity but does not automatically stop the player at any surface.
+        </div>
         <pre><code>const player = new Component(40, 56, "blue", 100, 50, "rect");
 display.add(player);
 
@@ -83,48 +138,37 @@ function update() {
     if (display.keys[37]) player.speedX = -4;
     else if (!display.keys[39]) player.speedX = 0;
 }</code></pre>
-        <div class="warn">
-          ⚠️ You must call <code>player.hitBottom()</code> inside <code>update()</code>
-          every frame — the engine applies gravity but does not automatically stop the
-          player at any surface.
-        </div>
         <table>
-          <tr><th>Property</th><th>Type</th><th>Purpose</th></tr>
-          <tr><td><code>physics</code></td><td>boolean</td><td>Enable gravity accumulation in move()</td></tr>
-          <tr><td><code>gravity</code></td><td>number</td><td>Amount added to gravitySpeed per frame</td></tr>
-          <tr><td><code>gravitySpeed</code></td><td>number</td><td>Accumulated downward speed — set to negative to jump</td></tr>
-          <tr><td><code>bounce</code></td><td>0–1</td><td>Fraction of speed kept on floor impact</td></tr>
+          <thead><tr><th>Property</th><th>Type</th><th>Purpose</th></tr></thead>
+          <tbody>
+            <tr><td><code>physics</code></td><td>boolean</td><td>Enable gravity accumulation in move()</td></tr>
+            <tr><td><code>gravity</code></td><td>number</td><td>Amount added to gravitySpeed per frame</td></tr>
+            <tr><td><code>gravitySpeed</code></td><td>number</td><td>Accumulated downward speed — set negative to jump</td></tr>
+            <tr><td><code>bounce</code></td><td>0–1</td><td>Fraction of speed kept on floor impact</td></tr>
+          </tbody>
         </table>
       </details>
     </article>
   </fieldset>
 
+  <!-- ==================== SECTION 2: hitBottom() AND move.hitObject() ==================== -->
   <fieldset id="s2">
     <legend><h2>2. hitBottom() and move.hitObject()</h2></legend>
     <article>
       <blockquote>
-        <code>hitBottom()</code> clamps a physics Component to the canvas floor and
-        reverses its <code>gravitySpeed</code> by the <code>bounce</code> factor —
-        and <code>move.hitObject()</code> does the same thing but uses another Component
-        as the landing surface instead of the canvas edge.
+        <strong><code>hitBottom()</code> clamps a physics Component to the canvas floor and reverses its <code>gravitySpeed</code> by the <code>bounce</code> factor.</strong> 
+        <code>move.hitObject()</code> does the same thing but uses another Component as the landing surface instead of the canvas edge.
       </blockquote>
       <details>
-        <summary>see more...</summary>
+        <summary>📖 Full explanation & examples</summary>
         <p>
-          <code>hitBottom()</code> reads <code>display.canvas.height - this.height</code>
-          as the floor Y position, and the moment the Component's Y exceeds that it snaps
-          the Y back to the floor and multiplies <code>gravitySpeed</code> by
-          <code>-this.bounce</code> — the negative sign flips the velocity upward, and the
-          bounce factor scales how much of that speed survives, producing a gradually
-          diminishing series of bounces until the Component settles at rest.
-          <code>move.hitObject(id, otherid)</code> works identically but uses the top edge
-          of another Component as the floor — it reads <code>otherid.y</code> as the
-          landing surface and only triggers if the two Components also overlap on the
-          X axis (checked via <code>crashWith</code>), making it suitable for platforms
-          at different heights.
-          You can combine both in the same update loop — <code>hitBottom()</code> catches
-          the canvas edge as a safety net and <code>move.hitObject()</code> handles
-          specific platforms — and neither call breaks the other.
+          <code>hitBottom()</code> reads <code>display.canvas.height - this.height</code> as the floor Y position. The moment the Component's Y exceeds that, it snaps the Y back to the floor and multiplies <code>gravitySpeed</code> by <code>-this.bounce</code> — the negative sign flips velocity upward, and the bounce factor scales how much speed survives, producing gradually diminishing bounces until the Component settles at rest.
+        </p>
+        <p>
+          <code>move.hitObject(id, otherid)</code> works identically but uses the top edge of another Component as the floor. It reads <code>otherid.y</code> as the landing surface and only triggers if the two Components also overlap on the X axis (checked via <code>crashWith</code>), making it suitable for platforms at different heights.
+        </p>
+        <p>
+          You can combine both in the same update loop — <code>hitBottom()</code> catches the canvas edge as a safety net and <code>move.hitObject()</code> handles specific platforms.
         </p>
         <pre><code>const player = new Component(36, 48, "cyan", 100, 0, "rect");
 const platform = new Component(200, 20, "#555", 200, 300, "rect");
@@ -143,41 +187,34 @@ function update() {
     player.hitBottom();
 }</code></pre>
         <table>
-          <tr><th>Method</th><th>Parameters</th><th>Purpose</th></tr>
-          <tr><td><code>hitBottom()</code></td><td>None</td><td>Clamp to canvas floor and bounce using player.bounce</td></tr>
-          <tr><td><code>move.hitObject(id, floor)</code></td><td>Component, floor Component</td><td>Treat another Component's top edge as the landing surface</td></tr>
+          <thead><tr><th>Method</th><th>Parameters</th><th>Purpose</th></tr></thead>
+          <tbody>
+            <tr><td><code>hitBottom()</code></td><td>optional groundY</td><td>Clamp to canvas floor and bounce</td></tr>
+            <tr><td><code>move.hitObject(id, floor)</code></td><td>Component, floor Component</td><td>Treat another Component's top edge as landing surface</td></tr>
+          </tbody>
         </table>
       </details>
     </article>
   </fieldset>
 
+  <!-- ==================== SECTION 3: GLIDE MOVEMENT ==================== -->
   <fieldset id="s3">
     <legend><h2>3. move.glideX / glideY / glideTo</h2></legend>
     <article>
       <blockquote>
-        The glide functions ease a Component from its current position to a target
-        coordinate over a specified duration in milliseconds using a cubic ease-out
-        curve — the movement is fast at the start and decelerates smoothly as it
-        approaches the target, requiring no manual lerp code from you.
+        <strong>The glide functions ease a Component from its current position to a target coordinate over a specified duration using a cubic ease-out curve.</strong> 
+        The movement is fast at the start and decelerates smoothly as it approaches the target, requiring no manual lerp code from you.
       </blockquote>
       <details>
-        <summary>see more...</summary>
+        <summary>📖 Full explanation & examples</summary>
         <p>
-          Internally, <code>move.glideX()</code> records the Component's starting X and
-          the current timestamp from <code>performance.now()</code>, then launches its own
-          <code>requestAnimationFrame</code> loop that calculates elapsed time on every frame,
-          divides it by the total duration to get a 0–1 progress value, feeds that through
-          the formula <code>1 - Math.pow(1 - progress, 3)</code> to produce cubic ease-out,
-          and applies the result to the Component's X position.
-          This runs independently of your game loop — you call it once and walk away, and
-          the Component will arrive at the target position precisely at the end of the
-          duration regardless of frame rate.
-          <code>move.glideTo()</code> simply calls both <code>glideX()</code> and
-          <code>glideY()</code> simultaneously with the same duration, so both axes ease
-          in sync.
-          Glide is ideal for UI animations, cutscenes, enemy patrol paths, and any movement
-          that needs to feel polished rather than instant — and because it runs in its own
-          animation frame loop, it works correctly even without <code>display.perform()</code>.
+          Internally, <code>move.glideX()</code> records the Component's starting X and the current timestamp from <code>performance.now()</code>, then launches its own <code>requestAnimationFrame</code> loop that calculates elapsed time on every frame, divides it by the total duration to get a 0–1 progress value, feeds that through <code>1 - Math.pow(1 - progress, 3)</code> to produce cubic ease-out, and applies the result to the Component's X position.
+        </p>
+        <p>
+          This runs independently of your game loop — you call it once and walk away. The Component will arrive at the target position precisely at the end of the duration regardless of frame rate.
+        </p>
+        <p>
+          <code>move.glideTo()</code> simply calls both <code>glideX()</code> and <code>glideY()</code> simultaneously with the same duration, so both axes ease in sync. Glide is ideal for UI animations, cutscenes, enemy patrol paths, and any movement that needs to feel polished rather than instant.
         </p>
         <pre><code>const box = new Component(50, 50, "#7fffb2", 0, 200, "rect");
 display.add(box);
@@ -191,42 +228,35 @@ window.addEventListener("keydown", () => {
     move.glideTo(box, 2000, 700, 400);
 });</code></pre>
         <table>
-          <tr><th>Method</th><th>Parameters</th><th>Easing</th></tr>
-          <tr><td><code>move.glideX(id, ms, x)</code></td><td>Component, duration ms, target x</td><td>Cubic ease-out</td></tr>
-          <tr><td><code>move.glideY(id, ms, y)</code></td><td>Component, duration ms, target y</td><td>Cubic ease-out</td></tr>
-          <tr><td><code>move.glideTo(id, ms, x, y)</code></td><td>Component, duration ms, x, y</td><td>Both axes in sync</td></tr>
+          <thead><tr><th>Method</th><th>Parameters</th><th>Easing</th></tr></thead>
+          <tbody>
+            <tr><td><code>move.glideX(id, ms, x)</code></td><td>Component, duration ms, target x</td><td>Cubic ease-out</td></tr>
+            <tr><td><code>move.glideY(id, ms, y)</code></td><td>Component, duration ms, target y</td><td>Cubic ease-out</td></tr>
+            <tr><td><code>move.glideTo(id, ms, x, y)</code></td><td>Component, duration ms, x, y</td><td>Both axes in sync</td></tr>
+          </tbody>
         </table>
       </details>
     </article>
   </fieldset>
 
+  <!-- ==================== SECTION 4: PROJECTILE MOTION ==================== -->
   <fieldset id="s4">
     <legend><h2>4. move.project — Projectile Motion</h2></legend>
     <article>
       <blockquote>
-        <code>move.project()</code> launches a Component as a physics projectile — you
-        specify a velocity, a launch angle in degrees, and a gravity value, and the engine
-        calculates the correct X and Y velocity components and handles the arc, including
-        bouncing when the object hits the floor.
+        <strong><code>move.project()</code> launches a Component as a physics projectile.</strong> 
+        You specify velocity, launch angle in degrees, and gravity value. The engine calculates the correct X and Y velocity components and handles the arc, including bouncing when the object hits the floor.
       </blockquote>
       <details>
-        <summary>see more...</summary>
+        <summary>📖 Full explanation & examples</summary>
         <p>
-          The function converts the angle from degrees to radians, then uses
-          <code>Math.cos(angle)</code> and <code>Math.sin(angle)</code> to split the
-          velocity into horizontal and vertical components, assigning them to
-          <code>speedX</code> and <code>speedY</code>.
-          It then starts its own <code>requestAnimationFrame</code> loop that adds the
-          gravity value to <code>speedY</code> on every frame to simulate the arc —
-          gravity in this context is not the Component's <code>.gravity</code> property
-          but a separate value local to the projectile motion, giving you independent
-          control over the arc steepness.
-          When the projectile reaches the floor (either the canvas bottom or a custom
-          ground Y you pass as the fifth argument) it applies the Component's
-          <code>bounce</code> factor and reverses the vertical velocity, continuing
-          until the bounce speed rounds to zero and the loop stops.
-          Angle 0° launches horizontally to the right, 90° launches straight up, and
-          45° gives the classic arc — angles above 90° launch backward and upward.
+          The function converts the angle from degrees to radians, then uses <code>Math.cos(angle)</code> and <code>Math.sin(angle)</code> to split the velocity into horizontal and vertical components, assigning them to <code>speedX</code> and <code>speedY</code>.
+        </p>
+        <p>
+          It then starts its own <code>requestAnimationFrame</code> loop that adds the gravity value to <code>speedY</code> on every frame to simulate the arc. When the projectile reaches the floor (either the canvas bottom or a custom ground Y you pass as the fifth argument), it applies the Component's <code>bounce</code> factor and reverses the vertical velocity, continuing until the bounce speed rounds to zero and the loop stops.
+        </p>
+        <p>
+          Angle 0° launches horizontally to the right, 90° launches straight up, and 45° gives the classic arc — angles above 90° launch backward and upward.
         </p>
         <pre><code>const ball = new Component(20, 20, "orange", 100, 450, "rect");
 display.add(ball);
@@ -241,41 +271,36 @@ window.addEventListener("dblclick", () => {
     move.project(ball, 12, 45, 0.3, 400);
 });</code></pre>
         <table>
-          <tr><th>Parameter</th><th>Type</th><th>Purpose</th></tr>
-          <tr><td>velocity</td><td>number</td><td>Launch speed in pixels per frame</td></tr>
-          <tr><td>angle</td><td>degrees</td><td>0° = right, 90° = straight up, 45° = classic arc</td></tr>
-          <tr><td>gravity</td><td>number</td><td>Added to speedY every frame — controls arc steepness</td></tr>
-          <tr><td>ground</td><td>number (optional)</td><td>Custom floor Y — defaults to display.canvas.height</td></tr>
+          <thead><tr><th>Parameter</th><th>Type</th><th>Purpose</th></tr></thead>
+          <tbody>
+            <tr><td>velocity</td><td>number</td><td>Launch speed in pixels per frame</td></tr>
+            <tr><td>angle</td><td>degrees</td><td>0° = right, 90° = up, 45° = classic arc</td></tr>
+            <tr><td>gravity</td><td>number</td><td>Added to speedY every frame — controls arc steepness</td></tr>
+            <tr><td>ground</td><td>number (optional)</td><td>Custom floor Y — defaults to display.canvas.height</td></tr>
+          </tbody>
         </table>
       </details>
     </article>
   </fieldset>
 
+  <!-- ==================== SECTION 5: CAMERA FOLLOW ==================== -->
   <fieldset id="s5">
     <legend><h2>5. Camera Follow</h2></legend>
     <article>
       <blockquote>
-        <code>display.camera.follow(target)</code> translates the canvas context so the
-        view tracks a Component — keeping the player centred on screen as they move
-        through a world larger than the canvas — with an optional smooth lerp mode that
-        eases the camera behind the player rather than snapping to it instantly.
+        <strong><code>display.camera.follow(target)</code> translates the canvas context so the view tracks a Component.</strong> 
+        This keeps the player centred on screen as they move through a world larger than the canvas, with an optional smooth lerp mode that eases the camera behind the player rather than snapping to it instantly.
       </blockquote>
       <details>
-        <summary>see more...</summary>
+        <summary>📖 Full explanation & examples</summary>
         <p>
-          Internally the camera stores an <code>x</code> and <code>y</code> offset and
-          passes it to <code>context.translate(-camera.x, -camera.y)</code> at the
-          start of every frame, shifting the entire canvas coordinate system so that the
-          target Component appears at the centre of the screen.
-          With <code>smooth = false</code> (the default), the camera sets its position
-          exactly to centre on the target each frame — perfect for lock-on behaviour.
-          With <code>smooth = true</code>, the camera uses a 10% lerp:
-          <code>camera.x += (target.x - centreX) * 0.1</code>, so it drifts toward the
-          player position rather than snapping, giving the professional trailing-camera
-          feel used in most 2D platformers.
-          The camera also clamps its position to <code>camera.worldWidth</code> and
-          <code>camera.worldHeight</code> so it never shows empty space past the edges
-          of your world — set those two properties to match your level size.
+          Internally, the camera stores an <code>x</code> and <code>y</code> offset and passes it to <code>context.translate(-camera.x, -camera.y)</code> at the start of every frame, shifting the entire canvas coordinate system so that the target Component appears at the centre of the screen.
+        </p>
+        <p>
+          With <code>smooth = false</code> (the default), the camera sets its position exactly to centre on the target each frame — perfect for lock-on behaviour. With <code>smooth = true</code>, the camera uses a 10% lerp: <code>camera.x += (target.x - centreX) * 0.1</code>, so it drifts toward the player position rather than snapping, giving the professional trailing-camera feel used in most 2D platformers.
+        </p>
+        <p>
+          The camera also clamps its position to <code>camera.worldWidth</code> and <code>camera.worldHeight</code> so it never shows empty space past the edges of your world.
         </p>
         <pre><code>display.camera.worldWidth  = 3000; // level is 3000px wide
 display.camera.worldHeight = 1000; // level is 1000px tall
@@ -288,46 +313,32 @@ function update(dt) {
     // Smooth follow — lerps 10% of the gap each frame (recommended)
     display.camera.follow(player, true);
 
-    // Hard follow — snaps to player exactly (useful for debugging)
+    // Hard follow — snaps to player exactly
     // display.camera.follow(player);
 }</code></pre>
-        <table>
-          <tr><th>Method / Property</th><th>Parameters</th><th>Purpose</th></tr>
-          <tr><td><code>camera.follow(target, smooth)</code></td><td>Component, boolean (default false)</td><td>Follow a Component — smooth=true for lerp</td></tr>
-          <tr><td><code>camera.worldWidth / worldHeight</code></td><td>number</td><td>World size for camera clamping — default 1000</td></tr>
-          <tr><td><code>camera.x / camera.y</code></td><td>number</td><td>Current camera offset — read or set manually</td></tr>
-        </table>
       </details>
     </article>
   </fieldset>
 
+  <!-- ==================== SECTION 6: CAMERA ZOOM ==================== -->
   <fieldset id="s6">
     <legend><h2>6. Camera Zoom</h2></legend>
     <article>
       <blockquote>
-        <code>display.camera.setZoom(amount)</code> scales the entire canvas context
-        by a multiplier each frame — values above 1 zoom in, values below 1 zoom out —
-        and it must be called inside <code>update()</code> every frame because the context
-        transform resets between frames.
+        <strong><code>display.camera.setZoom(amount)</code> scales the entire canvas context by a multiplier each frame.</strong> 
+        Values above 1 zoom in, values below 1 zoom out — and it must be called inside <code>update()</code> every frame because the context transform resets between frames.
       </blockquote>
       <details>
-        <summary>see more...</summary>
+        <summary>📖 Full explanation & examples</summary>
         <p>
-          <code>setZoom()</code> calls <code>display.context.scale(amount, amount)</code>
-          on the live canvas context, which multiplies all subsequent draw coordinates by
-          that factor — a zoom of <code>2.0</code> means every pixel of your game world
-          is drawn at twice the size, effectively doubling the apparent canvas magnification.
-          Because Limn's render loop calls <code>context.save()</code> and
-          <code>context.restore()</code> every frame, the scale transform is reset at the
-          end of each frame — which is why you must call <code>setZoom()</code> inside
-          <code>update()</code> on every single frame to maintain the zoom level
-          continuously.
-          Zoom and camera follow can be combined — call <code>camera.follow()</code>
-          first and then <code>camera.setZoom()</code> after, and the zoom will expand
-          around the current camera position.
-          Typical use cases include zooming in during cutscenes, zooming out to show a
-          minimap-style overview, or providing a smooth zoom-in effect on game start.
+          <code>setZoom()</code> calls <code>display.context.scale(amount, amount)</code> on the live canvas context, which multiplies all subsequent draw coordinates by that factor — a zoom of <code>2.0</code> means every pixel of your game world is drawn at twice the size, effectively doubling the apparent canvas magnification.
         </p>
+        <p>
+          Because Limn's render loop calls <code>context.save()</code> and <code>context.restore()</code> every frame, the scale transform is reset at the end of each frame — which is why you must call <code>setZoom()</code> inside <code>update()</code> on every single frame to maintain the zoom level continuously.
+        </p>
+        <div class="warn">
+          ⚠️ Call <code>setZoom()</code> every frame — the context scale resets at the end of each frame and will return to 1.0 if you stop calling it.
+        </div>
         <pre><code>let zoomLevel = 1.0;
 
 function update(dt) {
@@ -340,43 +351,25 @@ function update(dt) {
     // Must be called every frame to maintain the zoom
     display.camera.setZoom(zoomLevel);
 }</code></pre>
-        <div class="warn">
-          ⚠️ Call <code>setZoom()</code> every frame — the context scale resets at the
-          end of each frame and will return to 1.0 if you stop calling it.
-        </div>
       </details>
     </article>
   </fieldset>
 
+  <!-- ==================== SECTION 7: SPRITE & ANIMATEDSPRITE ==================== -->
   <fieldset id="s7">
     <legend><h2>7. Sprite &amp; AnimatedSprite</h2></legend>
     <article>
       <blockquote>
-        <code>Sprite</code> animates a horizontal spritesheet by cycling through
-        evenly spaced frames at a controlled speed, and <code>AnimatedSprite</code>
-        extends it with named animation clips so you can define separate frame ranges
-        for idle, run, jump, attack, and die and switch between them by name.
+        <strong><code>Sprite</code> animates a horizontal spritesheet by cycling through evenly spaced frames at a controlled speed.</strong> 
+        <code>AnimatedSprite</code> extends it with named animation clips so you can define separate frame ranges for idle, run, jump, attack, and die — switching between them by name.
       </blockquote>
       <details>
-        <summary>see more...</summary>
+        <summary>📖 Full explanation & examples</summary>
         <p>
-          A spritesheet is a single image file where every animation frame is placed
-          side by side in a horizontal row — frame 0 is leftmost, frame 1 is next,
-          and so on.
-          <code>Sprite</code> stores the frame width, total frame count, and a speed
-          (frames-per-update value) and each call to <code>updateAnimation()</code>
-          increments an internal timer, and when that timer reaches the speed threshold
-          it advances <code>currentFrame</code> by 1 and resets the timer —
-          the <code>update()</code> method then uses <code>currentFrame * frameWidth</code>
-          as the X source offset for <code>drawImage</code>, cutting out exactly the
-          right slice of the spritesheet.
-          <code>AnimatedSprite</code> adds an <code>animations</code> dictionary where
-          each entry stores a <code>start</code> frame, <code>end</code> frame, speed,
-          and loop flag — calling <code>playAnimation("run")</code> switches the active
-          clip and resets the frame counter only if the name is different from the current
-          clip, preventing the animation from restarting if you call it every frame.
-          One-shot animations like jump or die set <code>paused = true</code> when they
-          reach their last frame, which you can check to know when the animation finished.
+          A spritesheet is a single image file where every animation frame is placed side by side in a horizontal row — frame 0 is leftmost, frame 1 is next, and so on. <code>Sprite</code> stores the frame width, total frame count, and a speed (frames-per-update value). Each call to <code>updateAnimation()</code> increments an internal timer, and when that timer reaches the speed threshold, it advances <code>currentFrame</code> by 1 and resets the timer — the <code>update()</code> method then uses <code>currentFrame * frameWidth</code> as the X source offset for <code>drawImage</code>, cutting out exactly the right slice of the spritesheet.
+        </p>
+        <p>
+          <code>AnimatedSprite</code> adds an <code>animations</code> dictionary where each entry stores a <code>start</code> frame, <code>end</code> frame, speed, and loop flag. Calling <code>playAnimation("run")</code> switches the active clip and resets the frame counter only if the name is different from the current clip, preventing the animation from restarting if you call it every frame. One-shot animations like jump or die set <code>paused = true</code> when they reach their last frame, which you can check to know when the animation finished.
         </p>
         <pre><code>// Basic Sprite — Sprite(src, frameW, frameH, frameCount, frameSpeed, x, y)
 const explosion = new Sprite("explode.png", 64, 64, 8, 4, 300, 200);
@@ -405,139 +398,117 @@ function update() {
     hero.updateAnimation(); // must call every frame to advance frames
     // hero.paused is true when a one-shot animation finishes
 }</code></pre>
-        <table>
-          <tr><th>Method</th><th>Parameters</th><th>Purpose</th></tr>
-          <tr><td><code>addAnimation(name,s,e,spd,loop)</code></td><td>string,int,int,int,bool</td><td>Define a named frame range clip</td></tr>
-          <tr><td><code>playAnimation(name)</code></td><td>string</td><td>Switch to that clip — only resets if name changed</td></tr>
-          <tr><td><code>updateAnimation()</code></td><td>None</td><td>Advance the frame counter — call every frame</td></tr>
-          <tr><td><code>paused</code></td><td>boolean</td><td>True when a one-shot animation reaches its last frame</td></tr>
-        </table>
       </details>
     </article>
   </fieldset>
 
+  <!-- ==================== SECTION 8: TILEMAP LAYERS ==================== -->
   <fieldset id="s8">
-    <legend><h2>8. TileMap Layers with addMap()</h2></legend>
-    <article>
-      <blockquote>
-        The TileMap in Limn Engine is a multi-layer system where each layer is an
-        independent 2D number array — the first layer is created automatically when
-        you call <code>display.tileMap()</code>, and <code>addMap()</code> pushes
-        additional layers on top, each rendered into the same fake canvas buffer in
-        order like Photoshop layers.
-      </blockquote>
-      <details>
-        <summary>see more...</summary>
-        <p>
-          When you call <code>display.tileMap()</code>, the engine constructs a
-          <code>TileMap</code> object that wraps your <code>display.map</code> inside an
-          outer array — <code>this.map = [map]</code> — making it layer 0 automatically,
-          so the system is already prepared for multiple layers even if you only ever
-          use one.
-          Calling <code>display.tileFace.addMap(anotherArray)</code> pushes a new 2D
-          number array onto that outer array as the next layer index, and the same tile
-          templates defined in <code>display.tile</code> are shared across all layers —
-          a tile ID of 2 means the same dirt Component in layer 0 and layer 2.
-          To actually render a layer into the fake canvas you call
-          <code>display.tileFace.show(layerNumber)</code>, and each call stamps that
-          layer's tiles into the offscreen buffer on top of what was already there,
-          building the composite image bottom-to-top — so you must call
-          <code>show(0)</code> first, then <code>show(1)</code>, then <code>show(2)</code>.
-          The <code>add(tileId, tx, ty, layer)</code> and <code>remove(tx, ty, layer)</code>
-          methods both accept a layer number so you can edit a specific layer at runtime
-          without disturbing the others, and both automatically call
-          <code>fake.refresh()</code> to re-cache the updated fake canvas on the next frame.
-          The practical result is a rich, multi-depth world — ground tiles, decoration
-          tiles, and interactive overlay tiles all composited into one cached image — at
-          zero per-frame rendering cost once the cache is built.
-        </p>
-        <pre><code>// All layers share these tile templates
-display.tile = [
-    new Component(64, 64, "#2d6a2d", 0, 0), // tile 1 = grass
-    new Component(64, 64, "#8B4513", 0, 0), // tile 2 = dirt
-    new Component(64, 64, "#228B22", 0, 0), // tile 3 = tree
-    new Component(64, 64, "#FFD700", 0, 0), // tile 4 = coin
+  <legend><h2>8. TileMap Layers with addMap()</h2></legend>
+  <article>
+    <blockquote>
+      The TileMap system stores multiple map layouts via <code>addMap()</code> —
+      each one is an independent 2D array registered as a numbered layer — and
+      <code>show(layer)</code> switches the entire tilemap display to that layer,
+      exactly like <code>display.scene</code> switches which Components are visible.
+    </blockquote>
+    <details>
+      <summary>see more...</summary>
+      <p>
+        When you call <code>display.tileMap()</code>, the engine wraps your
+        <code>display.map</code> into <code>this.map[0]</code> — the first layer.
+        Calling <code>display.tileFace.addMap(anotherArray)</code> pushes a second
+        map into <code>this.map[1]</code>, a third into <code>this.map[2]</code>,
+        and so on, but none of them are visible yet.
+        When you call <code>display.tileFace.show(0)</code>, the engine clears
+        <code>tileComm[]</code> completely, rebuilds it from layer 0's map array,
+        and sets <code>fake.scene = 0</code> — so <code>ani()</code> only draws
+        tiles from layer 0 into the fake canvas.
+        Calling <code>display.tileFace.show(1)</code> does the same thing for
+        layer 1 — it wipes <code>tileComm[]</code> and rebuilds it entirely from
+        layer 1's data, replacing layer 0 completely.
+        This means <code>addMap()</code> is not a layering system — it is a
+        <strong>map switching system</strong>. Think of it like levels or rooms:
+        layer 0 is the grassland level, layer 1 is the dungeon level, layer 2 is
+        the snow level — calling <code>show(n)</code> swaps the entire world to
+        that map, the same way <code>display.scene = n</code> swaps which
+        Components are active.
+        This makes it perfect for level progression, room transitions, and
+        alternate map states — the same tile templates are shared across all
+        layers, so a tile ID of 2 means the same Component in every map.
+      </p>
+      <pre><code>display.tile = [
+    new Component(64, 64, "green",   0, 0), // tile 1 = grass
+    new Component(64, 64, "#333",    0, 0), // tile 2 = dungeon floor
+    new Component(64, 64, "white",   0, 0), // tile 3 = snow
 ];
 
-// Layer 0 — ground (becomes this.map[0] automatically)
+// Layer 0 — grassland level
 display.map = [
-    [1, 1, 2, 1, 1],
-    [2, 1, 1, 2, 1],
-    [2, 2, 2, 2, 2],
+    [1, 1, 1, 1, 1],
+    [1, 0, 0, 1, 1],
+    [1, 1, 1, 1, 1],
 ];
 display.tileMap();
-display.tileFace.show(0); // render layer 0 into fake canvas
+display.tileFace.show(0); // display layer 0 — grassland active
 
-// Layer 1 — decoration on top of ground
+// Layer 1 — dungeon level
 display.tileFace.addMap([
-    [0, 3, 0, 0, 3],
-    [0, 0, 3, 0, 0],
-    [0, 0, 0, 0, 0],
+    [2, 2, 2, 2, 2],
+    [2, 0, 0, 0, 2],
+    [2, 2, 2, 2, 2],
 ]);
-display.tileFace.show(1); // composites layer 1 ON TOP of layer 0
 
-// Layer 2 — collectable coins
+// Layer 2 — snow level
 display.tileFace.addMap([
-    [0, 0, 4, 0, 4],
-    [0, 4, 0, 0, 0],
-    [0, 0, 0, 4, 0],
+    [3, 3, 0, 3, 3],
+    [3, 0, 0, 0, 3],
+    [3, 3, 3, 3, 3],
 ]);
-display.tileFace.show(2); // composites layer 2 on top
 
-// Collision still works across all layers
+// Switch to dungeon when player enters a door
 function update() {
-    if (display.tileFace.crashWith(player, 2)) {
-        // player touched a dirt tile (type 2)
+    if (player.crashWith(dungeonDoor)) {
+        display.tileFace.show(1); // wipes layer 0, switches to dungeon
+        fake.refresh();
     }
-}
-
-// Edit a layer at runtime — fake.refresh() called automatically
-display.tileFace.remove(1, 0, 2); // remove coin at grid(1,0) on layer 2
-display.tileFace.add(3, 2, 1, 1); // add tree at grid(2,1) on layer 1</code></pre>
-        <div class="tip">
-          💡 Always call <code>show()</code> for layers in order from 0 upward —
-          each call composites that layer into the same fake canvas buffer on top
-          of whatever was rendered before it.
-        </div>
-        <table>
-          <tr><th>Method</th><th>Parameters</th><th>Purpose</th></tr>
-          <tr><td><code>display.tileMap()</code></td><td>None</td><td>Build TileMap — wraps display.map as layer 0</td></tr>
-          <tr><td><code>tileFace.addMap(map2d)</code></td><td>2D array</td><td>Add a new layer to the TileMap</td></tr>
-          <tr><td><code>tileFace.show(layer)</code></td><td>layer number (default 0)</td><td>Render that layer into the fake canvas buffer</td></tr>
-          <tr><td><code>tileFace.add(id,tx,ty,layer)</code></td><td>tileId,gridX,gridY,layer=0</td><td>Place a tile on a layer at runtime</td></tr>
-          <tr><td><code>tileFace.remove(tx,ty,layer)</code></td><td>gridX,gridY,layer=0</td><td>Remove a tile from a layer at runtime</td></tr>
-          <tr><td><code>tileFace.crashWith(obj,id)</code></td><td>Component, optional tileId</td><td>Collision against all rendered tiles</td></tr>
-          <tr><td><code>tileFace.rTile(tx,ty)</code></td><td>gridX,gridY</td><td>Get the Tile object at a grid position</td></tr>
-          <tr><td><code>fake.refresh()</code></td><td>None</td><td>Force one fake canvas redraw on next frame</td></tr>
-        </table>
-      </details>
-    </article>
-  </fieldset>
-
+    if (player.crashWith(snowDoor)) {
+        display.tileFace.show(2); // switches to snow level
+        fake.refresh();
+    }
+}</code></pre>
+      <div class="tip">
+        💡 <code>show(layer)</code> and <code>display.scene</code> follow the
+        same design philosophy — one switches the active tilemap, the other
+        switches the active Components. Use them together for complete level
+        transitions.
+      </div>
+      <table>
+        <tr><th>Method</th><th>Parameters</th><th>What it actually does</th></tr>
+        <tr><td><code>display.tileMap()</code></td><td>—</td><td>Creates TileMap — stores display.map as layer 0</td></tr>
+        <tr><td><code>tileFace.addMap(map2d)</code></td><td>2D array</td><td>Register a new map as the next layer number</td></tr>
+        <tr><td><code>tileFace.show(layer)</code></td><td>layer number</td><td>Wipe tileComm[], rebuild from that layer, set fake.scene — switches the active map</td></tr>
+        <tr><td><code>tileFace.add(id,tx,ty,layer)</code></td><td>tileId, gridX, gridY, layer</td><td>Edit a tile in any layer's stored data</td></tr>
+        <tr><td><code>tileFace.remove(tx,ty,layer)</code></td><td>gridX, gridY, layer</td><td>Remove a tile from any layer's stored data</td></tr>
+      </table>
+    </details>
+  </article>
+</fieldset>
+  <!-- ==================== SECTION 9: TCTXT STYLED TEXT ==================== -->
   <fieldset id="s9">
     <legend><h2>9. Tctxt — Styled Text UI</h2></legend>
     <article>
       <blockquote>
-        <code>Tctxt</code> is the correct class for any on-screen text in Limn Engine —
-        it gives you font size, font family, colour, alignment, an optional background
-        fill with padding, stroke vs fill mode, and a baseline setting, all in one
-        Component that registers with <code>display.add()</code> like any other object.
+        <strong><code>Tctxt</code> is the correct class for any on-screen text in Limn Engine.</strong> 
+        It gives you font size, font family, colour, alignment, optional background fill with padding, stroke vs fill mode, and baseline setting — all in one Component.
       </blockquote>
       <details>
-        <summary>see more...</summary>
+        <summary>📖 Full explanation & examples</summary>
         <p>
-          The base <code>Component.setText()</code> method can draw text but offers no
-          control over font, alignment, or background — it is an internal fallback.
-          <code>Tctxt</code> replaces it for any UI work: its <code>update()</code>
-          method sets <code>ctx.font</code>, <code>ctx.textAlign</code>, and
-          <code>ctx.textBaseline</code> from its constructor arguments before drawing,
-          and it calls its own <code>rect()</code> method first to draw the background
-          rectangle, which uses <code>ctx.measureText()</code> on the current text
-          to size the background exactly to the text width plus padding on every frame.
-          Call <code>scoreText.fixed()</code> every frame inside <code>update()</code>
-          when the camera is moving — this adds the camera offset to the anchor position
-          so the text stays at the same screen coordinates regardless of where the camera
-          is pointing.
+          The base <code>Component.setText()</code> method can draw text but offers no control over font, alignment, or background — it is an internal fallback. <code>Tctxt</code> replaces it for any UI work: its <code>update()</code> method sets <code>ctx.font</code>, <code>ctx.textAlign</code>, and <code>ctx.textBaseline</code> from its constructor arguments before drawing, and it calls its own <code>rect()</code> method first to draw the background rectangle, which uses <code>ctx.measureText()</code> on the current text to size the background exactly to the text width plus padding on every frame.
+        </p>
+        <p>
+          Call <code>scoreText.fixed()</code> every frame inside <code>update()</code> when the camera is moving — this adds the camera offset to the anchor position so the text stays at the same screen coordinates regardless of where the camera is pointing.
         </p>
         <pre><code>const scoreText = new Tctxt(
     "22px",                    // font size
@@ -561,30 +532,24 @@ function update() {
     </article>
   </fieldset>
 
+  <!-- ==================== SECTION 10: ACCELERATE & DECELERATE ==================== -->
   <fieldset id="s10">
     <legend><h2>10. Accelerate &amp; Decelerate</h2></legend>
     <article>
       <blockquote>
-        <code>move.accelerate()</code> and <code>move.decelerate()</code> give you
-        vehicle-style movement where speed builds up gradually to a maximum and bleeds
-        off smoothly to zero — producing the satisfying weight and momentum that
-        simple <code>speedX = 4</code> assignments cannot.
+        <strong><code>move.accelerate()</code> and <code>move.decelerate()</code> give you vehicle-style movement where speed builds up gradually to a maximum and bleeds off smoothly to zero.</strong> 
+        This produces the satisfying weight and momentum that simple <code>speedX = 4</code> assignments cannot.
       </blockquote>
       <details>
-        <summary>see more...</summary>
+        <summary>📖 Full explanation & examples</summary>
         <p>
-          <code>move.accelerate(id, accelX, accelY, maxSpeedX, maxSpeedY)</code> adds
-          the acceleration values to the Component's current <code>speedX</code> and
-          <code>speedY</code> every frame it is called, then clamps the result so it
-          cannot exceed the max speed values — meaning the Component gets faster and
-          faster up to a ceiling, just like a car accelerating.
-          <code>move.decelerate(id, decelX, decelY)</code> subtracts from the speed
-          on each call but includes an overshoot guard — if <code>speedX</code> would
-          cross zero it is set exactly to zero rather than reversing direction, so the
-          Component glides to a clean stop without any jittery back-and-forth.
-          The typical pattern is to call <code>accelerate()</code> while a key is held
-          and <code>decelerate()</code> in the else branch — the Component smoothly
-          speeds up on keydown, and drifts to a stop when the key is released.
+          <code>move.accelerate(id, accelX, accelY, maxSpeedX, maxSpeedY)</code> adds the acceleration values to the Component's current <code>speedX</code> and <code>speedY</code> every frame it is called, then clamps the result so it cannot exceed the max speed values — meaning the Component gets faster and faster up to a ceiling, just like a car accelerating.
+        </p>
+        <p>
+          <code>move.decelerate(id, decelX, decelY)</code> subtracts from the speed on each call but includes an overshoot guard — if <code>speedX</code> would cross zero it is set exactly to zero rather than reversing direction, so the Component glides to a clean stop without any jittery back-and-forth.
+        </p>
+        <p>
+          The typical pattern is to call <code>accelerate()</code> while a key is held and <code>decelerate()</code> in the else branch — the Component smoothly speeds up on keydown, and drifts to a stop when the key is released.
         </p>
         <pre><code>function update(dt) {
     if (display.keys[68]) {
@@ -596,25 +561,19 @@ function update() {
     }
     move.bound(player);
 }</code></pre>
-        <table>
-          <tr><th>Method</th><th>Parameters</th><th>Purpose</th></tr>
-          <tr><td><code>move.accelerate(id,ax,ay,mx,my)</code></td><td>Component, accelX, accelY, maxX, maxY</td><td>Add acceleration per frame up to max speed</td></tr>
-          <tr><td><code>move.decelerate(id,dx,dy)</code></td><td>Component, decelX, decelY</td><td>Reduce speed to zero without reversing direction</td></tr>
-        </table>
       </details>
     </article>
   </fieldset>
 
+  <!-- ==================== SECTION 11: PLATFORM GAME TUTORIAL ==================== -->
   <fieldset id="s11">
     <legend><h2>11. Platform Game Tutorial</h2></legend>
     <article>
       <blockquote>
-        This tutorial puts together physics, jumping, accelerated movement, a floor
-        platform, smooth camera follow, and a Tctxt score display into a complete
-        playable platformer using only Level 2 concepts.
+        <strong>This tutorial puts together physics, jumping, accelerated movement, a floor platform, smooth camera follow, and a Tctxt score display into a complete playable platformer using only Level 2 concepts.</strong>
       </blockquote>
       <details>
-        <summary>see more...</summary>
+        <summary>📖 Full game code</summary>
         <pre><code>&lt;script src="epic.js"&gt;&lt;/script&gt;
 &lt;script&gt;
 const display = new Display();
@@ -671,30 +630,35 @@ function update(dt) {
     scoreUI.fixed();
 }
 &lt;/script&gt;</code></pre>
-        <p>✅ WASD or arrow keys to move, W/Up to jump. Multi-platform levels, smooth camera, live distance counter.</p>
+        <div class="tip">
+          ✅ WASD or arrow keys to move, W/Up to jump. Multi-platform levels, smooth camera, live distance counter.
+        </div>
       </details>
     </article>
   </fieldset>
 
+  <!-- ==================== SECTION 12: QUICK REFERENCE ==================== -->
   <fieldset id="s12">
     <legend><h2>12. Quick Reference</h2></legend>
     <article>
       <details>
-        <summary>see more...</summary>
+        <summary>📖 See all shortcuts</summary>
         <table>
-          <tr><th>Feature</th><th>Code</th></tr>
-          <tr><td>Enable physics</td><td><code>player.physics=true; player.gravity=0.4;</code></td></tr>
-          <tr><td>Floor collision</td><td><code>player.hitBottom();</code></td></tr>
-          <tr><td>Platform collision</td><td><code>move.hitObject(player, floor);</code></td></tr>
-          <tr><td>Jump</td><td><code>if(player.gravitySpeed >= 0) player.gravitySpeed = -10;</code></td></tr>
-          <tr><td>Glide to position</td><td><code>move.glideTo(obj, 2000, x, y);</code></td></tr>
-          <tr><td>Projectile launch</td><td><code>move.project(ball, 12, 45, 0.3);</code></td></tr>
-          <tr><td>Camera follow</td><td><code>display.camera.follow(player, true);</code></td></tr>
-          <tr><td>Zoom</td><td><code>display.camera.setZoom(1.5); // every frame</code></td></tr>
-          <tr><td>AnimatedSprite</td><td><code>hero.addAnimation("run",4,11,5,true); hero.playAnimation("run"); hero.updateAnimation();</code></td></tr>
-          <tr><td>TileMap layer</td><td><code>tileFace.addMap(arr); tileFace.show(1);</code></td></tr>
-          <tr><td>Accelerate</td><td><code>move.accelerate(obj,0.6,0,8,0);</code></td></tr>
-          <tr><td>Decelerate</td><td><code>move.decelerate(obj,0.4,0);</code></td></tr>
+          <thead><tr><th>Feature</th><th>Code</th></tr></thead>
+          <tbody>
+            <tr><td>Enable physics</td><td><code>player.physics=true; player.gravity=0.4;</code></td></tr>
+            <tr><td>Floor collision</td><td><code>player.hitBottom();</code></td></tr>
+            <tr><td>Platform collision</td><td><code>move.hitObject(player, floor);</code></td></tr>
+            <tr><td>Jump</td><td><code>if(player.gravitySpeed >= 0) player.gravitySpeed = -10;</code></td></tr>
+            <tr><td>Glide to position</td><td><code>move.glideTo(obj, 2000, x, y);</code></td></tr>
+            <tr><td>Projectile launch</td><td><code>move.project(ball, 12, 45, 0.3);</code></td></tr>
+            <tr><td>Camera follow</td><td><code>display.camera.follow(player, true);</code></td></tr>
+            <tr><td>Zoom</td><td><code>display.camera.setZoom(1.5); // every frame</code></td></tr>
+            <tr><td>AnimatedSprite</td><td><code>hero.addAnimation("run",4,11,5,true); hero.playAnimation("run"); hero.updateAnimation();</code></td></tr>
+            <tr><td>TileMap layer</td><td><code>tileFace.addMap(arr); tileFace.show(1);</code></td></tr>
+            <tr><td>Accelerate</td><td><code>move.accelerate(obj,0.6,0,8,0);</code></td></tr>
+            <tr><td>Decelerate</td><td><code>move.decelerate(obj,0.4,0);</code></td></tr>
+          </tbody>
         </table>
       </details>
     </article>
