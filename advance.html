@@ -3,9 +3,74 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Limn Engine — Advanced</title>
+<title>Limn Engine — Advanced Guide</title>
 <link rel="stylesheet" href="style.css">
 <script src="head.js" defer></script>
+<style>
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 10px;
+    font-weight: bold;
+    margin-left: 8px;
+  }
+  .badge.lv1 { background: #7fffb2; color: #1a1a2e; }
+  .badge.lv2 { background: #5b8cff; color: white; }
+  .badge.lv3 { background: #ffbb6b; color: #1a1a2e; }
+  .badge.lv4 { background: #ff6b6b; color: white; }
+  .tip {
+    border-left: 4px solid #4caf50;
+    padding: 10px 15px;
+    margin: 15px 0;
+    border-radius: 4px;
+  }
+  .warn {
+    border-left: 4px solid #ff9800;
+    padding: 10px 15px;
+    margin: 15px 0;
+    border-radius: 4px;
+  }
+  details {
+    margin-top: 15px;
+  }
+  summary {
+    cursor: pointer;
+    font-weight: bold;
+    color: #2c3e50;
+  }
+  pre {
+    background: #1e1e1e;
+    color: #d4d4d4;
+    padding: 15px;
+    border-radius: 8px;
+    overflow-x: auto;
+    font-family: monospace;
+    font-size: 13px;
+    margin: 15px 0;
+  }
+  code {
+    font-family: monospace;
+    padding: 2px 5px;
+    border-radius: 3px;
+    font-size: 13px;
+  }
+  pre code {
+    background: transparent;
+    padding: 0;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 15px 0;
+  }
+  th, td {
+    border: 1px solid #ddd;
+    padding: 8px 12px;
+    text-align: left;
+  }
+
+</style>
 </head>
 <body>
 <nav>
@@ -30,7 +95,7 @@
     <li><a href="#s7">7. Camera rotation shake</a></li>
     <li><a href="#s8">8. Dynamic TileMap editing</a></li>
     <li><a href="#s9">9. move.pointTo &amp; move.circle</a></li>
-    <li><a href="#s10">10. fixed() HUD anchoring</a></li>
+    <li><a href="#s10">10. fixed() — HUD anchoring</a></li>
     <li><a href="#s11">11. destroy()</a></li>
     <li><a href="#s12">12. Top-down shooter tutorial</a></li>
     <li><a href="#s13">13. Quick reference</a></li>
@@ -40,32 +105,21 @@
 <main>
   <h1>🟠 Level 3 — Advanced <span class="badge lv3">L3</span></h1>
 
+  <!-- ==================== SECTION 1: SCENE MANAGEMENT ==================== -->
   <fieldset id="s1">
     <legend><h2>1. Scene Management</h2></legend>
     <article>
       <blockquote>
-        Limn Engine's scene system lets you build every screen of your game — menu,
-        gameplay, pause, game over — as separate Component collections that all exist
-        in memory simultaneously, switching between them instantly by changing a single
-        integer without creating or destroying any objects.
+        <strong>Limn Engine's scene system lets you build every screen of your game — menu, gameplay, pause, game over — as separate Component collections that all exist in memory simultaneously.</strong> 
+        Switching between them happens instantly by changing a single integer, without creating or destroying any objects.
       </blockquote>
       <details>
-        <summary>see more...</summary>
+        <summary>📖 Full explanation & examples</summary>
         <p>
-          When you register a Component with <code>display.add(obj, 2)</code>, the engine
-          stores the number 2 alongside that Component in the <code>comm[]</code> array.
-          Every frame the render loop checks
-          <code>if (component.scene == display.scene)</code> before drawing anything,
-          so Components in scenes 1 and 2 are completely invisible and receive no
-          <code>move()</code> or <code>update()</code> calls when <code>display.scene</code>
-          is 0.
-          Changing <code>display.scene = 1</code> takes effect on the very next frame —
-          the menu Components stop rendering and the gameplay Components instantly become
-          active, with zero allocation or garbage collection overhead.
-          This is the recommended pattern for any game state transition — never call
-          <code>destroy()</code> on UI elements that will be needed again, and never
-          re-create objects on every state change; just assign them to their scene at
-          startup and flip <code>display.scene</code> as needed.
+          When you register a Component with <code>display.add(obj, 2)</code>, the engine stores the number 2 alongside that Component in the <code>comm[]</code> array. Every frame, the render loop checks <code>if (component.scene == display.scene)</code> before drawing anything. Components in scenes 1 and 2 are completely invisible and receive no <code>move()</code> or <code>update()</code> calls when <code>display.scene</code> is 0.
+        </p>
+        <p>
+          Changing <code>display.scene = 1</code> takes effect on the very next frame — the menu Components stop rendering and the gameplay Components instantly become active, with zero allocation or garbage collection overhead. This is the recommended pattern for any game state transition — never call <code>destroy()</code> on UI elements that will be needed again, and never re-create objects on every state change; just assign them to their scene at startup and flip <code>display.scene</code> as needed.
         </p>
         <pre><code>// Build all scenes at startup
 const menuBtn = new Component(160, 50, "#7fffb2", 320, 275, "rect");
@@ -92,37 +146,31 @@ function update() {
         gameUI.fixed();
     }
 }</code></pre>
+        <div class="tip">
+          💡 Scenes are just integers — you can have as many as you need. Use constants like <code>const SCENE_MENU = 0, SCENE_GAME = 1, SCENE_GAMEOVER = 2</code> for readability.
+        </div>
       </details>
     </article>
   </fieldset>
 
+  <!-- ==================== SECTION 2: PARTICLE SYSTEM BASICS ==================== -->
   <fieldset id="s2">
     <legend><h2>2. Particle System Basics</h2></legend>
     <article>
       <blockquote>
-        <code>ParticleSystem</code> manages a pool of short-lived <code>Particle</code>
-        Components — spawning them with <code>emit()</code>, updating their physics and
-        fade every frame via <code>ps.update()</code>, and automatically removing them
-        from <code>comm[]</code> when their life or alpha reaches zero.
+        <strong><code>ParticleSystem</code> manages a pool of short-lived <code>Particle</code> Components — spawning them with <code>emit()</code>, updating their physics and fade every frame via <code>ps.update()</code>, and automatically removing them from <code>comm[]</code> when their life or alpha reaches zero.</strong>
       </blockquote>
       <details>
-        <summary>see more...</summary>
+        <summary>📖 Full explanation & examples</summary>
         <p>
-          Each <code>Particle</code> is a real Component that gets added to
-          <code>comm[]</code> via <code>display.add()</code> when spawned, so the engine
-          draws it automatically alongside all other Components — no manual draw calls needed.
-          The Particle's <code>update()</code> method applies gravity, friction, rotation,
-          alpha fade, and scale fade on every frame, decrementing <code>life</code> each
-          time and returning <code>false</code> when exhausted.
-          <code>ps.update()</code> must be called inside your <code>update()</code> function
-          every frame — it loops through the particle pool in reverse, finds any particle
-          whose <code>life</code> or <code>alpha</code> has reached zero, removes it from
-          both <code>ps.particles[]</code> and <code>comm[]</code>, and also calls every
-          active emitter's own update to spawn new particles at the correct rate.
-          If you ever stop calling <code>ps.update()</code>, dead particles accumulate in
-          <code>comm[]</code> indefinitely and the engine will slow down as it tries to
-          draw thousands of invisible zero-alpha rectangles every frame.
+          Each <code>Particle</code> is a real Component that gets added to <code>comm[]</code> via <code>display.add()</code> when spawned, so the engine draws it automatically alongside all other Components — no manual draw calls needed. The Particle's <code>update()</code> method applies gravity, friction, rotation, alpha fade, and scale fade on every frame, decrementing <code>life</code> each time and returning <code>false</code> when exhausted.
         </p>
+        <p>
+          <code>ps.update()</code> must be called inside your <code>update()</code> function every frame — it loops through the particle pool in reverse, finds any particle whose <code>life</code> or <code>alpha</code> has reached zero, removes it from both <code>ps.particles[]</code> and <code>comm[]</code>, and also calls every active emitter's own update to spawn new particles at the correct rate.
+        </p>
+        <div class="warn">
+          ⚠️ If you ever stop calling <code>ps.update()</code>, dead particles accumulate in <code>comm[]</code> indefinitely and the engine will slow down as it tries to draw thousands of invisible zero-alpha rectangles every frame.
+        </div>
         <pre><code>const ps = new ParticleSystem(display);
 
 function update() {
@@ -144,45 +192,30 @@ function update() {
 }</code></pre>
         <table>
           <tr><th>Option</th><th>Default</th><th>Purpose</th></tr>
-          <tr><td>life</td><td>60</td><td>Frames until the particle is removed</td></tr>
-          <tr><td>alphaFade</td><td>0.02</td><td>Alpha subtracted per frame — 0.02 = 50-frame fade</td></tr>
-          <tr><td>friction</td><td>0.98</td><td>Speed multiplied per frame — values below 1 create drag</td></tr>
-          <tr><td>gravity</td><td>0</td><td>Added to speedY per frame</td></tr>
-          <tr><td>type</td><td>"rect"</td><td>"rect", "circle", or "image"</td></tr>
-          <tr><td>randomColor</td><td>false</td><td>If true, picks randomly from a colors[] array</td></tr>
+          <tr><td><code>life</code></td><td>60</td><td>Frames until the particle is removed</td></tr>
+          <tr><td><code>alphaFade</code></td><td>0.02</td><td>Alpha subtracted per frame — 0.02 = 50-frame fade</td></tr>
+          <tr><td><code>friction</code></td><td>0.98</td><td>Speed multiplied per frame — values below 1 create drag</td></tr>
+          <tr><td><code>gravity</code></td><td>0</td><td>Added to speedY per frame</td></tr>
+          <tr><td><code>type</code></td><td>"rect"</td><td>"rect", "circle", or "image"</td></tr>
         </table>
       </details>
     </article>
   </fieldset>
 
+  <!-- ==================== SECTION 3: BUILT-IN PARTICLE PRESETS ==================== -->
   <fieldset id="s3">
     <legend><h2>3. Built-in Particle Presets</h2></legend>
     <article>
       <blockquote>
-        Limn Engine ships six ready-made particle effects accessible via
-        <code>move.particles.*</code> — each one is a single function call that
-        bursts or emits a carefully configured set of particles to produce a specific
-        visual: explosion, smoke, sparkle, rain, blood, or magic.
+        <strong>Limn Engine ships six ready-made particle effects accessible via <code>move.particles.*</code> — each one is a single function call that bursts or emits a carefully configured set of particles to produce a specific visual: explosion, smoke, sparkle, rain, blood, or magic.</strong>
       </blockquote>
       <details>
-        <summary>see more...</summary>
+        <summary>📖 Full explanation & examples</summary>
         <p>
-          The presets are attached to the <code>move.particles</code> object and each
-          one calls <code>particleSystem.burst()</code> or <code>particleSystem.emit()</code>
-          with hard-coded options tuned for that visual — colours, speed spread, gravity,
-          friction, alpha fade, and scale fade are all configured internally.
-          <code>explosion()</code> bursts a set of orange-red circles with random radial
-          speed and mild downward gravity, fading out over about 30–50 frames.
-          <code>smoke()</code> emits a single upward-drifting grey circle per call —
-          meant to be called every frame from a fixed position to produce a continuous
-          smoke column.
-          <code>rain()</code> emits <code>intensity</code> thin vertical blue-tinted
-          rectangles per call across a random X spread, falling at 5–8px/frame with no
-          fade and no gravity.
-          All presets accept the ParticleSystem as their first argument so you control
-          which system the particles belong to — keeping explosion particles separate
-          from rain particles in different systems lets you clear them independently
-          with <code>ps.clear()</code>.
+          The presets are attached to the <code>move.particles</code> object and each one calls <code>particleSystem.burst()</code> or <code>particleSystem.emit()</code> with hard-coded options tuned for that visual — colours, speed spread, gravity, friction, alpha fade, and scale fade are all configured internally.
+        </p>
+        <p>
+          <code>explosion()</code> bursts a set of orange-red circles with random radial speed and mild downward gravity, fading out over about 30–50 frames. <code>smoke()</code> emits a single upward-drifting grey circle per call — meant to be called every frame from a fixed position to produce a continuous smoke column. <code>rain()</code> emits <code>intensity</code> thin vertical blue-tinted rectangles per call across a random X spread, falling at 5–8px/frame with no fade and no gravity.
         </p>
         <pre><code>const ps = new ParticleSystem(display);
 
@@ -214,32 +247,23 @@ function update() {
     </article>
   </fieldset>
 
+  <!-- ==================== SECTION 4: CONTINUOUS EMITTERS ==================== -->
   <fieldset id="s4">
     <legend><h2>4. Continuous Emitters</h2></legend>
     <article>
       <blockquote>
-        <code>ps.createEmitter()</code> returns an emitter object that fires particles
-        automatically at a set rate every frame without you calling
-        <code>emit()</code> manually — you can start it, stop it, and move it at any
-        time, and <code>ps.update()</code> drives it automatically.
+        <strong><code>ps.createEmitter()</code> returns an emitter object that fires particles automatically at a set rate every frame without you calling <code>emit()</code> manually — you can start it, stop it, and move it at any time, and <code>ps.update()</code> drives it automatically.</strong>
       </blockquote>
       <details>
-        <summary>see more...</summary>
+        <summary>📖 Full explanation & examples</summary>
         <p>
-          Internally, the emitter stores a <code>frameCounter</code> that accumulates
-          <code>rate / 60</code> on each call to its own <code>update()</code> method
-          (which <code>ps.update()</code> invokes) — when <code>frameCounter</code>
-          reaches 1 it emits a particle and decrements by 1, so a rate of 60 emits
-          exactly one particle per frame and a rate of 30 emits one every two frames.
-          When <code>randomSpread: true</code> is set in the options, each emitted
-          particle gets a random angle and a speed derived from the <code>speed</code>
-          option, producing a circular burst pattern rather than a directional stream.
-          When <code>randomOffset</code> is set to a pixel value, each particle spawns
-          at a random position within that radius around the emitter's centre, creating
-          area effects like campfires or rain zones.
-          Emitters are the correct tool for anything that needs to spray particles
-          continuously — engine exhausts, fire, waterfalls, and weather — while
-          <code>burst()</code> is better for one-shot events like explosions and impacts.
+          Internally, the emitter stores a <code>frameCounter</code> that accumulates <code>rate / 60</code> on each call to its own <code>update()</code> method (which <code>ps.update()</code> invokes) — when <code>frameCounter</code> reaches 1 it emits a particle and decrements by 1, so a rate of 60 emits exactly one particle per frame and a rate of 30 emits one every two frames.
+        </p>
+        <p>
+          When <code>randomSpread: true</code> is set in the options, each emitted particle gets a random angle and a speed derived from the <code>speed</code> option, producing a circular burst pattern rather than a directional stream. When <code>randomOffset</code> is set to a pixel value, each particle spawns at a random position within that radius around the emitter's centre, creating area effects like campfires or rain zones.
+        </p>
+        <p>
+          Emitters are the correct tool for anything that needs to spray particles continuously — engine exhausts, fire, waterfalls, and weather — while <code>burst()</code> is better for one-shot events like explosions and impacts.
         </p>
         <pre><code>const ps = new ParticleSystem(display);
 
@@ -275,37 +299,24 @@ function update() {
     </article>
   </fieldset>
 
+  <!-- ==================== SECTION 5: CIRCLE COLLISION ==================== -->
   <fieldset id="s5">
     <legend><h2>5. Circle Collision</h2></legend>
     <article>
       <blockquote>
-        <code>enableCircleCollision()</code> switches a Component from rectangle-based
-        to radius-based collision detection — instead of comparing edges,
-        <code>crashWithCircle()</code> measures the distance between the two centres
-        and returns <code>true</code> if that distance is less than the sum of their
-        radii, giving perfectly accurate collision for round objects.
+        <strong><code>enableCircleCollision()</code> switches a Component from rectangle-based to radius-based collision detection — instead of comparing edges, <code>crashWithCircle()</code> measures the distance between the two centres and returns <code>true</code> if that distance is less than the sum of their radii, giving perfectly accurate collision for round objects.</strong>
       </blockquote>
       <details>
-        <summary>see more...</summary>
+        <summary>📖 Full explanation & examples</summary>
         <p>
-          Calling <code>enableCircleCollision()</code> sets <code>this.isCircle = true</code>
-          and stores a radius — if you pass a number it uses that value directly, and if
-          you leave it empty it defaults to half the largest dimension of the Component
-          (<code>Math.max(width, height) / 2</code>), which fits a circle tightly around
-          a square Component.
-          When you call <code>a.crashWithCircle(b)</code>, the engine first checks if
-          <code>b.isCircle</code> is true — if it is, it calculates the Euclidean distance
-          between the two centre points using
-          <code>Math.sqrt(dx*dx + dy*dy)</code> and compares it to
-          <code>this.radius + other.radius</code>, returning true if the circles overlap.
-          If the other Component does not have circle collision enabled, the method falls
-          back to the standard AABB <code>crashWith()</code> check automatically, so you
-          can safely call <code>crashWithCircle()</code> even in mixed scenarios.
-          Circle collision is noticeably more accurate than AABB for any Component that
-          looks round — bullets, balls, coins, and enemies with circular sprites will
-          register hits that look correct to the player rather than hitting invisible
-          corners of the bounding box.
+          Calling <code>enableCircleCollision()</code> sets <code>this.isCircle = true</code> and stores a radius — if you pass a number it uses that value directly, and if you leave it empty it defaults to half the largest dimension of the Component (<code>Math.max(width, height) / 2</code>), which fits a circle tightly around a square Component.
         </p>
+        <p>
+          When you call <code>a.crashWithCircle(b)</code>, the engine first checks if <code>b.isCircle</code> is true — if it is, it calculates the Euclidean distance between the two centre points using <code>Math.sqrt(dx*dx + dy*dy)</code> and compares it to <code>this.radius + other.radius</code>, returning true if the circles overlap. If the other Component does not have circle collision enabled, the method falls back to the standard AABB <code>crashWith()</code> check automatically, so you can safely call <code>crashWithCircle()</code> even in mixed scenarios.
+        </p>
+        <div class="tip">
+          💡 Circle collision is noticeably more accurate than AABB for any Component that looks round — bullets, balls, coins, and enemies with circular sprites will register hits that look correct to the player rather than hitting invisible corners of the bounding box.
+        </div>
         <pre><code>const ball   = new Component(40, 40, "blue", 200, 200, "rect");
 const target = new Component(40, 40, "red",  350, 200, "rect");
 display.add(ball);
@@ -329,35 +340,24 @@ function update(dt) {
     </article>
   </fieldset>
 
+  <!-- ==================== SECTION 6: CAMERA SHAKE ==================== -->
   <fieldset id="s6">
     <legend><h2>6. Camera Shake</h2></legend>
     <article>
       <blockquote>
-        <code>display.camera.shake(x, y)</code> applies an immediate positional offset
-        to the camera and automatically reverses it after approximately 42 milliseconds —
-        one call produces the classic screen-jolt effect used for explosions, hits, and
-        impactful events without any manual timer management.
+        <strong><code>display.camera.shake(x, y)</code> applies an immediate positional offset to the camera and automatically reverses it after approximately 42 milliseconds — one call produces the classic screen-jolt effect used for explosions, hits, and impactful events without any manual timer management.</strong>
       </blockquote>
       <details>
-        <summary>see more...</summary>
+        <summary>📖 Full explanation & examples</summary>
         <p>
-          Internally, <code>shake(x, y)</code> adds the X and Y values directly to
-          <code>camera.x</code> and <code>camera.y</code> and immediately sets a
-          <code>setTimeout</code> for <code>1000/24</code> milliseconds (~42ms) that
-          subtracts those same values back, returning the camera to its original position.
-          The effect is felt as a sudden lurch in whichever direction you specify —
-          passing positive values lurches right and down, passing negative values lurches
-          left and up — so a typical impact shake uses something like
-          <code>shake(8, 6)</code> for a strong hit or <code>shake(3, 2)</code> for a
-          lighter rumble.
-          When using <code>display.perform()</code> with a fake canvas, you must shake
-          both cameras — <code>display.camera.shake()</code> and
-          <code>fake.camera.shake()</code> — because the two canvases have independent
-          transforms, and shaking only one causes the foreground to lurch while the
-          background stays still, which looks broken.
-          For maximum impact, combine positional shake with rotation shake in the same
-          event to produce a camera-twist-and-slam effect.
+          Internally, <code>shake(x, y)</code> adds the X and Y values directly to <code>camera.x</code> and <code>camera.y</code> and immediately sets a <code>setTimeout</code> for <code>1000/24</code> milliseconds (~42ms) that subtracts those same values back, returning the camera to its original position. The effect is felt as a sudden lurch in whichever direction you specify — passing positive values lurches right and down, passing negative values lurches left and up — so a typical impact shake uses something like <code>shake(8, 6)</code> for a strong hit or <code>shake(3, 2)</code> for a lighter rumble.
         </p>
+        <p>
+          When using <code>display.perform()</code> with a fake canvas, you must shake both cameras — <code>display.camera.shake()</code> and <code>fake.camera.shake()</code> — because the two canvases have independent transforms, and shaking only one causes the foreground to lurch while the background stays still, which looks broken.
+        </p>
+        <div class="warn">
+          ⚠️ In perform() mode always shake <strong>both</strong> <code>display.camera</code> and <code>fake.camera</code> — they are independent cameras on separate canvases.
+        </div>
         <pre><code>function update() {
     if (bigExplosion) {
         display.camera.shake(12, 9);   // main canvas shake
@@ -373,42 +373,24 @@ function update(dt) {
         fake.camera.shake(-3, -2);
     }
 }</code></pre>
-        <div class="tip">
-          💡 In perform() mode always shake <strong>both</strong>
-          <code>display.camera</code> and <code>fake.camera</code> — they are
-          independent cameras on separate canvases.
-        </div>
       </details>
     </article>
   </fieldset>
 
+  <!-- ==================== SECTION 7: CAMERA ROTATION SHAKE ==================== -->
   <fieldset id="s7">
     <legend><h2>7. Camera Rotation Shake</h2></legend>
     <article>
       <blockquote>
-        <code>display.camera.shakeRotation(angle)</code> rotates the entire canvas
-        around its centre point by the given radian value and resets automatically
-        after 42 milliseconds — producing a dramatic screen-twist effect that conveys
-        disorientation, powerful impacts, and boss hits far more forcefully than
-        positional shake alone.
+        <strong><code>display.camera.shakeRotation(angle)</code> rotates the entire canvas around its centre point by the given radian value and resets automatically after 42 milliseconds — producing a dramatic screen-twist effect that conveys disorientation, powerful impacts, and boss hits far more forcefully than positional shake alone.</strong>
       </blockquote>
       <details>
-        <summary>see more...</summary>
+        <summary>📖 Full explanation & examples</summary>
         <p>
-          The implementation stores the angle in <code>camera.rotationShake</code> and
-          the main render loop checks this value at the start of every frame — if it is
-          non-zero it translates to the canvas centre, rotates by that amount, then
-          translates back before rendering everything else, so the rotation affects the
-          entire scene uniformly.
-          A <code>setTimeout</code> for <code>1000/24</code> ms resets
-          <code>rotationShake</code> to zero automatically, so the twist lasts exactly
-          one paint cycle and returns to normal without any cleanup code from you.
-          Angles are in radians — 0.1 radians is approximately 5.7 degrees, which is
-          visible and dramatic without being nauseating; values like 0.05–0.1 work well
-          for game hits and anything above 0.2 should be reserved for very large events
-          like world-shaking boss attacks.
-          Rotation shake and positional shake are completely independent and can be
-          called together in the same frame for a combined slam effect.
+          The implementation stores the angle in <code>camera.rotationShake</code> and the main render loop checks this value at the start of every frame — if it is non-zero it translates to the canvas centre, rotates by that amount, then translates back before rendering everything else, so the rotation affects the entire scene uniformly.
+        </p>
+        <p>
+          A <code>setTimeout</code> for <code>1000/24</code> ms resets <code>rotationShake</code> to zero automatically, so the twist lasts exactly one paint cycle and returns to normal without any cleanup code from you. Angles are in radians — 0.1 radians is approximately 5.7 degrees, which is visible and dramatic without being nauseating; values like 0.05–0.1 work well for game hits and anything above 0.2 should be reserved for very large events like world-shaking boss attacks.
         </p>
         <pre><code>window.addEventListener("dblclick", () => {
     // Rotation shake alone — like a camera twist
@@ -430,33 +412,20 @@ function update(dt) {
     </article>
   </fieldset>
 
+  <!-- ==================== SECTION 8: DYNAMIC TILEMAP EDITING ==================== -->
   <fieldset id="s8">
     <legend><h2>8. Dynamic TileMap Editing</h2></legend>
     <article>
       <blockquote>
-        The TileMap's <code>add()</code> and <code>remove()</code> methods let you place
-        and delete individual tiles at runtime on any layer — enabling destructible
-        terrain, growing maps, and puzzle mechanics — and both automatically trigger a
-        fake canvas refresh so the visual update appears on the very next frame.
+        <strong>The TileMap's <code>add()</code> and <code>remove()</code> methods let you place and delete individual tiles at runtime on any layer — enabling destructible terrain, growing maps, and puzzle mechanics — and both automatically trigger a fake canvas refresh so the visual update appears on the very next frame.</strong>
       </blockquote>
       <details>
-        <summary>see more...</summary>
+        <summary>📖 Full explanation & examples</summary>
         <p>
-          <code>tileFace.add(tileId, tx, ty, layer)</code> writes the tile ID number
-          into <code>this.map[layer][ty][tx]</code> and then calls <code>this.show()</code>
-          followed by <code>fake.refresh()</code> — <code>show()</code> rebuilds the
-          <code>tileList</code> array with the new tile included, and
-          <code>fake.refresh()</code> sets <code>display.once = true</code> so the
-          <code>ani()</code> loop redraws the fake canvas on the next frame, making the
-          new tile visible immediately.
-          <code>tileFace.remove(tx, ty, layer)</code> does the inverse — writes 0 into
-          that grid position and triggers the same refresh chain.
-          The <code>layer</code> parameter defaults to 0 in both methods, so single-layer
-          games do not need to specify it.
-          <code>tileFace.rTile(tx, ty)</code> returns the actual Tile Component object
-          at a grid position, giving you direct access to its world coordinates, colour,
-          and other Component properties for things like highlighting a hovered tile or
-          reading its type.
+          <code>tileFace.add(tileId, tx, ty, layer)</code> writes the tile ID number into <code>this.map[layer][ty][tx]</code> and then calls <code>this.show()</code> followed by <code>fake.refresh()</code> — <code>show()</code> rebuilds the <code>tileList</code> array with the new tile included, and <code>fake.refresh()</code> sets <code>display.once = true</code> so the <code>ani()</code> loop redraws the fake canvas on the next frame, making the new tile visible immediately.
+        </p>
+        <p>
+          <code>tileFace.remove(tx, ty, layer)</code> does the inverse — writes 0 into that grid position and triggers the same refresh chain. The <code>layer</code> parameter defaults to 0 in both methods, so single-layer games do not need to specify it.
         </p>
         <pre><code>// Runtime tile editing
 display.tileFace.add(1, 5, 3);        // place grass at grid(5,3) on layer 0
@@ -481,42 +450,31 @@ allGrass.forEach(tile => {
     </article>
   </fieldset>
 
+  <!-- ==================== SECTION 9: move.pointTo & move.circle ==================== -->
   <fieldset id="s9">
     <legend><h2>9. move.pointTo &amp; move.circle</h2></legend>
     <article>
       <blockquote>
-        <code>move.pointTo()</code> rotates a Component to face any world coordinate
-        by calculating the angle with <code>Math.atan2</code> and assigning it to the
-        Component's <code>angle</code> property — and <code>move.circle()</code>
-        increments that angle each frame so the Component orbits using
-        <code>moveAngle()</code>.
+        <strong><code>move.pointTo()</code> rotates a Component to face any world coordinate by calculating the angle with <code>Math.atan2</code> and assigning it to the Component's <code>angle</code> property — and <code>move.circle()</code> increments that angle each frame so the Component orbits using <code>moveAngle()</code>.</strong>
       </blockquote>
       <details>
-        <summary>see more...</summary>
+        <summary>📖 Full explanation & examples</summary>
         <p>
-          <code>move.pointTo(id, targetX, targetY)</code> computes
-          <code>Math.atan2(targetY - id.y, targetX - id.x)</code> to get the angle
-          from the Component's position to the target and assigns it to
-          <code>id.angle</code> — because Limn renders all Components with their angle
-          applied via a <code>context.rotate()</code>, this makes the Component's
-          right side face the target position on every frame it is called.
-          Calling it every frame with <code>display.x</code> and <code>display.y</code>
-          as the target makes a Component track the mouse cursor in real time, which is
-          the standard technique for top-down shooter turrets and player aim indicators.
-          <code>move.circle(id, speed)</code> sets <code>physics = true</code> and
-          <code>changeAngle = true</code> on the Component and then adds
-          <code>speed * Math.PI / 180</code> to its angle each frame — the
-          <code>moveAngle()</code> method uses <code>Math.cos(angle)</code> and
-          <code>Math.sin(angle)</code> to convert that angle into X and Y velocity,
-          so the Component moves in the direction it is currently facing, producing
-          a circular orbit when called continuously.
+          <code>move.pointTo(id, targetX, targetY)</code> computes <code>Math.atan2(targetY - id.y, targetX - id.x)</code> to get the angle from the Component's position to the target and assigns it to <code>id.angle</code> — because Limn renders all Components with their angle applied via a <code>context.rotate()</code>, this makes the Component's right side face the target position on every frame it is called.
+        </p>
+        <p>
+          Calling it every frame with <code>display.x</code> and <code>display.y</code> as the target makes a Component track the mouse cursor in real time, which is the standard technique for top-down shooter turrets and player aim indicators.
+        </p>
+        <p>
+          <code>move.circle(id, speed)</code> sets <code>angularMovement = true</code> on the Component and then adds <code>speed * Math.PI / 180</code> to its angle each frame — the <code>moveAngle()</code> method uses <code>Math.cos(angle)</code> and <code>Math.sin(angle)</code> to convert that angle into X and Y velocity, so the Component moves in the direction it is currently facing, producing a circular orbit when called continuously.
         </p>
         <pre><code>const turret  = new Component(40, 20, "gray", 400, 300, "rect");
 const orbiter = new Component(16, 16, "cyan", 500, 300, "rect");
 display.add(turret);
 display.add(orbiter);
 
-orbiter.speedX = 2; // orbit speed
+orbiter.angularMovement = true; // enables moveAngle() instead of move()
+orbiter.speedX = 2;
 orbiter.speedY = 2;
 
 function update() {
@@ -527,40 +485,30 @@ function update() {
 
     // Orbiter spins in a circle around its own angle
     move.circle(orbiter, 2);  // 2 degrees per frame
-    orbiter.moveAngle();       // move in the direction of the angle
+    // orbiter.moveAngle() is called automatically because angularMovement = true
 }</code></pre>
       </details>
     </article>
   </fieldset>
 
+  <!-- ==================== SECTION 10: fixed() — HUD ANCHORING ==================== -->
   <fieldset id="s10">
     <legend><h2>10. fixed() — HUD Anchoring</h2></legend>
     <article>
       <blockquote>
-        <code>component.fixed()</code> keeps a Component locked to a fixed screen
-        position even when the camera is scrolling — it works by reading the Component's
-        original anchor coordinates stored in <code>aX</code> and <code>aY</code> at
-        construction time and adding the current camera offset to them every frame.
+        <strong><code>component.fixed()</code> keeps a Component locked to a fixed screen position even when the camera is scrolling — it works by reading the Component's original anchor coordinates stored in <code>aX</code> and <code>aY</code> at construction time and adding the current camera offset to them every frame.</strong>
       </blockquote>
       <details>
-        <summary>see more...</summary>
+        <summary>📖 Full explanation & examples</summary>
         <p>
-          When you create <code>new Component(w, h, color, 20, 40)</code> the engine
-          stores those starting coordinates in <code>this.aX = 20</code> and
-          <code>this.aY = 40</code> at construction — those are the desired
-          screen-space pixel positions for the HUD element.
-          <code>fixed(ctx)</code> then runs <code>this.x = this.aX + ctx.camera.x</code>
-          and <code>this.y = this.aY + ctx.camera.y</code> every frame, which adds the
-          camera's world offset to the anchor position so that when the canvas context
-          is translated by <code>-camera.x</code> the Component ends up drawn at exactly
-          <code>aX, aY</code> screen pixels.
-          You must call it every frame inside <code>update()</code> — because the camera
-          position changes continuously, the offset needs to be recalculated on every
-          single frame or the element drifts.
-          Pass <code>fake</code> as the argument if the Component is registered on the
-          fake canvas — <code>component.fixed(fake)</code> — so it uses
-          <code>fake.camera.x/y</code> for the offset calculation instead.
+          When you create <code>new Component(w, h, color, 20, 40)</code> the engine stores those starting coordinates in <code>this.aX = 20</code> and <code>this.aY = 40</code> at construction — those are the desired screen-space pixel positions for the HUD element.
         </p>
+        <p>
+          <code>fixed(ctx)</code> then runs <code>this.x = this.aX + ctx.camera.x</code> and <code>this.y = this.aY + ctx.camera.y</code> every frame, which adds the camera's world offset to the anchor position so that when the canvas context is translated by <code>-camera.x</code> the Component ends up drawn at exactly <code>aX, aY</code> screen pixels.
+        </p>
+        <div class="warn">
+          ⚠️ <code>fixed()</code> must be called <strong>every frame</strong>. If you call it only once at startup the element will be fixed at frame 0's camera position and drift away as the camera moves.
+        </div>
         <pre><code>// Create at desired screen position — aX=16, aY=16 stored automatically
 const healthBar = new Component(160, 14, "red", 16, 16, "rect");
 const hpLabel   = new Tctxt("16px","Arial","white",16,36,"left",false,"alphabetic","rgba(0,0,0,0.5)",8,3);
@@ -575,44 +523,31 @@ function update() {
     healthBar.fixed();
     hpLabel.fixed();
 }</code></pre>
-        <div class="warn">
-          ⚠️ <code>fixed()</code> must be called <strong>every frame</strong>.
-          If you call it only once at startup the element will be fixed at frame 0's
-          camera position and drift away as the camera moves.
-        </div>
       </details>
     </article>
   </fieldset>
 
+  <!-- ==================== SECTION 11: destroy() ==================== -->
   <fieldset id="s11">
     <legend><h2>11. destroy()</h2></legend>
     <article>
       <blockquote>
-        <code>component.destroy()</code> permanently removes a Component from the
-        engine's rendering pipeline by splicing it out of both the <code>comm[]</code>
-        and <code>commp[]</code> arrays and setting its <code>update</code> method to
-        null — after this call the Component will never be drawn or moved again.
+        <strong><code>component.destroy()</code> permanently removes a Component from the engine's rendering pipeline by splicing it out of both the <code>comm[]</code> and <code>commp[]</code> arrays and setting its <code>update</code> method to null — after this call the Component will never be drawn or moved again.</strong>
       </blockquote>
       <details>
-        <summary>see more...</summary>
+        <summary>📖 Full explanation & examples</summary>
         <p>
-          Limn's render loop iterates <code>comm[]</code> on every frame to draw and
-          move every registered Component — a Component that is off-screen, dead, or
-          collected still costs a loop iteration and a draw call unless it is removed.
-          <code>destroy()</code> uses <code>comm.findIndex(c => c.x === this)</code>
-          to locate the entry and <code>comm.splice(index, 1)</code> to remove it in one
-          operation, then does the same for <code>commp[]</code> which holds fake-canvas
-          Components, ensuring no orphaned references remain in either array.
-          Setting <code>this.update = null</code> after removal means that even if
-          something holds a stale reference to the destroyed Component and accidentally
-          calls its update, the engine's try-catch around draw calls will silently absorb
-          the error rather than crashing.
-          Use <code>destroy()</code> for objects that will never be needed again —
-          bullets that exit the screen, enemies that are killed, collected items.
-          Use <code>hide()</code> / <code>show()</code> instead for objects that need
-          to disappear temporarily and come back — respawning enemies, UI panels, or
-          anything you want to reuse.
+          Limn's render loop iterates <code>comm[]</code> on every frame to draw and move every registered Component — a Component that is off-screen, dead, or collected still costs a loop iteration and a draw call unless it is removed.
         </p>
+        <p>
+          <code>destroy()</code> uses <code>comm.findIndex(c => c.x === this)</code> to locate the entry and <code>comm.splice(index, 1)</code> to remove it in one operation, then does the same for <code>commp[]</code> which holds fake-canvas Components, ensuring no orphaned references remain in either array.
+        </p>
+        <p>
+          Setting <code>this.update = null</code> after removal means that even if something holds a stale reference to the destroyed Component and accidentally calls its update, the engine's try-catch around draw calls will silently absorb the error rather than crashing.
+        </p>
+        <div class="tip">
+          💡 Use <code>destroy()</code> for objects that will never be needed again — bullets that exit the screen, enemies that are killed, collected items. Use <code>hide()</code> / <code>show()</code> instead for objects that need to disappear temporarily and come back — respawning enemies, UI panels, or anything you want to reuse.
+        </div>
         <pre><code>function update() {
     // Remove bullets that leave the screen — prevents comm[] from growing
     for (let i = bullets.length - 1; i >= 0; i--) {
@@ -631,25 +566,22 @@ function update() {
         }
     }
 }</code></pre>
-        <div class="tip">
-          💡 Always iterate arrays in reverse (<code>for (let i = arr.length-1; i >= 0; i--)</code>)
-          when removing elements mid-loop — otherwise splicing shifts the indices and
-          you skip elements.
+        <div class="warn">
+          ⚠️ Always iterate arrays in reverse (<code>for (let i = arr.length-1; i >= 0; i--)</code>) when removing elements mid-loop — otherwise splicing shifts the indices and you skip elements.
         </div>
       </details>
     </article>
   </fieldset>
 
+  <!-- ==================== SECTION 12: TOP-DOWN SHOOTER TUTORIAL ==================== -->
   <fieldset id="s12">
     <legend><h2>12. Top-down Shooter Tutorial</h2></legend>
     <article>
       <blockquote>
-        This tutorial builds a complete top-down shooter combining scenes, particles,
-        camera shake, circle collision, <code>pointTo</code>, <code>destroy()</code>,
-        and HUD anchoring into a game where enemies chase the player and explode on contact.
+        <strong>This tutorial builds a complete top-down shooter combining scenes, particles, camera shake, circle collision, <code>pointTo</code>, <code>destroy()</code>, and HUD anchoring into a game where enemies chase the player and explode on contact.</strong>
       </blockquote>
       <details>
-        <summary>see more...</summary>
+        <summary>📖 Full game code</summary>
         <pre><code>&lt;script src="epic.js"&gt;&lt;/script&gt;
 &lt;script&gt;
 const display = new Display();
@@ -716,29 +648,34 @@ function update() {
     scoreUI.fixed();
 }
 &lt;/script&gt;</code></pre>
-        <p>✅ WASD to move, player faces mouse, enemies chase you — on hit: explosion, blood, camera shake, +10 score, new enemy spawns.</p>
+        <div class="tip">
+          ✅ WASD to move, player faces mouse, enemies chase you — on hit: explosion, blood, camera shake, +10 score, new enemy spawns.
+        </div>
       </details>
     </article>
   </fieldset>
 
+  <!-- ==================== SECTION 13: QUICK REFERENCE ==================== -->
   <fieldset id="s13">
     <legend><h2>13. Quick Reference</h2></legend>
     <article>
       <details>
-        <summary>see more...</summary>
+        <summary>📖 See all shortcuts</summary>
         <table>
-          <tr><th>Feature</th><th>Code</th></tr>
-          <tr><td>Scenes</td><td><code>display.add(obj,n); display.scene=n;</code></td></tr>
-          <tr><td>Particles</td><td><code>const ps=new ParticleSystem(display); ps.emit(x,y,opts); ps.update();</code></td></tr>
-          <tr><td>Preset</td><td><code>move.particles.explosion(ps,x,y,40)</code></td></tr>
-          <tr><td>Emitter</td><td><code>const e=ps.createEmitter(x,y,opts); e.start(); e.setPosition(x,y);</code></td></tr>
-          <tr><td>Circle collision</td><td><code>obj.enableCircleCollision(); obj.crashWithCircle(other)</code></td></tr>
-          <tr><td>Shake</td><td><code>display.camera.shake(10,8); fake.camera.shake(-10,-8);</code></td></tr>
-          <tr><td>Rotation shake</td><td><code>display.camera.shakeRotation(0.08)</code></td></tr>
-          <tr><td>Edit tile</td><td><code>tileFace.add(id,tx,ty,layer); tileFace.remove(tx,ty,layer);</code></td></tr>
-          <tr><td>pointTo</td><td><code>move.pointTo(obj,targetX,targetY)</code></td></tr>
-          <tr><td>Fixed HUD</td><td><code>obj.fixed(); // every frame</code></td></tr>
-          <tr><td>destroy</td><td><code>obj.destroy() // removes from comm[] and commp[]</code></td></tr>
+          <thead><tr><th>Feature</th><th>Code</th></tr></thead>
+          <tbody>
+            <tr><td>Scenes</td><td><code>display.add(obj,n); display.scene=n;</code></td></tr>
+            <tr><td>Particles</td><td><code>const ps=new ParticleSystem(display); ps.emit(x,y,opts); ps.update();</code></td></tr>
+            <tr><td>Preset</td><td><code>move.particles.explosion(ps,x,y,40)</code></td></tr>
+            <tr><td>Emitter</td><td><code>const e=ps.createEmitter(x,y,opts); e.start(); e.setPosition(x,y);</code></td></tr>
+            <tr><td>Circle collision</td><td><code>obj.enableCircleCollision(); obj.crashWithCircle(other)</code></td></tr>
+            <tr><td>Shake</td><td><code>display.camera.shake(10,8); fake.camera.shake(-10,-8);</code></td></tr>
+            <tr><td>Rotation shake</td><td><code>display.camera.shakeRotation(0.08)</code></td></tr>
+            <tr><td>Edit tile</td><td><code>tileFace.add(id,tx,ty,layer); tileFace.remove(tx,ty,layer);</code></td></tr>
+            <tr><td>pointTo</td><td><code>move.pointTo(obj,targetX,targetY)</code></td></tr>
+            <tr><td>Fixed HUD</td><td><code>obj.fixed(); // every frame</code></td></tr>
+            <tr><td>destroy</td><td><code>obj.destroy() // removes from comm[] and commp[]</code></td></tr>
+          </tbody>
         </table>
       </details>
     </article>
