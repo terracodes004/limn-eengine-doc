@@ -1,5 +1,15 @@
 let head = document.head;
+
 head.innerHTML += `
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-K5KW1W2ZXR"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-K5KW1W2ZXR');
+</script>
 <meta name="description" content="Limn Engine — A lightweight, high-performance 2D HTML5 Canvas game engine framework featuring an automated dual-canvas baking system, advanced physics, kinematic projectiles, multi-channel sound cloning, and built-in particle systems for rapid indie web game development.">
 <meta name="keywords" content="Limn Engine, HTML5 game engine, 2D canvas framework, javascript game development, epic.js, dual canvas optimization, performance.now easing, web audio polyphony, game physics library, indie game tools">
 <meta name="author" content="Owolabi Kehinde">
