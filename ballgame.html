@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ball game</title>
+  <script src="asset/epic.js"></script>
+  <style>
+    canvas{
+      border: solid red 5px;
+      
+    }
+  </style>
+</head>
+<body bgcolor="darkblue">
+  <dialog open style="background:linear-gradient(darkblue,royalblue);"></dialog>
+  <script>
+    let display = new Display()
+    display.perform()
+    display.start(800, 600, document.querySelector("dialog"))
+    display.rgradient( "royalblue","darkblue")
+    let player = new Component(100,30,"magenta", 0,0)
+    let ball = new Component(10,10,"aqua", 10,10)
+    move.position(player,"bottom", 10)
+    ball.speedX = 3
+    ball.speedY = 5
+  
+    speedX = 300
+    speedY = 500
+    
+    if(!localStorage.hs){
+      localStorage.hs = 0
+      hs = Number(localStorage.hs)
+    }else{
+      hs = Number(localStorage.hs)
+    }
+    let scoreTxt = new Tctxt("30px","Monospace","white",25,25)
+    let loseText = new Tctxt("28px","bold impact","red",50,300-30)
+    display.add(scoreTxt)
+    display.add(loseText,1)
+    let score = 0
+    let floor = new Component(800, 10, "black", 0,600-10)
+        let leftbtn = new Component(100, 100,"darkblue",50,500)
+        let rightbtn = new Component(100, 100,"darkblue",600,500)
+    
+    leftbtn.text = "⬅"
+    rightbtn.text = "➡"
+    display.add(leftbtn)
+    display.add(rightbtn)
+
+    display.add(floor)
+      display.add(player)
+    display.add(ball)
+    function update(dt){
+      if(leftbtn.clicked()&&display.x){
+        player.x -= 700*dt
+      }
+      if(rightbtn.clicked()&&display.x){
+        player.x += 700*dt
+      }
+      speedX += dt+dt/2
+      if(score > hs){
+        localStorage.hs = score
+        hs = score
+      }
+      scoreTxt.text = "Score : "+ score
+      loseText.text = "YOU LOSE!!! HighScore: "+hs +" Score : "+ score+ "\n Press space to continue."
+      
+      speedY += dt/3
+      
+      move.bound(ball)
+      if(ball.x <= 0){
+        ball.speedX = (speedX*dt)
+      } if(ball.x >= 790){
+        ball.speedX = -(speedX*dt)
+      }
+      if((display.keys[32] || display.x) && display.scene == 1){
+        
+        score = 0
+        ball.x = 10
+        ball.y = 10
+        move.position(player,"bottom", 10)
+        speedX = 300
+        speedY = 500
+        display.scene = 0
+        
+      }
+      move.bound(player)
+      if(ball.crashWith(floor))display.scene = 1
+      if(ball.crashWith(player)){
+        ball.speedY = -(speedY*dt)
+        if(ball.crashWith(floor)==false){
+          score++
+          display.camera.shake(3,3)
+
+        }
+        
+      
+        
+        
+      } if(ball.y <= 0){
+        ball.speedY = (speedY*dt)
+      }
+      if(display.keys[37]){
+        player.x -= 700*dt
+      }else if(display.keys[39]){
+        player.x += 700*dt
+      }
+    }
+  </script>
+</body>
+</html>
