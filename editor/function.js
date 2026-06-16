@@ -1,15 +1,15 @@
 function runn(){
+
     $('dialog').fadeIn(300);
     
-    
+
     let iframe = document.querySelector('iframe');
-    iframe.style.width = "620px";  // Fits the 600px width + padding
-    iframe.style.height = "420px"; // Fits the 400px height + padding
+    iframe.style.width = "100%";
+    iframe.style.height = "450px"; 
     iframe.style.border = "none";
     iframe.style.display = "block";
-    iframe.style.margin = "0 auto";
     
-    
+ 
     let userEditorCode = document.querySelector('textarea').value; 
 
     
@@ -21,10 +21,18 @@ function runn(){
         return; 
     }
     
- 
+    let versionDropdown = document.querySelector('select');
     let engineScriptFile = "tcjsgame-v3.js"; 
+    
+    if (versionDropdown) {
+        let selectedVersion = versionDropdown.value.toLowerCase();
+        if (selectedVersion.includes('v2')) {
+            engineScriptFile = "tcjsgame-v2.js";
+        } else if (selectedVersion.includes('v3')) {
+            engineScriptFile = "tcjsgame-v3.js";
+        }
+    }
 
-  
     let code = `<!DOCTYPE html>
 <html lang='en'>
 <head>
@@ -33,16 +41,19 @@ function runn(){
         body, html { 
             margin: 0; 
             padding: 0; 
-            background-color: #222; 
+            background-color: #1e1e1e;
             width: 100%; 
             height: 100%; 
             display: flex; 
             justify-content: center; 
             align-items: center; 
+            overflow: hidden;
         }
         canvas { 
             display: block; 
-            box-shadow: 0px 4px 10px rgba(0,0,0,0.5); 
+            background: #000;
+            box-shadow: 0px 4px 20px rgba(0,0,0,0.8); 
+            border-radius: 4px;
         }
     </style>
     <script src="./${engineScriptFile}"></script>
@@ -60,6 +71,5 @@ function runn(){
 </body>
 </html>`;
 
-    
     iframe.srcdoc = code;
 }
