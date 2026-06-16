@@ -1,42 +1,46 @@
-let v2xml = new XMLHttpRequest()
-v2xml.open("get","tcjsgame-v2.js")
-v2xml.send()
-let v3xml = new XMLHttpRequest()
-v3xml.open("get","tcjsgame-v3.js")
-v3xml.send()
-let code;
 function runn(){
-        $('dialog').fadeToggle(500)
-        let use;
-        switch (document.querySelector("select").value) {
-            case "v2":
-                use = v2t
-                break;
-            case "v3":
-                use = v3t
-            default:
-                break;
+    // 1. Toggle your loading dialog screen
+    $('dialog').fadeToggle(500);
+    let use = "";
+    
+    // 2. Safely get the engine string fetched by your XMLHttpRequests
+    switch (document.querySelector("select").value) {
+        case "v2":
+            use = (typeof v2t !== 'undefined') ? v2t : "";
+            break;
+        case "v3":
+            use = (typeof v3t !== 'undefined') ? v3t : "";
+            break;
+        default:
+            break;
+    }
+    
+    // 3. Grab what the user typed inside your editor text box
+    let userEditorCode = document.querySelector('textarea').value; 
+
+    // 4. Assemble the complete HTML document inside the 'code' variable
+    code = `<!DOCTYPE html>
+<html lang='en'>
+<head>
+    <meta charset='UTF-8'>
+    <script>
+        // Inject the core engine framework rules (v2 or v3)
+        ${use}
+    </script>
+</head>
+<body>
+    <script>
+        try {
+            // Inject and run the user's canvas game setup code
+            ${userEditorCode}
+        } catch(err) {
+            // Keep the loader from locking up if there's a typo in the canvas code
+            alert("Runtime Error: " + err.message);
         }
-        code = `<!DOCTYPE html>\n<html lang='en'>\n<head>\n<meta charset='UTF-8'>\n<meta name='viewport' content='width=device-width, initial-scale=1.0'>\n<title>Document</title>\n<script>${use}</script></head>\n<body><script>${document.querySelector('textarea').value}</script>\n</body>\n</html>`
-        document.querySelector('iframe').srcdoc = code
-        cocode = code.replace(/console.log/g, "document.writeln")
-        document.getElementById("nn").srcdoc = cocode
-                    
+    </script>
+</body>
+</html>`;
+
+    // 5. Safely push the compiled environment into your preview iframe sandbox
+    document.querySelector('iframe').srcdoc = code;
 }
-v2xml.addEventListener("load", ()=>{
-  v2t = v2xml.responseText
-})
-v3xml.addEventListener("load", ()=>{
-  v3t = v3xml.responseText
-})
-let files = {}
-let filesName = [];
-if(!localStorage.files){
-  localStorage.files = []
-  localStorage.filename = []
-files = {}
-}else{
-    files = JSON.parse(localStorage.getItem("files"))
-    filesName = localStorage.getItem("filename").split(",")
-}
-let np;
