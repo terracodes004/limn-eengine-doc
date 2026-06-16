@@ -4,25 +4,45 @@ function runn(){
     
 
     let iframe = document.querySelector('iframe');
-    iframe.style.width = "100%";
-    iframe.style.height = "70vh"; 
-    iframe.style.border = "none";
-    iframe.style.display = "block";
+    if (iframe) {
+        iframe.style.width = "100%";
+        iframe.style.height ="70vh"; 
+        iframe.style.border = "none";
+        iframe.style.display = "block";
+    }
     
- 
-    let userEditorCode = document.querySelector('textarea').value; 
 
+    let userEditorCode = "";
+    let mainTextarea = document.querySelector('.TCJSgame-Playground textarea, .playground textarea, #editor textarea') || document.querySelector('textarea'); 
     
+    if (mainTextarea) {
+        userEditorCode = mainTextarea.value;
+    } else {
+        console.error("Run Error: Could not locate the editor text area.");
+        return;
+    }
+
+
     let hasHtmlTags = /<[a-z][\s\S]*>/i.test(userEditorCode) || userEditorCode.includes('<!DOCTYPE');
 
-    if (hasHtmlTags) {
-        
+    if (hasHtmlTags && iframe) {
         iframe.srcdoc = userEditorCode;
         return; 
     }
     
-    let versionDropdown = document.querySelector('select');
+
     let engineScriptFile = "tcjsgame-v3.js"; 
+    let allDropdowns = document.querySelectorAll('select');
+    let versionDropdown = null;
+
+    for (let select of allDropdowns) {
+        let text = select.textContent.toUpperCase();
+   
+        if (text.includes('V2') || text.includes('V3') || select.value.toUpperCase().includes('V')) {
+            versionDropdown = select;
+            break;
+        }
+    }
     
     if (versionDropdown) {
         let selectedVersion = versionDropdown.value.toLowerCase();
@@ -33,6 +53,7 @@ function runn(){
         }
     }
 
+
     let code = `<!DOCTYPE html>
 <html lang='en'>
 <head>
@@ -41,7 +62,7 @@ function runn(){
         body, html { 
             margin: 0; 
             padding: 0; 
-            background-color: #1e1e1e;
+            background-color: #1e1e1e; 
             width: 100%; 
             height: 100%; 
             display: flex; 
@@ -71,5 +92,8 @@ function runn(){
 </body>
 </html>`;
 
-    iframe.srcdoc = code;
+
+    if (iframe) {
+        iframe.srcdoc = code;
+    }
 }
