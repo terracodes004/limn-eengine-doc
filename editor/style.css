@@ -1,0 +1,137 @@
+body{
+    font-size: 17.5px;
+    font-family: Comic Sans MS;
+    background-color: rgb(41, 40, 40);
+    color: aliceblue;
+}
+
+header{
+    background-color: rgb(30, 29, 29);
+    position:sticky;
+    width: 100%;
+    margin: 0%;
+    top: 0;
+
+}
+nav{
+    ul{
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+        li{
+            list-style: none;
+            button{
+                color: rgb(200, 197, 197);
+                background-color: rgba(200, 197, 197, 0);
+                border: none;
+                font-size: large;
+                cursor: pointer;
+            }
+            button:hover{
+                color: rgb(255, 255, 255);
+            }
+        }
+    }
+}
+main{
+    margin :0;
+    text-align: center;
+}
+section{
+    width: 99%;
+    margin: 0;
+    margin: auto;
+
+}
+textarea{
+    width: 100%;
+    height: 45vh;
+    font-family: Consolas, 'Courier New', monospace;
+    font-size: 14px;
+    background-color: rgba(61, 60, 60, 0.87);
+    color: white;
+    padding: 1mm;
+    resize: none;
+    font-size: medium;
+}
+
+.con{
+    background-color: rgb(70, 68, 68);
+    width: 100%;
+    height: 25%;
+    details{
+        margin: auto;
+        width: 100%;
+        iframe{
+            width: 70%;
+            margin:0 15%;
+        }
+    }
+}
+.file{
+    margin: auto;
+    position: fixed;
+    top: 0cm;
+    width: 250px;
+    height: 100vh;
+    z-index: 10000;
+    overflow-y: auto;
+    display: none;
+    background-color: rgb(30, 29, 29);
+}
+select{
+    width: 100%;
+    font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+    font-size: large;
+    margin: auto;
+}
+button{
+    cursor: pointer;
+}
+dialog{
+    z-index: 1000000;
+    width: 75%;
+    text-align: center;
+    padding: 1cm;
+    display: none;
+    height:75%;
+    iframe{
+        width: 95%;
+        height: 100%;
+    }
+    button{
+        float: right;
+        position: absolute;
+        right: 12px;
+        top: 0;
+    }
+}
+button{
+    border: none;
+    padding: 1mm;
+    cursor: pointer;
+    background-color: rgba(255, 222, 173, 0);
+    font-size: 25px;
+
+}
+
+#file{
+    p{
+        
+        color: aliceblue;
+        display: grid;
+        grid-template-columns: 3fr 1fr;
+        button{
+            border: none;
+            border-bottom:3px groove gray;
+            width: 100%;
+            color: white;
+        }
+    }
+}
+/* .text{
+    position: absolute;
+    z-index: 100;
+    width: 100%;
+    height: 45vh;
+    background-color: aqua;
+} */

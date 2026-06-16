@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <base href="/editor/">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TCJSgame playground</title>
+    <!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-TSFBHGDMJL"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-TSFBHGDMJL');
+</script>
+    <meta name="robot" content="TCJSGame, Playground, TCJSgame playground">
+    <meta name="googlebots" content="TCJSGame, Playground, TCJSgame playground">
+    <link rel="stylesheet" href="style.css" />
+    <meta name="description" content="A playground for TCJSgame." />
+    <script src="jquery-3.7.1.min.js"></script>
+    <script src="function.js"></script>
+  </head>
+  <body>
+    <dialog open="">
+      <button onclick="$('dialog').fadeToggle(500)">⛔</button>
+      <br />
+      <iframe srcdoc="<center><h1>Loading ...</h1><progress></progress></center>"></iframe>
+    </dialog>
+    <div class="container">
+    <header>
+      <h1>
+        TCJSgame Playground
+        <nav>
+          <ul>
+            <li><button onclick="$('.file').fadeIn(500)">Open</button></li>
+            <li><button id="run" onclick="runn()">Run</button></li>
+            <li><button onclick="save()">Save</button></li>
+            <li>
+              <a href="https://tcjsgame.vercel.app"><button>Doc</button></a>
+            </li>
+            <li>
+              <button
+                onclick="saveAs()"
+              >
+                Save As
+              </button>
+            </li>
+          </ul>
+        </nav>
+      </h1>
+      <h5 id="title">*Untitled*</h5>
+    </header>
+
+    <main>
+      <div class="file" title="File bar">
+        <h2>
+          Files
+          <button style="float: right" onclick="$('.file').fadeOut('500')">
+            ⛔
+          </button>
+        </h2>
+        <button
+          onclick="
+            con = confirm('Are you sure to create a new file? Unsaved changes will be lost.');
+            if(con){
+                $('textarea').val('');
+                $('#title').text('*Untitled*');
+            }
+        "
+        >
+          🆕
+        </button>
+        <button
+          onclick="
+        con = confirm('Are you sure to open a file? Unsaved changes will be lost.');
+        if(con){
+            inp.click();
+            inp.onchange = e => {
+                let file = e.target.files[0];
+                let reader = new FileReader();
+                reader.readAsText(file,'UTF-8');
+                reader.onload = readerEvent => {
+                    let content = readerEvent.target.result;
+                    $('textarea').val(content);
+                    $('#title').text(file.name);
+                }
+            }
+            
+        }
+        "
+        >
+          📂
+        </button>
+        <div id="file"></div>
+      </div>
+      <section>
+        <select id="version" p>
+          <option value="v3" selected>V3</option>
+          <option value="v2">V2</option>
+        </select>
+        
+        <textarea id="js" wrap="off">
+const display = new Display()
+display.start()
+display.backgroundColor("green")
+let tile = new Component(12, 12, "blue", 0, 0)
+let tile2 = new Component(12, 12, "black", 0, 0)
+let tile3 = new Component(12, 12, "white", 0, 0)
+display.map = [[1, 2, 0],[0, 1, 0],[0, 3, 1]]
+display.tile =  [tile, tile2, tile3]
+display.tileMap()
+
+let com = new Component(100, 100, "white", 0, 50)
+display.add(com)
+addEventListener("keydown", e =>{
+  com.speedX = 1
+  display.tileFace.add(1,0, 2)
+})
+
+function update() {
+  display.tileFace.show()
+  if(display.tileFace.crashWith(com, 2)){
+    console.log("Hitted")
+  }
+}
+</textarea
+        >
+        
+        </div>
+      </section>
+      <div class="con">
+          <details>
+            <summary>console</summary>
+            <iframe id="nn"></iframe>
+          </details>
+    </main>
+    </div>
+    <div class="c"></div>
+    <script>
+      let inp = document.createElement("input");
+      inp.type = "file";
+      inp.accept = ".js";
+    </script>
+    <script src="script.js"></script>
+  </body>
+</html>
