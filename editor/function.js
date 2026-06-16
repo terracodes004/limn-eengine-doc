@@ -5,7 +5,7 @@ function runn(){
 
     let iframe = document.querySelector('iframe');
     iframe.style.width = "100%";
-    iframe.style.height = "60vh"; 
+    iframe.style.height = "70vh"; 
     iframe.style.border = "none";
     iframe.style.display = "block";
     
