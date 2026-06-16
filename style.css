@@ -424,3 +424,54 @@ footer{
   color: #9dffcc;
   font-size: 13.5px;
 }
+/* Code Editor Button - matches your btn-secondary */
+.btn-outline {
+  display: inline-block;
+  padding: 12px 24px;
+  margin: 10px;
+  border: 2px solid #fff;
+  border-radius: 8px;
+  color: #fff;
+  text-decoration: none;
+  font-weight: 500;
+  transition: 0.2s;
+}
+.btn-outline:hover {
+  background: #fff;
+  color: #000;
+}
+
+/* Iframe Preview Box */
+.editor-preview {
+  max-width: 900px;
+  margin: 40px auto;
+  border: 2px solid #333;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+}
+.editor-preview-header {
+  background: #1e1e1e;
+  color: #fff;
+  padding: 10px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: monospace;
+  font-size: 14px;
+}
+.editor-preview-header a {
+  background: #4CAF50;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 6px;
+  text-decoration: none;
+  font-size: 13px;
+}
+.editor-preview iframe {
+  width: 100%;
+  height: 400px;
+  border: none;
+  pointer-events: none;
+  background: #fff;
+}
