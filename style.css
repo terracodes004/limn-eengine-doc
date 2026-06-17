@@ -90,12 +90,7 @@ header{
 .btn-secondary:hover{ border-color: var(--accent2); color: var(--accent2); }
 
 }
-.btn-tertiary{
-  background: transparent;
-  color: var(--text);
-  border: 2px solid rgba(255,255,255,0.25);
-}
-.btn-tertiary:hover{ border-color: var(--accent2); color: var(--accent2); }
+
 /* ── NAV ── */
 nav{
   background: var(--bg);
