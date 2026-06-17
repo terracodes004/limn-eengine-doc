@@ -57,9 +57,9 @@ function createFileUIElement(fileNameStr) {
 }
 
 function saveAs() {
-    let name = prompt('Input file name');
+    let name = prompt('Input file name (e.g. index.html or script.js)');
     
-    if (!name || name.trim() === "" || name === "null" || name.split(",").length > 1) {
+    if (!name || name.trim() === "" || name === "null" || name.split(",").length > 2) {
         alert("⚠️ Save Unsuccessful: Invalid file name.");
         return;
     }
@@ -130,7 +130,7 @@ function down(filename) {
     let url = URL.createObjectURL(blob);
     let a = document.createElement("a");
     a.href = url;
-    a.download = filename + ".js";
+    a.download = filename; 
     a.click();
     URL.revokeObjectURL(url);
 }
