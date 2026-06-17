@@ -81,10 +81,28 @@ function runn(){
     <canvas id="c" width="600" height="400"></canvas>
 
     <script>
+        const _customLog = console.log;
+        console.log = function(...args) {
+            _customLog.apply(console, args);
+            const joinedArgs = args.map(arg => 
+                typeof arg === 'object' ? JSON.stringify(arg) : arg
+            ).join(' ');
+            
+            if (window.parent && window.parent.document) {
+                const consoleDisplay = window.parent.document.getElementById('editor-console-logs');
+                if (consoleDisplay) {
+                    const line = window.parent.document.createElement('div');
+                    line.textContent = joinedArgs;
+                    consoleDisplay.appendChild(line);
+                    consoleDisplay.scrollTop = consoleDisplay.scrollHeight;
+                }
+            }
+        };
+
         try {
             ${userEditorCode}
         } catch(err) {
-            alert("Engine Runtime Error: " + err.message);
+            console.log("Engine Runtime Error: " + err.message);
         }
     </script>
 </body>
