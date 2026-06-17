@@ -1,38 +1,29 @@
-
 let filesName = localStorage.filename ? localStorage.filename.split(',').filter(Boolean) : [];
 let files = localStorage.files ? JSON.parse(localStorage.files) : {};
 
-
 document.getElementById("js").addEventListener('keypress', (e)=>{
-    console.log(e.key)
-    
     if(e.key === "("){
-        document.getElementById("js").setRangeText(')', document.getElementById("js").selectionStart, document.getElementById("js").selectionEnd)
-        console.log("hjdaa")
+        document.getElementById("js").setRangeText(')', document.getElementById("js").selectionStart, document.getElementById("js").selectionEnd);
     }
     if(e.key ===  "<"){
-        document.getElementById("js").setRangeText('>', document.getElementById("js").selectionStart, document.getElementById("js").selectionEnd)
-        console.log("hjhhhhhdaa")
+        document.getElementById("js").setRangeText('>', document.getElementById("js").selectionStart, document.getElementById("js").selectionEnd);
     }
     if(e.key ===  "\""){
-        document.getElementById("js").setRangeText('\"', document.getElementById("js").selectionStart, document.getElementById("js").selectionEnd)
+        document.getElementById("js").setRangeText('\"', document.getElementById("js").selectionStart, document.getElementById("js").selectionEnd);
     }
     if(e.key ===  "\'"){
-        document.getElementById("js").setRangeText('\'', document.getElementById("js").selectionStart, document.getElementById("js").selectionEnd)
+        document.getElementById("js").setRangeText('\'', document.getElementById("js").selectionStart, document.getElementById("js").selectionEnd);
     }
     if(e.key ===  "["){
-        document.getElementById("js").setRangeText(']', document.getElementById("js").selectionStart, document.getElementById("js").selectionEnd)
-        console.log("hjdaffgfa")
+        document.getElementById("js").setRangeText(']', document.getElementById("js").selectionStart, document.getElementById("js").selectionEnd);
     }
     if(e.key === "{"){
-        document.getElementById("js").setRangeText('\n  \n}', document.getElementById("js").selectionStart, document.getElementById("js").selectionEnd)
+        document.getElementById("js").setRangeText('\n  \n}', document.getElementById("js").selectionStart, document.getElementById("js").selectionEnd);
     }
-})
-
+});
 
 let dbtn;
 let btn;
-
 
 filesName.forEach(e => {
     if (e) {
@@ -40,7 +31,6 @@ filesName.forEach(e => {
     }
 });
 
-// Helper Function to cleanly generate Sidebar File Items
 function createFileUIElement(fileNameStr) {
     let np = document.createElement('p');
     let fileBtn = document.createElement('button');
@@ -66,7 +56,6 @@ function createFileUIElement(fileNameStr) {
     document.getElementById('file').appendChild(np);
 }
 
-// SAVE AS FUNCTION
 function saveAs() {
     let name = prompt('Input file name');
     
@@ -91,7 +80,6 @@ function saveAs() {
     alert("Saved Successfully ✅");
 }
 
-// QUICK SAVE FUNCTION
 function save() {
     let currentFileName = document.querySelector('h5').innerText;
     
@@ -104,7 +92,6 @@ function save() {
     }
 }
 
-// DELETE FUNCTION
 function del(name, element) {
     let con = confirm("⚠️ Are you sure you want to delete this file?");
     if (con) {
@@ -124,7 +111,6 @@ function del(name, element) {
     }
 }
 
-// GLOBAL SHORTCUT CONTROLLER (Intercepts browser saves securely)
 document.querySelector("textarea").addEventListener("keydown", (e) => {
     if (e.ctrlKey) {
         if (e.shiftKey && (e.key === "S" || e.key === "s")) {
@@ -138,7 +124,6 @@ document.querySelector("textarea").addEventListener("keydown", (e) => {
     }
 });
 
-// DOWNLOAD LAYER
 function down(filename) {
     let data = document.querySelector("textarea").value;
     let blob = new Blob([data], {type: "text/plain"});
