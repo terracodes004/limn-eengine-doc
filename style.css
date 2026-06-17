@@ -76,6 +76,12 @@ header{
   text-decoration: none;
   transition: all 0.2s;
 }
+
+.con-btns a:nth-child(3) {
+  flex-basis: 100%;    
+  text-align: center;
+}
+
 .btn-primary{
   background: var(--accent);
   color: white;
