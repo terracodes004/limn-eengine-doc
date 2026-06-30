@@ -336,9 +336,7 @@ function update(dt) {
         <p>
           Because Limn's render loop calls <code>context.save()</code> and <code>context.restore()</code> every frame, the scale transform is reset at the end of each frame — which is why you must call <code>setZoom()</code> inside <code>update()</code> on every single frame to maintain the zoom level continuously.
         </p>
-        <div class="warn">
-          ⚠️ Call <code>setZoom()</code> every frame — the context scale resets at the end of each frame and will return to 1.0 if you stop calling it.
-        </div>
+        
         <pre><code>let zoomLevel = 1.0;
 
 function update(dt) {
@@ -347,9 +345,7 @@ function update(dt) {
     // Zoom in with + key, out with - key
     if (display.keys[187]) zoomLevel = Math.min(zoomLevel + 0.01, 2.5); // +
     if (display.keys[189]) zoomLevel = Math.max(zoomLevel - 0.01, 0.5); // -
-
-    // Must be called every frame to maintain the zoom
-    display.camera.setZoom(zoomLevel);
+display.camera.setZoom(zoomLevel);
 }</code></pre>
       </details>
     </article>
