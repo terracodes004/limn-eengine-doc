@@ -1,0 +1,211 @@
+<!doctype html>
+<html>
+  <head>
+    <script src="epic.js"></script>
+  </head>
+  <body>
+  <script>
+    const display = new Display();
+display.perform();
+display.start(800, 600);
+//display.backgroundColor("lightblue")
+fake.bgComm = new Component(2000,2000, "#1a1a2e", 0 ,0)
+fake.bgComm.setImage("limn-doc/img/alien.png")
+TCJSgameGameArea.width = 1600
+TCJSgameGameArea.height = 1200
+display.camera.worldWidth = 1600;
+display.camera.worldHeight = 1200;
+// display.camera.setZoom(0.75,0.75)
+// display.camera.x-=100
+const particles = new ParticleSystem(display);
+
+// ===== EVENT BUS =====
+const EventBus = {
+    listeners: {},
+    on(event, callback) {
+        if (!this.listeners[event]) this.listeners[event] = [];
+        this.listeners[event].push(callback);
+    },
+    emit(event, data) {
+        if (this.listeners[event]) {
+            this.listeners[event].forEach(cb => cb(data));
+        }
+    }
+};
+
+// ===== PLAYER =====
+const player = new Component(40, 40, "#5b8cff", 700, 500, "rect");
+display.add(player);
+
+// ===== SIMPLE LEVEL (10x10 grid, no procedural generation to avoid bugs) =====
+fake.map = [
+    [1,1,1,1,1,1,1,1,1,1],
+    [1,0,0,0,0,0,0,0,0,1],
+    [1,0,2,0,0,0,0,2,0,1],
+    [1,0,0,1,1,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,1,1,0,0,1],
+    [1,0,2,0,0,0,0,2,0,1],
+    [1,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,1],
+    [1,1,1,1,1,1,1,1,1,1]
+];
+
+const tileSize = 80; // 800/10 = 80, 600/10 = 60 but we need square
+// Actually for 1600x1200 world, tiles should be 40x40
+ tileW = 40;
+tileH = 40;
+
+fake.tile = [new Component(tileW, tileH, "#654321", 0, 0, "rect"),new Component(25, 25, "gold", 0, 0, "rect")
+]
+fake.mapWidth =1600
+fake.mapHeight = 1200
+fake.canvas.width = 1600
+fake.canvas.height = 1200
+fake.tileMap()
+const tilemap = fake.tileFace
+fake.tileFace.show();
+
+// ===== ENEMIES =====
+let enemies = [];
+for (let i = 0; i < 4; i++) {
+    const enemy = new Component(35, 35, "#ff6b6b", 
+        Math.random() * 1400 + 100, 
+        Math.random() * 1000 + 100, "rect");
+    enemy.speed = 60;
+    display.add(enemy);
+    enemies.push(enemy);
+}
+
+// ===== UI =====
+const healthBarBg = new Component(220, 25, "#440000", 20, 50, "rect");
+const healthBarFill = new Component(200, 20, "#00ff44", 30, 52, "rect");
+display.add(healthBarBg);
+display.add(healthBarFill);
+
+const scoreText = new Tctxt("24px", "Arial", "#ffffff", 20, 100, "left", false, "hanging", "rgba(0,0,0,0.5)", 10, 5);
+scoreText.setText("Score: 0");
+display.add(scoreText);
+let hhh = [healthBarBg,healthBarFill, scoreText]
+// ===== GAME STATE =====
+let score = 0;
+let health = 100;
+let invincibleTimer = 0;
+let gameActive = true;
+
+// ===== CUSTOM KNOCKBACK =====
+function applyKnockback(target, fromX, fromY, strength = 150) {
+    const angle = Math.atan2(target.y - fromY, target.x - fromX);
+    target.speedX = Math.cos(angle) * strength;
+    target.speedY = Math.sin(angle) * strength;
+    target.physics = true;
+    setTimeout(() => {
+        target.speedX = 0;
+        target.speedY = 0;
+        target.physics = false;
+    }, 200);
+}
+// ===== UPDATE FUNCTION =====
+function update(dt) {
+    if (!gameActive) return;
+    display.camera.follow(player,true);
+    healthBarBg.fixed()
+    healthBarFill.fixed()
+    scoreText.fixed()
+    particles.update();
+    
+    // Invincibility frames
+    if (invincibleTimer > 0) {
+        invincibleTimer -= dt;
+        player.alpha = 0.5;
+    } else {
+        player.alpha = 1;
+    }
+    
+    // Player movement
+    let mx = 0, my = 0;
+    if (display.keys[37]) mx = -1;
+    if (display.keys[39]) mx = 1;
+    if (display.keys[38]) my = -1;
+    if (display.keys[40]) my = 1;
+    
+    if (mx !== 0 && my !== 0) {
+        mx *= 0.707;
+        my *= 0.707;
+    }
+    
+    player.x += mx * 200 * dt;
+    player.y += my * 200 * dt;
+    
+    // Wall collision
+    if (tilemap.crashWith(player, 1)) {
+        if (mx > 0) player.x -= 10;
+        if (mx < 0) player.x += 10;
+        if (my > 0) player.y -= 10;
+        if (my < 0) player.y += 10;
+    }
+    
+    // Coin collection
+    const coins = tilemap.tiles(2);
+    for (let coin of coins) {
+        if (player.crashWith(coin)) {
+            tilemap.remove(coin.tx, coin.ty);
+            //tilemap.show()
+            //fake.refresh()
+            score += 10;
+            scoreText.setText("Score: " + score);
+            move.particles.sparkle(particles, coin.x + coin.width/2, coin.y + coin.height/2);
+            display.camera.shake(2, 2);
+        }
+    }
+    
+    // Enemy AI
+    for (let i = 0; i < enemies.length; i++) {
+        const enemy = enemies[i];
+        
+        // Chase player
+        if (enemy.x < player.x) enemy.x += enemy.speed * dt;
+        if (enemy.x > player.x) enemy.x -= enemy.speed * dt;
+        if (enemy.y < player.y) enemy.y += enemy.speed * dt;
+        if (enemy.y > player.y) enemy.y -= enemy.speed * dt;
+        
+        // Enemy collision with player
+        if (player.crashWith(enemy) && invincibleTimer <= 0) {
+            health -= 15;
+            const healthPercent = Math.max(0, health / 100);
+            healthBarFill.width = 200 * healthPercent;
+            
+            applyKnockback(player, enemy.x, enemy.y, 200);
+            display.camera.shake(6, 6);
+            move.particles.blood(particles, player.x, player.y, 10);
+            invincibleTimer = 1.0;
+            
+            if (health <= 0) {
+                gameActive = false;
+                const gameOverText = new Tctxt("48px", "Arial", "#ff0000", 400+display.camera.x, 300+display.camera.y, "center");
+                gameOverText.setText("GAME OVER - Score: " + score);
+                display.add(gameOverText);
+            }
+        }
+        
+        // Click to defeat enemy
+        if (mouse.down && enemy.clicked()) {
+          console.log("uygiik")
+            move.particles.explosion(particles, enemy.x, enemy.y, 20);
+            score += 50;
+            scoreText.setText("Score: " + score);
+            display.camera.shake(4, 4);
+            enemy.hide();
+            enemies.splice(i, 1);
+            i--;
+        }
+    }
+    
+    // Boundaries
+
+    player.x = Math.max(0, Math.min(1560, player.x));
+    player.y = Math.max(0, Math.min(1160, player.y));
+}
+  </script>
+    </body>
+</html>
