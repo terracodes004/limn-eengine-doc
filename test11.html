@@ -71,7 +71,7 @@ for (let i = 0; i < 4; i++) {
     const enemy = new Component(35, 35, "#ff6b6b", 
         Math.random() * 1400 + 100, 
         Math.random() * 1000 + 100, "rect");
-    enemy.speed = 3;
+    enemy.speed = 1;
     display.add(enemy);
     enemies.push(enemy);
 }
@@ -102,7 +102,7 @@ function applyKnockback(target, fromX, fromY, strength = 150) {
         target.speedX = 0;
         target.speedY = 0;
         target.physics = false;
-    }, 200);
+    }, 20);
 }
 function update(dt) {
     if (!gameActive) return;
