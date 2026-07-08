@@ -136,12 +136,41 @@ function update(dt) {
     player.y += my * 200 * dt;
     
     // Wall collision
-    if (tilemap.crashWith(player, 1)) {
-        if (mx > 0) player.x -= 10;
-        if (mx < 0) player.x += 10;
-        if (my > 0) player.y -= 10;
-        if (my < 0) player.y += 10;
+    // Better wall collision resolution
+if (tilemap.crashWith(player, 1)) {
+    // Check each wall tile the player overlaps with
+    const walls = tilemap.tiles(1);
+    for (let wall of walls) {
+        if (player.crashWith(wall)) {
+            // Calculate overlap on each axis
+            const overlapX = Math.min(player.x + player.width, wall.x + wall.width) - 
+                           Math.max(player.x, wall.x);
+            const overlapY = Math.min(player.y + player.height, wall.y + wall.height) - 
+                           Math.max(player.y, wall.y);
+            
+            // Resolve the smaller overlap first (most natural)
+            if (overlapX < overlapY) {
+                if (player.x < wall.x) {
+                    player.x = wall.x - player.width;
+                } else {
+                    player.x = wall.x + wall.width;
+                }
+            } else {
+                if (player.y < wall.y) {
+                    player.y = wall.y - player.height;
+                } else {
+                    player.y = wall.y + wall.height;
+                }
+            }
+            
+            // Stop the player's velocity if they're hitting a wall
+            if (player.physics) {
+                player.speedX = 0;
+                player.speedY = 0;
+            }
+        }
     }
+}
     
     // Coin collection
     const coins = tilemap.tiles(2);
