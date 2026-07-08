@@ -93,18 +93,31 @@ let invincibleTimer = 0;
 let gameActive = true;
 
 // ===== CUSTOM KNOCKBACK =====
+let isKnockedBack = false;
+
 function applyKnockback(target, fromX, fromY, strength = 150) {
     const angle = Math.atan2(target.y - fromY, target.x - fromX);
     target.speedX = Math.cos(angle) * strength;
     target.speedY = Math.sin(angle) * strength;
     target.physics = true;
+    isKnockedBack = true;
     setTimeout(() => {
         target.speedX = 0;
         target.speedY = 0;
         target.physics = false;
+        isKnockedBack = false;
     }, 200);
 }
-// ===== UPDATE FUNCTION =====
+
+// In update():
+if (!isKnockedBack) {
+    if (tilemap.crashWith(player, 1)) {
+        if (mx > 0) player.x -= 10;
+        if (mx < 0) player.x += 10;
+        if (my > 0) player.y -= 10;
+        if (my < 0) player.y += 10;
+    }
+    }
 function update(dt) {
     if (!gameActive) return;
     display.camera.follow(player,true);
