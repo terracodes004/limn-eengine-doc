@@ -93,32 +93,10 @@ let invincibleTimer = 0;
 let gameActive = true;
 
 // ===== CUSTOM KNOCKBACK =====
-let isKnockedBack = false;
-
 function applyKnockback(target, fromX, fromY, strength = 150) {
     const angle = Math.atan2(target.y - fromY, target.x - fromX);
-    
-    // Calculate the knockback direction
-    const dx = Math.cos(angle);
-    const dy = Math.sin(angle);
-    
-    // Check if the knockback direction is blocked by a wall
-    const testX = target.x + dx * 10;
-    const testY = target.y + dy * 10;
-    
-    // Create a test component to check collision
-    const testComp = new Component(target.width, target.height, null, testX, testY, "rect");
-    
-    if (tilemap.crashWith(testComp, 1)) {
-        // Knockback direction is blocked, reduce or redirect
-        const newStrength = strength * 0.5; // Half strength
-        target.speedX = dx * newStrength;
-        target.speedY = dy * newStrength;
-    } else {
-        target.speedX = dx * strength;
-        target.speedY = dy * strength;
-    }
-    
+    target.speedX = Math.cos(angle) * strength;
+    target.speedY = Math.sin(angle) * strength;
     target.physics = true;
     setTimeout(() => {
         target.speedX = 0;
@@ -195,7 +173,7 @@ function update(dt) {
             const healthPercent = Math.max(0, health / 100);
             healthBarFill.width = 200 * healthPercent;
             
-            applyKnockback(player, enemy.x, enemy.y, 200);
+            applyKnockback(player, enemy.x, enemy.y, 200 * dt);
             display.camera.shake(6, 6);
             move.particles.blood(particles, player.x, player.y, 10);
             invincibleTimer = 1.0;
