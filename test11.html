@@ -71,7 +71,7 @@ for (let i = 0; i < 4; i++) {
     const enemy = new Component(35, 35, "#ff6b6b", 
         Math.random() * 1400 + 100, 
         Math.random() * 1000 + 100, "rect");
-    enemy.speed = 1;
+    enemy.speed = 30;
     display.add(enemy);
     enemies.push(enemy);
 }
@@ -191,10 +191,10 @@ if (tilemap.crashWith(player, 1)) {
         const enemy = enemies[i];
         
         // Chase player
-        if (enemy.x < player.x) enemy.x += 30 * dt;
-        if (enemy.x > player.x) enemy.x -= 30 * dt;
-        if (enemy.y < player.y) enemy.y += 30 * dt;
-        if (enemy.y > player.y) enemy.y -= 30 * dt;
+        if (enemy.x < player.x) enemy.x += enemy.speed * dt;
+        if (enemy.x > player.x) enemy.x -= enemy.speed * dt;
+        if (enemy.y < player.y) enemy.y += enemy.speed * dt;
+        if (enemy.y > player.y) enemy.y -= enemy.speed * dt;
         
         // Enemy collision with player
         if (player.crashWith(enemy) && invincibleTimer <= 0) {
