@@ -97,27 +97,35 @@ let isKnockedBack = false;
 
 function applyKnockback(target, fromX, fromY, strength = 150) {
     const angle = Math.atan2(target.y - fromY, target.x - fromX);
-    target.speedX = Math.cos(angle) * strength;
-    target.speedY = Math.sin(angle) * strength;
+    
+    // Calculate the knockback direction
+    const dx = Math.cos(angle);
+    const dy = Math.sin(angle);
+    
+    // Check if the knockback direction is blocked by a wall
+    const testX = target.x + dx * 10;
+    const testY = target.y + dy * 10;
+    
+    // Create a test component to check collision
+    const testComp = new Component(target.width, target.height, null, testX, testY, "rect");
+    
+    if (tilemap.crashWith(testComp, 1)) {
+        // Knockback direction is blocked, reduce or redirect
+        const newStrength = strength * 0.5; // Half strength
+        target.speedX = dx * newStrength;
+        target.speedY = dy * newStrength;
+    } else {
+        target.speedX = dx * strength;
+        target.speedY = dy * strength;
+    }
+    
     target.physics = true;
-    isKnockedBack = true;
     setTimeout(() => {
         target.speedX = 0;
         target.speedY = 0;
         target.physics = false;
-        isKnockedBack = false;
     }, 200);
 }
-
-// In update():
-if (!isKnockedBack) {
-    if (tilemap.crashWith(player, 1)) {
-        if (mx > 0) player.x -= 10;
-        if (mx < 0) player.x += 10;
-        if (my > 0) player.y -= 10;
-        if (my < 0) player.y += 10;
-    }
-    }
 function update(dt) {
     if (!gameActive) return;
     display.camera.follow(player,true);
