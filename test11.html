@@ -162,10 +162,10 @@ function update(dt) {
         const enemy = enemies[i];
         
         // Chase player
-        if (enemy.x < player.x) enemy.x += enemy.speed * dt;
-        if (enemy.x > player.x) enemy.x -= enemy.speed * dt;
-        if (enemy.y < player.y) enemy.y += enemy.speed * dt;
-        if (enemy.y > player.y) enemy.y -= enemy.speed * dt;
+        if (enemy.x < player.x) enemy.x += 60 * dt;
+        if (enemy.x > player.x) enemy.x -= 60 * dt;
+        if (enemy.y < player.y) enemy.y += 60 * dt;
+        if (enemy.y > player.y) enemy.y -= 60 * dt;
         
         // Enemy collision with player
         if (player.crashWith(enemy) && invincibleTimer <= 0) {
