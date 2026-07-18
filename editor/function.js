@@ -29,7 +29,7 @@ function runn(){
         return; 
     }
     
-    let engineScriptFile = "tcjsgame-v3.js";
+    let engineScriptFile = "https://limn-engine-doc.vercel.app/asset/epic.js";
     let allDropdowns = document.querySelectorAll('select');
     let versionDropdown = null;
 
@@ -45,9 +45,9 @@ function runn(){
     if (versionDropdown) {
         let selectedVersion = versionDropdown.value.toLowerCase();
         if (selectedVersion.includes('v2')) {
-            engineScriptFile = "tcjsgame-v2.js";
-        } else if (selectedVersion.includes('v3')) {
             engineScriptFile = "tcjsgame-v3.js";
+        } else if (selectedVersion.includes('v3')) {
+            engineScriptFile = "https://limn-engine-doc.vercel.app/asset/epic.js";
         }
     }
 
