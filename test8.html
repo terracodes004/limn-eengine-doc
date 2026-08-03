@@ -1,0 +1,106 @@
+<!doctype html>
+<html>
+  <head>
+    <script src="epic.js"></script>
+  </head>
+  <body>
+  <script>
+    let gameActive = true;
+    const display = new Display();
+const player = new Component(40, 40, "blue", 400, 300, "rect");
+const scoreText = new Tctxt("24px", "Arial", "white", 20, 50);
+const restartText = new Tctxt("20px", "Arial", "white", 400, 380);
+display.perform()
+display.start(800, 600);
+let score = 0;
+const totalCoins = 10;
+let coins = [];
+let bCoins=[]
+  // Player
+display.add(player);
+display.backgroundColor("green")
+// Score text
+scoreText.setText("Score: 0 / " + totalCoins);
+display.add(scoreText);
+
+// Win text (hidden at start)
+const winText = new Tctxt("48px", "Arial", "gold", 400, 300);
+winText.align = "center";
+winText.setText("YOU WIN!");
+winText.hide();
+display.add(winText);
+
+restartText.align = "center";
+restartText.setText("Press R to play again");
+restartText.hide();
+display.add(restartText);
+
+// Create coins
+for (let i = 0; i < totalCoins; i++) {
+    let coin = new Component(30, 30, "gold",
+        Math.random() * 700 + 50,
+        Math.random() * 500 + 50, "rect");
+    display.add(coin);
+    coins.push(coin);
+  console.log(coins)
+  
+}
+
+// Sounds (optional)
+// const collectSound = new Sound("collect.wav");
+// const winSound = new Sound("win.wav");
+
+
+
+function restart() {
+    location.reload()
+}
+    
+bCoins = coins
+    console.log(coins+" and "+ bCoins)
+function update(deltaTime) {
+    // Restart with R key
+    if (display.keys[82]) {
+        restart();
+        return;
+    }
+    if (!gameActive) return;
+    // console.log(coins)
+    // Player movement
+    if (display.keys[37]) player.speedX = -400 * deltaTime;
+    else if (display.keys[39]) player.speedX = 400 * deltaTime;
+    else player.speedX = 0;
+
+    if (display.keys[38]) player.speedY = -400 * deltaTime;
+    else if (display.keys[40]) player.speedY = 400 * deltaTime;
+    else player.speedY = 0;
+
+    move.bound(player);
+
+    // Coin collection
+    for (let i = 0; i < coins.length; i++) {
+        if (player.crashWith(coins[i])) {
+            // collectSound.play();
+            display.camera.shake(3, 3);
+            coins[i].hide();
+          
+            coins.splice(i, 1);
+            console.log(coins.length)
+            score++;
+            scoreText.setText("Score: " + score + " / " + totalCoins);
+            break;
+        }
+    }
+
+    // Win condition
+    if (score === totalCoins && gameActive) {
+        gameActive = false;
+        // winSound.play();
+        winText.show();
+        restartText.show();
+        scoreText.hide();
+    }
+}
+  </script>
+    </body>
+</html>
