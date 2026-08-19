@@ -17,7 +17,7 @@
 </script>
 <meta name="description" content="Limn Engine — A lightweight, high-performance 2D HTML5 Canvas game engine framework featuring an automated dual-canvas baking system, advanced physics, kinematic projectiles, multi-channel sound cloning, and built-in particle systems for rapid indie web game development.">
 <meta name="keywords" content="Limn Engine, HTML5 game engine, 2D canvas framework, javascript game development, epic.js, dual canvas optimization, performance.now easing, web audio polyphony, game physics library, indie game tools">
-  <meta name="author" content="Owolabi Kehinde">
+<meta name="author" content="Owolabi Kehinde">
 <meta name="robots" content="index, follow">
 
 <meta property="og:type" content="website">
@@ -38,30 +38,31 @@ if ('serviceWorker' in navigator) {
 }
 
 let deferredPrompt;
-const installBtn = document.getElementById('installAppBtn');
 
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
   deferredPrompt = e;
   
+  const installBtn = document.getElementById('installAppBtn');
 
   if (installBtn) {
     installBtn.style.display = 'block';
-  }
 
-  installBtn.addEventListener('click', async () => {
-    if (!deferredPrompt) return;
-    
-    installBtn.style.display = 'none';
-    deferredPrompt.prompt();
-    
-    const { outcome } = await deferredPrompt.userChoice;
-    console.log(`User choice: ${outcome}`);
-    deferredPrompt = null;
-  });
+    installBtn.addEventListener('click', async () => {
+      if (!deferredPrompt) return;
+      
+      installBtn.style.display = 'none';
+      deferredPrompt.prompt();
+      
+      const { outcome } = await deferredPrompt.userChoice;
+      console.log(`User choice: ${outcome}`);
+      deferredPrompt = null;
+    });
+  }
 });
 
 window.addEventListener('appinstalled', () => {
+  const installBtn = document.getElementById('installAppBtn');
   if (installBtn) {
     installBtn.style.display = 'none';
   }
@@ -75,12 +76,11 @@ window.addEventListener('appinstalled', () => {
   <img src="img/logo.png" id="logo" alt="Limn Engine">
   <div class="con">
     <h1>Limn Engine</h1>
-    <center><p>A zero-config 2D game engine for the browser. One file. No npm. Just creativity.</p></center>
+    <p class="hero-text">A zero-config 2D game engine for the browser. One file. No npm. Just creativity.</p>
     <div class="con-btns">
       <a href="tutorial.html" class="btn-secondary">Learn the Engine →</a>
       <a href="asset/epic.js" download class="btn-primary">⬇ Download epic.js</a>
       <a href="editor/" class="btn-secondary">🚀 Playground Code Editor</a>
-     
     </div>
   </div>
 </header>
@@ -92,7 +92,7 @@ window.addEventListener('appinstalled', () => {
     <li><a href="reference.html">🗒 Reference</a></li>
     <li><a href="download.html">⬇ Download</a></li>
     <li class="nav-spacer"></li>
-    <button class="nav-burger" id="nav-burger">☰</button>
+    <li><button class="nav-burger" id="nav-burger">☰</button></li>
   </ul>
 </nav>
 
@@ -211,4 +211,3 @@ function update(dt) {
 </footer>
 </body>
 </html>
-
