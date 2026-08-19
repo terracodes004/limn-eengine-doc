@@ -573,4 +573,42 @@ nav ul li a {
   white-space: nowrap;
 }
   
+nav {
+  width: 100%;
+  padding: 8px 4px !important;
+  box-sizing: border-box;
+}
 
+nav ul {
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  gap: 4px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  width: 100% !important;
+}
+
+nav ul li {
+  display: flex !important;
+  flex: 1 1 auto !important;
+  justify-content: center !important;
+}
+
+nav ul li a {
+  text-decoration: none;
+  font-size: 11px !important;
+  font-weight: 600;
+  white-space: nowrap !important;
+  padding: 4px 2px !important;
+}
+
+.nav-burger, 
+#nav-burger, 
+.nav-spacer, 
+aside {
+  display: none !important;
+}
+  
