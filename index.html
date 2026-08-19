@@ -43,21 +43,28 @@ window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
   deferredPrompt = e;
   
-  const installBtn = document.getElementById('installAppBtn');
+  const showButton = () => {
+    const installBtn = document.getElementById('installAppBtn');
+    if (installBtn) {
+      installBtn.style.display = 'inline-block';
 
-  if (installBtn) {
-    installBtn.style.display = 'block';
+      installBtn.addEventListener('click', async () => {
+        if (!deferredPrompt) return;
+        
+        installBtn.style.display = 'none';
+        deferredPrompt.prompt();
+        
+        const { outcome } = await deferredPrompt.userChoice;
+        console.log(`User choice: ${outcome}`);
+        deferredPrompt = null;
+      });
+    }
+  };
 
-    installBtn.addEventListener('click', async () => {
-      if (!deferredPrompt) return;
-      
-      installBtn.style.display = 'none';
-      deferredPrompt.prompt();
-      
-      const { outcome } = await deferredPrompt.userChoice;
-      console.log(`User choice: ${outcome}`);
-      deferredPrompt = null;
-    });
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', showButton);
+  } else {
+    showButton();
   }
 });
 
@@ -77,11 +84,13 @@ window.addEventListener('appinstalled', () => {
   <div class="con">
     <h1>Limn Engine</h1>
     <p class="hero-text">A zero-config 2D game engine for the browser. One file. No npm. Just creativity.</p>
-    <div class="con-btns">
-      <a href="tutorial.html" class="btn-secondary">Learn the Engine →</a>
-      <a href="asset/epic.js" download class="btn-primary">⬇ Download epic.js</a>
-      <a href="editor/" class="btn-secondary">🚀 Playground Code Editor</a>
-    </div>
+<div class="con-btns">
+  <a href="tutorial.html" class="btn-secondary">Learn the Engine →</a>
+  <a href="asset/epic.js" download class="btn-primary">⬇ Download epic.js</a>
+  <a href="editor/" class="btn-secondary">🚀 Playground Code Editor</a>
+  <button id="installAppBtn" class="btn-secondary" style="display: none;">📱 Install App</button>
+</div>
+
   </div>
 </header>
 
