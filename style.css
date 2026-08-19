@@ -530,4 +530,18 @@ fieldset, article {
   margin-left: 0;
   margin-right: 0;
 }
+@media (max-width: 750px) {
+  nav ul li:not(:last-child) {
+    display: none;
+  }
+
+  nav ul {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .nav-burger {
+    display: block;
+  }
+}
 
