@@ -463,3 +463,22 @@ footer{
   pointer-events: none;
   background: #fff;
 }
+
+#installAppBtn {
+  cursor: pointer;
+  font-family: inherit;
+  background: transparent;
+  color: var(--accent2);
+  border: 2px solid var(--accent2);
+  padding: 12px 28px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 15px;
+  transition: all 0.2s ease;
+}
+
+#installAppBtn:hover {
+  background: var(--accent2);
+  color: var(--bg);
+  transform: translateY(-2px);
+}
