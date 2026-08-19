@@ -1,0 +1,20 @@
+{
+  "short_name": "Limn Engine",
+  "name": "Limn Engine Framework",
+  "icons": [
+    {
+      "src": "img/logo.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "img/logo.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": ".",
+  "background_color": "#000321",
+  "theme_color": "#000321",
+  "display": "standalone"
+}
