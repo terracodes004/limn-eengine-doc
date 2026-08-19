@@ -544,4 +544,23 @@ fieldset, article {
     display: block;
   }
 }
+.nav-burger, 
+#nav-burger, 
+aside {
+  display: none !important;
+}
+
+nav ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  padding: 8px 0;
+}
+
+nav ul li {
+  display: inline-block !important;
+}
 
