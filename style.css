@@ -23,12 +23,10 @@ body{
   line-height: 1.7;
 }
 
-/* ── SCROLLBAR ── */
 ::-webkit-scrollbar{ width:5px; height:5px; }
 ::-webkit-scrollbar-track{ background:var(--bg); }
 ::-webkit-scrollbar-thumb{ background:var(--accent); border-radius:3px; }
 
-/* ── HEADER ── */
 header{
   position: relative;
   width: 100%;
@@ -95,9 +93,6 @@ header{
 }
 .btn-secondary:hover{ border-color: var(--accent2); color: var(--accent2); }
 
-}
-
-/* ── NAV ── */
 nav{
   background: var(--bg);
   border-bottom: 1px solid var(--border);
@@ -140,7 +135,6 @@ nav ul li.active a{ color: var(--accent); }
   display: none;
 }
 
-/* ── ASIDE ── */
 aside{
   position: fixed;
   left: 0; top: 52px; bottom: 0;
@@ -168,7 +162,6 @@ aside ul li a{
 }
 aside ul li a:hover{ color: var(--accent2); background: rgba(127,255,178,0.05); }
 
-/* ── MAIN ── */
 main{
   max-width: 900px;
   margin: 0 auto;
@@ -184,7 +177,6 @@ main > h1{
   padding-bottom: 12px;
 }
 
-/* ── FIELDSET / CARD ── */
 fieldset{
   border: 1px solid var(--border);
   border-radius: 12px;
@@ -219,7 +211,6 @@ blockquote{
   font-size: 14px;
 }
 
-/* ── DETAILS / SUMMARY ── */
 details{ margin-top: 12px; }
 summary{
   cursor: pointer;
@@ -236,7 +227,6 @@ summary::before{ content: '▶'; font-size: 10px; transition: transform 0.2s; }
 details[open] summary::before{ transform: rotate(90deg); }
 details > *:not(summary){ margin-top: 14px; }
 
-/* ── CODE / PRE ── */
 pre{
   background: var(--code-bg);
   border: 1px solid var(--border);
@@ -266,7 +256,6 @@ pre code{
   font-size: inherit;
 }
 
-/* ── TABLES ── */
 table{
   width: 100%;
   border-collapse: collapse;
@@ -297,7 +286,6 @@ tr:last-child td{ border-bottom: none; }
 tr:hover td{ background: rgba(255,255,255,0.015); }
 td b, td code{ color: var(--text); }
 
-/* ── LEVEL BADGES ── */
 .lv1{ color: #7fffb2; background: rgba(127,255,178,0.1); border: 1px solid rgba(127,255,178,0.25); }
 .lv2{ color: #5b8cff; background: rgba(91,140,255,0.1); border: 1px solid rgba(91,140,255,0.25); }
 .lv3{ color: #ffbb6b; background: rgba(255,187,107,0.1); border: 1px solid rgba(255,187,107,0.25); }
@@ -315,7 +303,6 @@ td b, td code{ color: var(--text); }
   vertical-align: middle;
 }
 
-/* ── CALLOUT ── */
 .tip{
   background: rgba(127,255,178,0.06);
   border-left: 3px solid var(--accent2);
@@ -335,16 +322,13 @@ td b, td code{ color: var(--text); }
   margin: 14px 0;
 }
 
-/* ── LINKS ── */
 a{ color: var(--accent); text-decoration: none; transition: color 0.15s; }
 a:hover{ color: var(--accent2); }
 main a{ text-decoration: underline; text-underline-offset: 2px; }
 
-/* ── LISTS ── */
 ol, ul{ padding-left: 20px; color: var(--muted); font-size: 14px; }
 li{ margin-bottom: 4px; }
 
-/* ── IMAGES in fieldset ── */
 picture, fieldset > img{
   display: block;
   background: var(--surface2);
@@ -358,7 +342,6 @@ picture img, fieldset > img{
   opacity: 0.85;
 }
 
-/* ── TUTORIAL GRID ── */
 .tut-grid{
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -396,7 +379,6 @@ picture img, fieldset > img{
   vertical-align: middle;
 }
 
-/* ── FOOTER ── */
 footer{
   background: var(--surface);
   border-top: 1px solid var(--border);
@@ -417,7 +399,6 @@ footer{
 }
 .footer-logo{ color: var(--accent); font-weight: 700; }
 
-/* ── RESPONSIVE ── */
 @media(max-width:750px){
   .tut-grid{ grid-template-columns: 1fr; }
   .nav-burger{ display: block; }
@@ -432,7 +413,7 @@ footer{
   color: #9dffcc;
   font-size: 13.5px;
 }
-/* Code Editor Button - matches your btn-secondary */
+
 .btn-outline {
   display: inline-block;
   padding: 12px 24px;
@@ -449,7 +430,6 @@ footer{
   color: #000;
 }
 
-/* Iframe Preview Box */
 .editor-preview {
   max-width: 900px;
   margin: 40px auto;
