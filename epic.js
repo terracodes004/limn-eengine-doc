@@ -1374,14 +1374,17 @@ class Tctxt extends Component{
 }
       function ani(time) {
         display.frame++
+        display.timeForAllFrames = time
+        
+        display.deltaTime = display.timeFromAllFrames - display.timeFromPreviousFrames
+        
         display.time =time
         
-        display.timeFromPreviousFrames = time
         display.timing = display.time - display.contTime
         if(time< 1000){
           display.deltaTime = 0
         }else{
-          display.deltaTime = 1 / display.fps
+          //display.deltaTime = 1 / display.fps
         }
         
         // Update delta time logic
@@ -1393,7 +1396,7 @@ class Tctxt extends Component{
           display.frame = 0
           refresh = false
           
-          display.deltaTime = 1 / display.fps
+          //display.deltaTime = 1 / display.fps
        }
         
         //if (refresh) {
@@ -1510,10 +1513,9 @@ class Tctxt extends Component{
                 }
             }
         })
-        
+        display.timeFromPreviousFrames = time
+              
         display.context.restore()
-        display.timeForAllFrames = time
-        display.deltaTime = display.timeFromAllFrames - display.timeFromPreviousFrames
         return requestAnimationFrame(ani)
     }
     class Particle extends Component {
