@@ -1364,6 +1364,8 @@ class Tctxt extends Component{
         this.mapHeight = this.canvas.height;
         this.cachePic;
         this.time;
+        this.deltaTime = 0
+        this.timeFromPreviousFrames = 0
         display.contTime = 1;//develop's business
         this.addEventListeners();
         this.once = true
@@ -1374,6 +1376,7 @@ class Tctxt extends Component{
         display.frame++
         display.time =time
         
+        display.timeFromPreviousFrames = time
         display.timing = display.time - display.contTime
         if(time< 1000){
           display.deltaTime = 0
@@ -1392,6 +1395,7 @@ class Tctxt extends Component{
           
           display.deltaTime = 1 / display.fps
        }
+        
         //if (refresh) {
             
         //}
@@ -1508,6 +1512,8 @@ class Tctxt extends Component{
         })
         
         display.context.restore()
+        display.timeForAllFrames = time
+        display.deltaTime = display.timeFromAllFrames - display.timeFromPreviousFrames
         return requestAnimationFrame(ani)
     }
     class Particle extends Component {
