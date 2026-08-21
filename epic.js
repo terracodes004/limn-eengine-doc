@@ -1374,7 +1374,7 @@ class Tctxt extends Component{
 }
       function ani(time) {
         display.frame++
-        display.timeForAllFrames = time
+        display.timeFromAllFrames = time
         
         display.deltaTime = display.timeFromAllFrames - display.timeFromPreviousFrames
         
