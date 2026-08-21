@@ -1364,6 +1364,8 @@ class Tctxt extends Component{
         this.mapHeight = this.canvas.height;
         this.cachePic;
         this.time;
+        this.deltaTime = 0
+        this.timeFromPreviousFrames = 0
         display.contTime = 1;//develop's business
         this.addEventListeners();
         this.once = true
@@ -1372,13 +1374,17 @@ class Tctxt extends Component{
 }
       function ani(time) {
         display.frame++
+        display.timeFromAllFrames = time
+        
+        display.deltaTime = display.timeFromAllFrames - display.timeFromPreviousFrames
+        
         display.time =time
         
         display.timing = display.time - display.contTime
         if(time< 1000){
           display.deltaTime = 0
         }else{
-          display.deltaTime = 1 / display.fps
+          //display.deltaTime = 1 / display.fps
         }
         
         // Update delta time logic
@@ -1390,8 +1396,9 @@ class Tctxt extends Component{
           display.frame = 0
           refresh = false
           
-          display.deltaTime = 1 / display.fps
+          //display.deltaTime = 1 / display.fps
        }
+        
         //if (refresh) {
             
         //}
@@ -1480,7 +1487,7 @@ class Tctxt extends Component{
         
         // Update game logic
         try {
-            update(display.deltaTime) // Pass deltaTime to your update function
+            update(dt = display.deltaTime/1000) // Pass deltaTime to your update function
         } catch (e) {
             console.error("Update error:", e)
         }
@@ -1506,7 +1513,8 @@ class Tctxt extends Component{
                 }
             }
         })
-        
+        display.timeFromPreviousFrames = time
+              
         display.context.restore()
         return requestAnimationFrame(ani)
     }
