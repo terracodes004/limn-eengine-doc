@@ -1487,7 +1487,7 @@ class Tctxt extends Component{
         
         // Update game logic
         try {
-            update(display.deltaTime) // Pass deltaTime to your update function
+            update(dt = display.deltaTime/1000) // Pass deltaTime to your update function
         } catch (e) {
             console.error("Update error:", e)
         }
