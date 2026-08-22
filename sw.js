@@ -1,11 +1,28 @@
-const CACHE_NAME = 'limn-engine-v2';
+const CACHE_NAME = 'limn-engine-v3';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
-  './style.css',
+  './about.html',
+  './advance.html',
+  './alien.html',
+  './ballgame.html',
+  './beginner.html',
+  './download.html',
+  './intermidate.html',
+  './reference.html',
+  './tutorial.html',
+  './test8.html',
+  './test9.html',
+  './test11.html',
+  './test15.html',
+  './10x.html',
+  './epic.js',
   './script.js',
   './bugTrackerSystem.js',
+  './head.js',
+  './style.css',
   './manifest.json',
+  './sitemap.xml',
   './img/logo.png'
 ];
 
@@ -21,11 +38,15 @@ self.addEventListener('install', (e) => {
   );
 });
 
-
 self.addEventListener('activate', (e) => {
-  e.waitUntil(self.clients.claim());
+  e.waitUntil(
+    caches.keys().then((keys) => {
+      return Promise.all(
+        keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key))
+      );
+    }).then(() => self.clients.claim())
+  );
 });
-
 
 self.addEventListener('fetch', (e) => {
   e.respondWith(
@@ -38,3 +59,4 @@ self.addEventListener('fetch', (e) => {
     })
   );
 });
+  
