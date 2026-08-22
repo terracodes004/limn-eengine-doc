@@ -1,6 +1,6 @@
 const BUG_CONFIG = {
   mode: 'discord',
-  discordWebhookUrl: 'https://discord.com/api/webhooks/1540694961622880320/JkPoO1n191EW-bMHrpia1pPqlz8Kjuq_PCJQqIHs-eT8Iz_f2k9T29xTd5PZqspf5qzT',
+  discordWebhookUrl: 'https://discord.com/api/webhooks/1540696456078303342/PDbQqxNEtxuz4xbmvVvT_YsK9CjpP6AgNXCWGXvUREwU7Gf_LTjoF6mHWxAPjEwOd-iN',
   emailConfig: {
     serviceId: 'YOUR_SERVICE_ID',
     templateId: 'YOUR_TEMPLATE_ID'
