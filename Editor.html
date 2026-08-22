@@ -2,62 +2,93 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Limn Engine - VS Code Style Studio</title>
+    
+    <!-- CodeMirror CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css">
+    
     <style>
         * { box-sizing: border-box; }
         body, html {
             margin: 0; padding: 0; background: #1e1e1e; color: #d4d4d4;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; height: 100vh; display: flex; flex-direction: column; overflow: hidden;
         }
+        
         /* VS Code Style Header */
-        header {
-            background: #333333; padding: 8px 15px; display: flex; gap: 10px; align-items: center; border-bottom: 1px solid #252526; height: 45px; flex-shrink: 0;
+        header { 
+            background: #333333; padding: 8px 15px; display: flex; gap: 10px; align-items: center; 
+            border-bottom: 1px solid #252526; height: 45px; flex-shrink: 0; 
         }
-        header button {
-            background: #0e639c; color: white; border: none; padding: 6px 14px; border-radius: 2px; cursor: pointer; font-size: 13px; font-weight: 600;
-        }
+        header button { background: #0e639c; color: white; border: none; padding: 6px 14px; border-radius: 2px; cursor: pointer; font-weight: 600; font-size: 13px; }
         header button:hover { background: #1177bb; }
         header select { background: #252526; color: #fff; border: 1px solid #454545; padding: 5px; border-radius: 2px; }
 
-        /* Editor Full-Screen Area */
-        #monaco-editor-container {
-            flex: 1;
-            width: 100%;
-            height: calc(100vh - 45px - 140px);
+        /* Full Screen Editor Container */
+        .editor-container { flex: 1; display: flex; flex-direction: column; position: relative; width: 100%; }
+        
+        /* Custom Styling to make CodeMirror look EXACTLY like VS Code Dark+ */
+        .CodeMirror {
+            position: absolute !important;
+            top: 0; bottom: 0; left: 0; right: 0;
+            height: auto !important;
+            background-color: #1e1e1e !important;
+            color: #d4d4d4 !important;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 14px;
         }
+        .CodeMirror-gutters {
+            background-color: #1e1e1e !important;
+            border-right: 1px solid #333333 !important;
+            color: #858585 !important;
+        }
+        .CodeMirror-linenumber { color: #858585 !important; }
+        .CodeMirror-cursor { border-left: 2px solid #aeafad !important; }
+        .CodeMirror-selected { background: #264f78 !important; }
 
-        /* Terminal Console */
-        #console-container { background: #1e1e1e; border-top: 1px solid #333; height: 140px; display: flex; flex-direction: column; flex-shrink: 0; }
+        /* VS Code Syntax Highlighting Simulation */
+        .cm-keyword { color: #c586c0 !important; }
+        .cm-def { color: #dcdcaa !important; }
+        .cm-variable { color: #9cdcfe !important; }
+        .cm-string { color: #ce9178 !important; }
+        .cm-number { color: #b5cea8 !important; }
+        .cm-comment { color: #6a9955 !important; font-style: italic; }
+
+        /* Console Output Panel */
+        #console-container { background: #1e1e1e; border-top: 1px solid #333; height: 130px; display: flex; flex-direction: column; flex-shrink: 0; }
         #console-header { background: #252526; padding: 4px 10px; font-size: 11px; color: #bbbbbb; border-bottom: 1px solid #333; }
         #console-logs { flex: 1; overflow-y: auto; padding: 8px; font-family: Consolas, monospace; font-size: 12px; color: #4af626; }
         .console-error { color: #f48771 !important; }
 
-        /* Modal Popup for Game Preview */
-        dialog {
-            background: #252526; color: #fff; border: 1px solid #454545; border-radius: 6px; width: 85vw; height: 85vh; padding: 0; box-shadow: 0 10px 30px rgba(0,0,0,0.8);
-        }
-        dialog::backdrop { background: rgba(0, 0, 0, 0.7); }
-        .dialog-header { background: #333; padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #444; }
+        /* Preview Modal */
+        dialog { background: #252526; color: #fff; border: 1px solid #454545; border-radius: 6px; width: 90vw; height: 85vh; padding: 0; box-shadow: 0 10px 30px rgba(0,0,0,0.8); }
+        dialog::backdrop { background: rgba(0,0,0,0.7); }
+        .dialog-header { background: #333; padding: 10px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #444; }
         .dialog-header button { background: #c53030; color: white; border: none; padding: 4px 10px; border-radius: 3px; cursor: pointer; }
     </style>
 </head>
 <body>
 
     <header>
-        <span style="font-weight: bold; color: #fff; margin-right: 10px;">Limn Studio</span>
-        <button onclick="runn()">▶ Run Code</button>
-        <button onclick="saveCodeFile()" style="background: #333; border: 1px solid #555;">Save File</button>
-        <button onclick="clearConsole()" style="background: #333; border: 1px solid #555;">Clear Console</button>
+        <span style="font-weight: bold; color: #fff; margin-right: 5px;">Limn Studio</span>
+        <button onclick="runn()">▶ Run</button>
+        <button onclick="saveCodeFile()" style="background: #333; border: 1px solid #555;">Save</button>
+        <button onclick="clearConsole()" style="background: #333; border: 1px solid #555;">Clear</button>
         <select id="version-select">
-            <option value="v3">V3 Engine (Epic.js)</option>
-            <option value="v2">V2 Engine (Legacy)</option>
+            <option value="v3">V3 (Epic.js)</option>
+            <option value="v2">V2 (Legacy)</option>
         </select>
     </header>
 
-    <!-- Monaco Editor Root -->
-    <div id="monaco-editor-container"></div>
+    <div class="editor-container">
+        <textarea id="code-editor">// Test the built-in bug reporter & mobile keyboard:
+function testBugSystem() {
+    nonExistentGameEngineFunction();
+}
+testBugSystem();</textarea>
+    </div>
 
-    <!-- Terminal Console Output -->
+    <!-- Console Output -->
     <div id="console-container">
         <div id="console-header">OUTPUT CONSOLE</div>
         <div id="console-logs"></div>
@@ -66,36 +97,27 @@
     <!-- Preview Modal -->
     <dialog id="preview-modal">
         <div class="dialog-header">
-            <span>Game Preview Window</span>
+            <span>Game Preview</span>
             <button onclick="document.getElementById('preview-modal').close()">✕ Close</button>
         </div>
         <iframe style="width:100%; height:calc(85vh - 41px); border:none; background:#000;"></iframe>
     </dialog>
 
-    <!-- Load Monaco Editor via CDN loader -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.39.0/min/vs/loader.min.js"></script>
-    <script>
-        let editor;
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/javascript/javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 
-        require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.39.0/min' }});
-        require(['vs/editor/editor.main'], function() {
-            editor = monaco.editor.create(document.getElementById('monaco-editor-container'), {
-                value: [
-                    '// Welcome to Limn Engine (VS Code Style)',
-                    'function startGame() {',
-                    '    console.log("Initializing Limn Engine v3...");',
-                    '    // Intentionally test bug tracker:',
-                    '    nonExistentFunctionToTestBugTracker();',
-                    '}',
-                    'startGame();'
-                ].join('\n'),
-                language: 'javascript',
-                theme: 'vs-dark', // The exact Visual Studio Dark theme!
-                automaticLayout: true,
-                fontSize: 14,
-                minimap: { enabled: true } // Shows the code outline preview on the right like VS Code!
-            });
+    <script>
+        let editor = CodeMirror.fromTextArea(document.getElementById("code-editor"), {
+            mode: "javascript",
+            lineNumbers: true,
+            autoCloseBrackets: true,
+            indentUnit: 4,
+            lineWrapping: true
         });
+
+        setTimeout(() => { editor.refresh(); }, 200);
 
         function logToConsole(text, isError = false) {
             let consoleLogs = document.getElementById('console-logs');
@@ -201,4 +223,5 @@
         });
     </script>
 </body>
-</html>
+    </html>
+                                                
