@@ -24,6 +24,10 @@ const ASSETS_TO_CACHE = [
   './manifest.json',
   './sitemap.xml',
   './img/logo.png'
+  './editor/',
+  './editor/index.html'
+];
+  
 ];
 
 self.addEventListener('install', (e) => {
