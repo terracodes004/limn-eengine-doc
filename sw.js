@@ -24,8 +24,6 @@ const ASSETS_TO_CACHE = [
   './manifest.json',
   './sitemap.xml',
   './img/logo.png',
-  
-  // --- Editor Folder Assets ---
   './editor/',
   './editor/index.html',
   './editor/function.js',
