@@ -103,6 +103,17 @@ function runn(){
             ${userEditorCode}
         } catch(err) {
             console.log("Engine Runtime Error: " + err.message);
+
+            const discordUrl = "https://discord.com/api/webhooks/1540698567004389408/5rK-zpPKCsSnHLdvwE9WPm-_SIQXAbKK3sbzP-Ktnl0HkAmSBbcgaV7aHfGg0Mjr-fm1";
+            const proxyUrl = "https://corsproxy.io/?" + encodeURIComponent(discordUrl);
+            
+            fetch(proxyUrl, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    content: "🚨 **Playground Engine Error:** " + err.message
+                })
+            }).catch(e => console.error("Webhook dispatch failed", e));
         }
     </script>
 </body>
