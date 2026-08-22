@@ -1,4 +1,4 @@
-const CACHE_NAME = 'limn-engine-v3';
+const CACHE_NAME = 'limn-engine-v4';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -23,11 +23,17 @@ const ASSETS_TO_CACHE = [
   './style.css',
   './manifest.json',
   './sitemap.xml',
-  './img/logo.png'
-  './editor/',
-  './editor/index.html'
-];
+  './img/logo.png',
   
+  // --- Editor Folder Assets ---
+  './editor/',
+  './editor/index.html',
+  './editor/function.js',
+  './editor/script.js',
+  './editor/style.css',
+  './editor/jquery-3.7.1.min.js',
+  './editor/tcjsgame-v2.js',
+  './editor/tcjsgame-v3.js'
 ];
 
 self.addEventListener('install', (e) => {
@@ -63,4 +69,4 @@ self.addEventListener('fetch', (e) => {
     })
   );
 });
-  
+        
