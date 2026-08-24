@@ -621,4 +621,11 @@ aside {
   display: none !important;
 }
 
-  
+/* ── INSIDE PRE, KEEP CODE ON ONE LINE ── */
+pre code {
+  white-space: pre !important;     /* ← Don't wrap lines */
+  word-break: normal !important;
+  word-wrap: normal !important;
+  display: block;
+  min-width: max-content;          /* ← Ensures scroll works */
+}
