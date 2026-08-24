@@ -11,8 +11,8 @@
 const BUG_CONFIG = {
   discordWebhookUrl: 'https://discord.com/api/webhooks/1540698567004389408/5rK-zpPKcSnHLdvwE9wPm_SlQXXAbKK3sbzP-KtnI0HkAmSbBbcgaV7aHfGg0Mjr-fm1',
   emailConfig: {
-    serviceId: 'Service_z5636re',
-    templateId: 'Template_xe3ae3e'
+    serviceId: 'service_z5636re',
+    templateId: 'template_xe3ae3e'
   }
 };
 
