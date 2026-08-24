@@ -51,7 +51,7 @@ function runn(){
         } else if (selectedVersion.includes('v3')) {
             engineScriptFile = "tcjsgame-v3.js"; 
         } else if (selectedVersion.includes('v4')) {
-            engineScriptFile = "https://limn-engine-doc.vercel.app/asset/epic.js"; 
+            engineScriptFile = "asset/epic.js"; 
         }
     }
 
