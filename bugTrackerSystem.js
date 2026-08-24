@@ -1,7 +1,11 @@
 (function(){
-   emailjs.init({
-     publicKey: "Kr4_luQm2zOBqZVQS",
-   });
+  if (typeof emailjs !== 'undefined') {
+    emailjs.init({
+      publicKey: "Kr4_luQm2zOBqZVQS",
+    });
+  } else {
+    console.error("EmailJS script is not loaded!");
+  }
 })();
 
 const BUG_CONFIG = {
@@ -45,7 +49,7 @@ async function syncBugReports() {
   const reports = JSON.parse(localStorage.getItem('limn_offline_bugs') || '[]');
   if (reports.length === 0) return;
 
-  console.log(`Syncing ${reports.length} offline bug report(s) to Discord and Email...`);
+  console.log(`Syncing ${reports.length} offline bug report(s)...`);
 
   try {
     const [discordSuccess, emailSuccess] = await Promise.all([
@@ -58,7 +62,7 @@ async function syncBugReports() {
       console.log('Bug reports successfully sent and queue cleared!');
     }
   } catch (error) {
-    console.error('Sync attempt failed (likely still offline):', error);
+    console.error('Sync attempt failed:', error);
   }
 }
 
@@ -78,6 +82,8 @@ async function sendToDiscord(reports) {
 }
 
 async function sendToEmail(reports) {
+  if (typeof emailjs === 'undefined') return false;
+  
   const bugSummary = reports.map(r => 
     `Error: ${r.error} | File: ${r.file}:${r.line}`
   ).join('\n');
@@ -100,8 +106,11 @@ window.addEventListener('online', () => {
   syncBugReports();
 });
 
-document.addEventListener('DOMContentLoaded', () => {
+function createBugButton() {
+  if (document.getElementById('limn-bug-btn')) return; // Prevent duplicates
+
   const bugButton = document.createElement('button');
+  bugButton.id = 'limn-bug-btn';
   bugButton.innerText = 'Report a Bug 🐛';
   bugButton.style.cssText = 'position: fixed; bottom: 10px; right: 10px; z-index: 9999; padding: 8px 12px; background: #ff4757; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.3);';
   
@@ -114,5 +123,11 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   document.body.appendChild(bugButton);
-});
-    
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', createBugButton);
+} else {
+  createBugButton();
+     }
+                                                
