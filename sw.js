@@ -31,7 +31,8 @@ const ASSETS_TO_CACHE = [
   './editor/style.css',
   './editor/jquery-3.7.1.min.js',
   './editor/tcjsgame-v2.js',
-  './editor/tcjsgame-v3.js'
+  './editor/tcjsgame-v3.js',
+  './editor/epic.js'
 ];
 
 self.addEventListener('install', (e) => {
