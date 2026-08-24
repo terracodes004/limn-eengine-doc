@@ -611,4 +611,11 @@ nav ul li a {
 aside {
   display: none !important;
 }
-  
+
+  pre{
+    width: 90%;
+  }
+  code{
+    width:90%
+    overflow:auto;
+  }
