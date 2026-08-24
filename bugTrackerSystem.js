@@ -93,6 +93,7 @@ async function sendToEmail(reports) {
       BUG_CONFIG.emailConfig.serviceId, 
       BUG_CONFIG.emailConfig.templateId, 
       {
+        to_email: 'evolvedtech004@gmail.com', 
         description: reports[0].description,
         errorDetails: bugSummary,
         timestamp: reports[0].timestamp,
@@ -113,7 +114,7 @@ window.addEventListener('online', () => {
 });
 
 function createBugButton() {
-  if (document.getElementById('limn-bug-btn')) return; // Prevent duplicates
+  if (document.getElementById('limn-bug-btn')) return; 
 
   const bugButton = document.createElement('button');
   bugButton.id = 'limn-bug-btn';
@@ -135,4 +136,5 @@ if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', createBugButton);
 } else {
   createBugButton();
-}
+      }
+      
