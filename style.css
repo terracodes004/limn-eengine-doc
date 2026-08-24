@@ -254,6 +254,7 @@ pre code{
   border: none;
   padding: 0;
   color: inherit;
+  width: 9px;
   font-size: inherit;
 }
 
@@ -613,14 +614,4 @@ aside {
   display: none !important;
 }
 
-  pre{
-    width: 9px;
-  }
-  code{
-    width:90%
-    overflow:auto;
-  }
-details{
-  width:95%
-    }
   
