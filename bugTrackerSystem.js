@@ -1,3 +1,9 @@
+(function(){
+   emailjs.init({
+     publicKey: "Kr4_luQm2zOBqZVQS",
+   });
+})();
+
 const BUG_CONFIG = {
   discordWebhookUrl: 'https://discord.com/api/webhooks/1540698567004389408/5rK-zpPKcSnHLdvwE9wPm_SlQXXAbKK3sbzP-KtnI0HkAmSbBbcgaV7aHfGg0Mjr-fm1',
   emailConfig: {
@@ -109,4 +115,4 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.body.appendChild(bugButton);
 });
-      
+    
