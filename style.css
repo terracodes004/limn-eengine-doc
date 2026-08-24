@@ -231,13 +231,15 @@ pre{
   background: var(--code-bg);
   border: 1px solid var(--border);
   border-radius: 8px;
+  width: 9px;
+  display: block;
   padding: 16px 18px;
   overflow-x: auto;
   font-family: 'Space Mono', monospace;
   font-size: 12.5px;
   line-height: 1.8;
   color: #b8b8d8;
-  width: 9px;
+  
   margin: 12px 0;
 }
 code{
