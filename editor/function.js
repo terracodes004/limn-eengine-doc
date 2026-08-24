@@ -36,7 +36,8 @@ function runn(){
     for (let select of allDropdowns) {
         let text = select.textContent.toUpperCase();
     
-        if (text.includes('V2') || text.includes('V3') || select.value.toUpperCase().includes('V')) {
+        // Updated search check to recognize V2, V3, and V4
+        if (text.includes('V2') || text.includes('V3') || text.includes('V4') || select.value.toUpperCase().includes('V')) {
             versionDropdown = select;
             break;
         }
@@ -44,10 +45,13 @@ function runn(){
     
     if (versionDropdown) {
         let selectedVersion = versionDropdown.value.toLowerCase();
+        
         if (selectedVersion.includes('v2')) {
-            engineScriptFile = "tcjsgame-v3.js";
+            engineScriptFile = "tcjsgame-v2.js"; 
         } else if (selectedVersion.includes('v3')) {
-            engineScriptFile = "https://limn-engine-doc.vercel.app/asset/epic.js";
+            engineScriptFile = "tcjsgame-v3.js"; 
+        } else if (selectedVersion.includes('v4')) {
+            engineScriptFile = "https://limn-engine-doc.vercel.app/asset/epic.js"; 
         }
     }
 
@@ -124,3 +128,4 @@ function runn(){
         iframe.srcdoc = code;
     }
 }
+    
