@@ -240,6 +240,11 @@ pre{
   line-height: 1.8;
   color: #b8b8d8;
   
+  max-width: 100%;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  
   margin: 12px 0;
 }
 code{
