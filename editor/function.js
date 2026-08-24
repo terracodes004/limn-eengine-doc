@@ -29,7 +29,7 @@ function runn(){
         return; 
     }
     
-    let engineScriptFile = "https://limn-engine-doc.vercel.app/asset/epic.js";
+    let engineScriptFile = "asset/epic.js";
     let allDropdowns = document.querySelectorAll('select');
     let versionDropdown = null;
 
