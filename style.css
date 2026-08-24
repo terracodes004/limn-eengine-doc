@@ -246,7 +246,6 @@ pre{
   word-break: normal !important;
   word-wrap: normal !important;
   display: block;
-  min-width: max-content;     
   
   margin: 12px 0;
 }
