@@ -237,7 +237,7 @@ pre{
   font-size: 12.5px;
   line-height: 1.8;
   color: #b8b8d8;
-  
+  width: 9px;
   margin: 12px 0;
 }
 code{
@@ -254,7 +254,7 @@ pre code{
   border: none;
   padding: 0;
   color: inherit;
-  width: 9px;
+  
   font-size: inherit;
 }
 
