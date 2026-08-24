@@ -1,9 +1,8 @@
 const BUG_CONFIG = {
-  mode: 'discord',
   discordWebhookUrl: 'https://discord.com/api/webhooks/1540698567004389408/5rK-zpPKcSnHLdvwE9wPm_SlQXXAbKK3sbzP-KtnI0HkAmSbBbcgaV7aHfGg0Mjr-fm1',
   emailConfig: {
-    serviceId: 'YOUR_SERVICE_ID',
-    templateId: 'YOUR_TEMPLATE_ID'
+    serviceId: 'Service_z5636re',
+    templateId: 'Template_xe3ae3e'
   }
 };
 
@@ -40,25 +39,22 @@ async function syncBugReports() {
   const reports = JSON.parse(localStorage.getItem('limn_offline_bugs') || '[]');
   if (reports.length === 0) return;
 
-  console.log(`Syncing ${reports.length} offline bug report(s)...`);
+  console.log(`Syncing ${reports.length} offline bug report(s) to Discord and Email...`);
 
   try {
-    let success = false;
-    if (BUG_CONFIG.mode === 'discord') {
-      success = await sendToDiscord(reports);
-    } else if (BUG_CONFIG.mode === 'email') {
-      success = await sendToEmail(reports);
-    }
+    const [discordSuccess, emailSuccess] = await Promise.all([
+      sendToDiscord(reports),
+      sendToEmail(reports)
+    ]);
 
-    if (success) {
+    if (discordSuccess || emailSuccess) {
       localStorage.removeItem('limn_offline_bugs');
-      console.log('Offline bug reports successfully sent and queue cleared!');
+      console.log('Bug reports successfully sent and queue cleared!');
     }
   } catch (error) {
     console.error('Sync attempt failed (likely still offline):', error);
   }
 }
-
 
 async function sendToDiscord(reports) {
   const descriptionText = reports.map(r => 
@@ -75,16 +71,20 @@ async function sendToDiscord(reports) {
   return response.ok;
 }
 
-
 async function sendToEmail(reports) {
   const bugSummary = reports.map(r => 
-    `[${r.timestamp}] Error: ${r.error} (${r.file}:${r.line}) - Note: ${r.description}`
-  ).join('\n\n');
+    `Error: ${r.error} | File: ${r.file}:${r.line}`
+  ).join('\n');
 
   const response = await emailjs.send(
     BUG_CONFIG.emailConfig.serviceId, 
     BUG_CONFIG.emailConfig.templateId, 
-    { total_bugs: reports.length, bug_details: bugSummary, user_agent: navigator.userAgent }
+    {
+      description: reports[0].description,
+      errorDetails: bugSummary,
+      timestamp: reports[0].timestamp,
+      url: window.location.href
+    }
   );
   return response.status === 200;
 }
@@ -109,3 +109,4 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.body.appendChild(bugButton);
 });
+      
