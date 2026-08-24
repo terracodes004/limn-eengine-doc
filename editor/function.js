@@ -82,7 +82,7 @@ function runn(){
     <script src="./${engineScriptFile}"></script>
 </head>
 <body>
-    <canvas id="c" width="600" height="400"></canvas>
+    
 
     <script>
         const _customLog = console.log;
