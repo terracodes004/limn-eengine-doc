@@ -29,7 +29,7 @@ function runn(){
         return; 
     }
     
-    let engineScriptFile = "asset/epic.js";
+    let engineScriptFile = "epic.js";
     let allDropdowns = document.querySelectorAll('select');
     let versionDropdown = null;
 
@@ -51,7 +51,7 @@ function runn(){
         } else if (selectedVersion.includes('v3')) {
             engineScriptFile = "tcjsgame-v3.js"; 
         } else if (selectedVersion.includes('v4')) {
-            engineScriptFile = "asset/epic.js"; 
+            engineScriptFile = "epic.js"; 
         }
     }
 
