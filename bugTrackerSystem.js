@@ -88,17 +88,23 @@ async function sendToEmail(reports) {
     `Error: ${r.error} | File: ${r.file}:${r.line}`
   ).join('\n');
 
-  const response = await emailjs.send(
-    BUG_CONFIG.emailConfig.serviceId, 
-    BUG_CONFIG.emailConfig.templateId, 
-    {
-      description: reports[0].description,
-      errorDetails: bugSummary,
-      timestamp: reports[0].timestamp,
-      url: window.location.href
-    }
-  );
-  return response.status === 200;
+  try {
+    const response = await emailjs.send(
+      BUG_CONFIG.emailConfig.serviceId, 
+      BUG_CONFIG.emailConfig.templateId, 
+      {
+        description: reports[0].description,
+        errorDetails: bugSummary,
+        timestamp: reports[0].timestamp,
+        url: window.location.href
+      }
+    );
+    console.log('EmailJS Success:', response);
+    return true;
+  } catch (error) {
+    console.error('EmailJS Failed to send:', error);
+    return false;
+  }
 }
 
 window.addEventListener('online', () => {
@@ -129,5 +135,4 @@ if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', createBugButton);
 } else {
   createBugButton();
-     }
-                                                
+}
