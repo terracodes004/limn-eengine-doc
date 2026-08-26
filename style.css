@@ -624,10 +624,14 @@ aside {
 }
 
 /* ── INSIDE PRE, KEEP CODE ON ONE LINE ── */
-pre code {
-  white-space: pre !important;     /* ← Don't wrap lines */
+pre, pre code {
+  overflow-x: auto !important;
+  white-space: pre !important;
   word-break: normal !important;
   word-wrap: normal !important;
-  display: block;
-  min-width: max-content;          /* ← Ensures scroll works */
+  display: block !important;
+  min-width: max-content !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
 }
