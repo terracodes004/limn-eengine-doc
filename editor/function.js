@@ -79,7 +79,7 @@ function runn(){
             border-radius: 4px;
         }
     </style>
-    <script src="./${engineScriptFile}"></script>
+    <script src="${engineScriptFile}"></script>
 </head>
 <body>
     
