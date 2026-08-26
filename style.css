@@ -270,7 +270,7 @@ pre code{
 }
 
 table{
-  width: 100%;
+  width: 80vh;
   border-collapse: collapse;
   margin: 14px 0;
   font-size: 13px;
@@ -637,6 +637,6 @@ aside {
   max-width: 100% !important;
   box-sizing: border-box !important;
 } */
-article{
+/* article{
   width:80vw;
-}
+} */
