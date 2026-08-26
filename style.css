@@ -269,15 +269,20 @@ pre code{
   font-size: inherit;
 }
 
-table{
-  width: 80vw;
+table {
+  width: 100%;              /* Changed from 80vw */
+  max-width: 100%;
+  display: block;           /* CRITICAL: Makes overflow work */
+  overflow-x: auto;         /* CRITICAL: Enables horizontal scroll */
+  white-space: nowrap;      /* CRITICAL: Stops text from wrapping */
   border-collapse: collapse;
   margin: 14px 0;
   font-size: 13px;
   border: 1px solid var(--border);
   border-radius: 8px;
-  overflow: auto;
 }
+
+
 th{
   background: var(--surface2);
   color: var(--accent2);
@@ -289,12 +294,15 @@ th{
   text-align: left;
   border-bottom: 1px solid var(--border);
 }
-td{
+
+
+td {
   padding: 10px 14px;
   border-bottom: 1px solid rgba(255,99,140,0.08);
   color: var(--muted);
   vertical-align: top;
-  overflow-wrap: break-word;
+  /* REMOVE this line: overflow-wrap: break-word; */
+  white-space: nowrap;      /* Inherit from table to keep long lines */
 }
 tr:last-child td{ border-bottom: none; }
 tr:hover td{ background: rgba(255,255,255,0.015); }
