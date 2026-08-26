@@ -1,3 +1,14 @@
+let files = {}
+let filesName = [];
+if(!localStorage.files){
+  localStorage.files = []
+  localStorage.filename = []
+files = {}
+}else{
+    files = JSON.parse(localStorage.getItem("files"))
+    filesName = localStorage.getItem("filename").split(",")
+}
+let np;
 let dbtn;
 document.getElementById("js").addEventListener('keypress', (e)=>{
     // if(e.key === "<"){
