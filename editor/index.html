@@ -111,16 +111,16 @@ display.map = [[1, 2, 0],[0, 1, 0],[0, 3, 1]]
 display.tile =  [tile, tile2, tile3]
 display.tileMap()
 
-let com = new Component(100, 100, "white", 0, 50)
-display.add(com)
+let player = new Component(100, 100, "white", 0, 50)
+display.add(player)
 addEventListener("keydown", e =>{
-  com.speedX = 1
+  player.speedX = 1
   display.tileFace.add(1,0, 2)
 })
 
 function update() {
   display.tileFace.show()
-  if(display.tileFace.crashWith(com, 2)){
+  if(display.tileFace.crashWith(player, 2)){
     console.log("Hitted")
   }
 }
