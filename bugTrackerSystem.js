@@ -46,14 +46,6 @@
     showRedErrorPopup(msg + " (Line: " + line + ")");
   };
 
-  if (typeof emailjs !== 'undefined') {
-    emailjs.init({
-      publicKey: "Kr4_luQm2zOBqZVQS",
-    });
-  } else {
-    console.error("EmailJS script is not loaded!");
-  }
-
   const ENCODED_BUG_CONFIG = "eyJkaXNjb3JkV2ViaG9va1VybCI6Imh0dHBzOi8vZGlzY29yZC5jb20vYXBpL3dlYmhvb2tzLzE1NDA2OTg1NjcwMDQzODk0MDgvNXJLLXpwUEtjU25ITGR2d0U5d1BtX1NsUVhYQWJLSzNzYnotS3RsMEhrWW1TYkJiY2FWN2FIZkdnME1qci1mbTEiLCJlbWFpbENvbmZpZyI6eyJzZXJ2aWNlSWQiOiJzZXJ2aWNlXzU2MzYycmUiLCJ0ZW1wbGF0ZUlkIjoidGVtcGxhdGVfeGUzYWUzZSJ9fQ==";
   const BUG_CONFIG = JSON.parse(atob(ENCODED_BUG_CONFIG));
 
@@ -97,12 +89,8 @@
     if (reports.length === 0) return;
 
     try {
-      const [discordSuccess, emailSuccess] = await Promise.all([
-        sendToDiscord(reports),
-        sendToEmail(reports)
-      ]);
-
-      if (discordSuccess || emailSuccess) {
+      const discordSuccess = await sendToDiscord(reports);
+      if (discordSuccess) {
         localStorage.removeItem('limn_offline_bugs');
       }
     } catch (error) {
@@ -115,39 +103,19 @@
       `• **Time:** ${r.timestamp}\n  **Error:** ${r.error}\n  **File:** ${r.file}:${r.line}\n  **Desc:** ${r.description}`
     ).join('\n\n');
 
-    const proxyUrl = "https://corsproxy.io/?" + encodeURIComponent(BUG_CONFIG.discordWebhookUrl);
-
-    const response = await fetch(proxyUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        content: `🚨 **Limn Engine - Offline Bug Report(s):**\n${descriptionText}`
-      })
-    });
-    return response.ok;
-  }
-
-  async function sendToEmail(reports) {
-    if (typeof emailjs === 'undefined') return false;
-    
-    const bugSummary = reports.map(r => 
-      `Error: ${r.error} | File: ${r.file}:${r.line}`
-    ).join('\n');
+    const proxyUrl = "https://api.allorigins.win/raw?url=" + encodeURIComponent(BUG_CONFIG.discordWebhookUrl);
 
     try {
-      const response = await emailjs.send(
-        BUG_CONFIG.emailConfig.serviceId, 
-        BUG_CONFIG.emailConfig.templateId, 
-        {
-          to_email: 'evolvedtech004@gmail.com', 
-          description: reports[0].description,
-          errorDetails: bugSummary,
-          timestamp: reports[0].timestamp,
-          url: window.location.href
-        }
-      );
-      return true;
-    } catch (error) {
+      const response = await fetch(proxyUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          content: `🚨 **Limn Engine - Offline Bug Report(s):**\n${descriptionText}`
+        })
+      });
+      return response.ok;
+    } catch (err) {
+      console.error("Discord webhook dispatch error:", err);
       return false;
     }
   }
@@ -181,6 +149,5 @@
     createBugButton();
   }
 
-  // Test line to verify the red banner works right away
   showRedErrorPopup("Bug tracker successfully loaded and active!");
 })();
