@@ -60,25 +60,7 @@ function runn(){
 <html lang='en'>
 <head>
     <meta charset='UTF-8'>
-    <style>
-        body, html { 
-            margin: 0; 
-            padding: 0; 
-            background-color: #1e1e1e; 
-            width: 100%; 
-            height: 100%; 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            overflow: hidden;
-        }
-        canvas { 
-            display: block; 
-            background: #000;
-            box-shadow: 0px 4px 20px rgba(0,0,0,0.8); 
-            border-radius: 4px;
-        }
-    </style>
+    
     <script src="${engineScriptFile}"></script>
 </head>
 <body>
