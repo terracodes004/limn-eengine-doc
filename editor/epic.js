@@ -1,4 +1,4 @@
-let com;
+  let com;
 let refresh = false
 let TCJSgameGameArea;
 let commp = []
@@ -150,7 +150,7 @@ class Display {
         try {
             update();
         } catch (e) {
-            console.error("Update error:", e); // <-- Enabled active error logging here
+            //console.error("Update error:", e);
         }
         comm.forEach(component => {
             if(component.scene == this.scene){
@@ -590,11 +590,63 @@ class SoundManager {
     }
 }
 
+// ============================================
+// INTEGRATION WITH YOUR MOVE UTILITY
+// ============================================
+
+// Add to your existing 'move' object
+
+
+// ============================================
+// EXAMPLE USAGE
+// ============================================
+
+/*
+// Create sound manager
+const soundManager = new SoundManager();
+window.soundManager = soundManager; // Make global
+
+// Load sounds
+soundManager.load("coin", "sounds/coin.wav");
+soundManager.load("hit", "sounds/hit.wav", { volume: 0.5 });
+soundManager.load("explosion", "sounds/explosion.wav", { volume: 0.7 });
+soundManager.load("music_theme", "sounds/theme.mp3", { loop: true });
+
+// Preload everything before game starts
+soundManager.preload([
+    { name: "coin", src: "sounds/coin.wav" },
+    { name: "hit", src: "sounds/hit.wav" },
+    { name: "explosion", src: "sounds/explosion.wav" },
+    { name: "music_theme", src: "sounds/theme.mp3", options: { loop: true } }
+], () => {
+    console.log("All sounds loaded!");
+    soundManager.playMusic("music_theme");
+});
+
+// In your game code:
+function update(dt) {
+    // When collecting coin
+    if (player.crashWith(coin)) {
+        move.sound.play("coin");  // Easy!
+    }
+    
+    // When enemy hits player
+    if (player.crashWith(enemy)) {
+        move.sound.play("hit");
+    }
+}
+
+// Volume controls (for settings menu)
+move.sound.setMasterVolume(0.8);
+move.sound.setMusicVolume(0.5);
+move.sound.setSFXVolume(0.7);
+*/
 let mouse = {
     x:0,
     y:0,
     down:false
 }
+
 
 window.addEventListener("mousedown",(e)=>{
     mouse.down = true
@@ -629,6 +681,8 @@ class Camera {
             this.x -= x
             this.y -=y
         }, 1000/24)
+    
+    
     }
     follow(target, smooth = false) {
         if (smooth) {
@@ -666,6 +720,7 @@ let move ={
     },
     stamp : function(id){
         const stamped = new Component(id.width, id.height, id.color, id.x, id.y, id.type)
+        
         return stamped;
     },
     circle : function(id, speed){
@@ -708,28 +763,34 @@ let move ={
                 id.x = right;
             }
         }if(top){
+        
             if(id.y <= top){
                 id.y = top;
+        
             }
+            
         }if(bottom){
             if(id.y >= bottom){
                 id.y = bottom;
             }
         }
+    
     },
     hitObject : function(id, otherid){
         id.physics = true;
-        let rockbottom = otherid.y
+      rockbottom = otherid.y
         if (id.y+id.height > rockbottom && id.crashWith(otherid)) {
+          // console.log("Entered")
             id.y = rockbottom-id.height;
             id.gravitySpeed = -(id.gravitySpeed * id.bounce);
+          // console.log(id.gravitySpeed)
         }    
     },
     glideX : function(id,duruation, x){
         let startX=id.x
         let startTime = performance.now();
         let progress
-        let elased
+        let elsaed
         let easeOut
         let loop
         function upgl(currentTime) {
@@ -744,14 +805,19 @@ let move ={
                 id.speedX=0
                 clearInterval(loop)
             }
+            
+            
         }
            loop = requestAnimationFrame(upgl)
+           
+        
+        
     },
     glideY : function(id,duruation, y){
         let startY=id.y
         let startTime = performance.now();
         let progress
-        let elased
+        let elsaed
         let easeOut
         let loop
         function upgl(currentTime) {
@@ -766,53 +832,75 @@ let move ={
                 id.speedY=0
                 clearInterval(loop)
             }
+            
+            
         }
           loop = requestAnimationFrame(upgl)
+           
+        
+        
     },
     glideTo: function (id,t, x,y){
         this.glideX(id,t, x )
         this.glideY(id, t, y)
     },
     project : function(id, initialVelocity, angle, gravity, ground=display.canvas.height) {
+        // Convert angle to radians
         let radianAngle = angle * Math.PI / 180;
         let raf
+        // Calculate the initial velocity components
         let velocityX = initialVelocity * Math.cos(radianAngle);
         let velocityY = initialVelocity * Math.sin(radianAngle);
         
+        // Set the object's initial speed
         id.speedX = velocityX;
-        id.speedY = -velocityY; 
+        id.speedY = -velocityY; // Negative because upward direction is negative in canvas
     
+        // Update the object's position over time
         let updatePosition = () => {
-            id.speedY += gravity; 
+            id.speedY += gravity; // Apply gravity to the vertical speed
             id.x += id.speedX;
             id.y += id.speedY;
     
+            // Check for collision with the ground
             if (id.y >= ground - id.height) {
                 id.y = ground - id.height;
-                id.speedY = -(id.speedY * id.bounce); 
+                id.speedY = -(id.speedY * id.bounce); // Apply bounce effect
                 if(Math.abs(Math.round(id.speedY)) == 0){
                     id.speedX = 0
                     gravity = 0
                     clearInterval(raf)
                 }
+                
             }
     
+            // Continue updating the position
             if (id.y < display.canvas.height - id.height || id.speedY !== 0) {
                 raf = requestAnimationFrame(updatePosition);
             }
         };
+    
+        // Start updating the position
         updatePosition();
     },
     pointTo : function(id, targetX, targetY) {
+        // Calculate the difference in coordinates
         let deltaX = targetX - id.x;
         let deltaY = targetY - id.y;
+    
+        // Calculate the angle in radians
         let angleRadians = Math.atan2(deltaY, deltaX);
+    
+        // Set the component's angle
         id.angle = angleRadians;
     },
+    // New accelerate function
     accelerate: function(id, accelX, accelY, maxSpeedX = Infinity, maxSpeedY = Infinity) {
+        // Add acceleration to current speed
         id.speedX += accelX;
         id.speedY += accelY;
 
+        // Clamp speeds to maxSpeed (or Infinity for unlimited)
         if (Math.abs(id.speedX) > maxSpeedX) {
             id.speedX = id.speedX > 0 ? maxSpeedX : -maxSpeedX;
         }
@@ -820,40 +908,43 @@ let move ={
             id.speedY = id.speedY > 0 ? maxSpeedY : -maxSpeedY;
         }
     },
+    // New decelerate function
     decelerate: function(id, decelX, decelY) {
+        // Reduce speedX towards 0
         if (id.speedX > 0) {
             id.speedX -= decelX;
-            if (id.speedX < 0) id.speedX = 0; 
+            if (id.speedX < 0) id.speedX = 0; // Prevent overshooting
         } else if (id.speedX < 0) {
             id.speedX += decelX;
-            if (id.speedX > 0) id.speedX = 0; 
+            if (id.speedX > 0) id.speedX = 0; // Prevent overshooting
         }
 
+        // Reduce speedY towards 0
         if (id.speedY > 0) {
             id.speedY -= decelY;
-            if (id.speedY < 0) id.speedY = 0; 
+            if (id.speedY < 0) id.speedY = 0; // Prevent overshooting
         } else if (id.speedY < 0) {
             id.speedY += decelY;
-            if (id.speedY > 0) id.speedY = 0; 
+            if (id.speedY > 0) id.speedY = 0; // Prevent overshooting
         }
     },
     position: function(id, direction, offset = 0) {
         switch (direction.toLowerCase()) {
             case "top":
-                id.x = (display.canvas.width - id.width) / 2; 
-                id.y = offset; 
+                id.x = (display.canvas.width - id.width) / 2; // Center horizontally
+                id.y = offset; // Offset from top
                 break;
             case "bottom":
-                id.x = (display.canvas.width - id.width) / 2; 
-                id.y = display.canvas.height - id.height - offset; 
+                id.x = (display.canvas.width - id.width) / 2; // Center horizontally
+                id.y = display.canvas.height - id.height - offset; // Offset from bottom
                 break;
             case "left":
-                id.x = offset; 
-                id.y = (display.canvas.height - id.height) / 2; 
+                id.x = offset; // Offset from left
+                id.y = (display.canvas.height - id.height) / 2; // Center vertically
                 break;
             case "right":
-                id.x = display.canvas.width - id.width - offset; 
-                id.y = (display.canvas.height - id.height) / 2; 
+                id.x = display.canvas.width - id.width - offset; // Offset from right
+                id.y = (display.canvas.height - id.height) / 2; // Center vertically
                 break;
             case "center":
                 id.x = (display.canvas.width - id.width) / 2;
@@ -862,13 +953,17 @@ let move ={
             default:
                 console.error("Invalid direction. Use 'top', 'bottom', 'left', or 'right'.");
         }
+        // Reset speed to stop any movement after positioning
         id.speedX = 0;
         id.speedY = 0;
     }
+    
+    
+
 }
 let state = {
     distance : function(id, otherid){
-        let dis = Math.sqrt((Math.pow(id.x-otherid.x,2))+(Math.pow(id.y-otherid.y,2)))
+        dis = Math.sqrt((Math.pow(id.x-otherid.x,2))+(Math.pow(id.y-otherid.y,2)))
         return dis;
     },
     rect : function(id){
@@ -889,7 +984,14 @@ let state = {
 }
 class Sprite extends Component {
     constructor(image, frameWidth, frameHeight, frameCount, frameSpeed, x = 0, y = 0) {
+        // Call parent Component constructor
+        // width = frameWidth, height = frameHeight
+        // color = null (image handles color)
+        // type = "image"
+        
         super(frameWidth, frameHeight, image, x, y, "image");
+        
+        // Sprite-specific properties
         this.spriteImage = new Image();
         this.spriteImage.src = image
         this.frameWidth = frameWidth;
@@ -898,21 +1000,29 @@ class Sprite extends Component {
         this.frameSpeed = frameSpeed;
         this.currentFrame = 0;
         this.frameTimer = 0;
-        this.loop = true;           
-        this.paused = false;        
-        this.onComplete = null;     
-        this.flipX = false;         
-        this.flipY = false;         
+        
+        // Animation state
+        this.loop = true;           // Whether animation loops
+        this.paused = false;        // Pause animation
+        this.onComplete = null;     // Callback when animation finishes
+        this.flipX = false;         // Flip horizontally
+        this.flipY = false;         // Flip vertically
+        
+        // Set the image for the Component
         this.image = image;
         this.imageLoaded = true;
     }
     
+    // Update animation frame
     updateAnimation() {
         if (this.paused) return;
+        
         this.frameTimer++;
         if (this.frameTimer >= this.frameSpeed) {
             this.frameTimer = 0;
             this.currentFrame++;
+            
+            // Check for animation completion
             if (this.currentFrame >= this.frameCount) {
                 if (this.loop) {
                     this.currentFrame = 0;
@@ -925,9 +1035,15 @@ class Sprite extends Component {
         }
     }
     
+    // Override Component's update method
     update(ctx = display.context) {
+        // Update animation every frame
         this.updateAnimation();
+        
+        // Apply transformations
         ctx.save();
+        
+        // Handle flipping
         let drawX = this.x;
         let drawY = this.y;
         let drawW = this.width;
@@ -939,6 +1055,7 @@ class Sprite extends Component {
             ctx.translate(-(this.x + this.width / 2), -(this.y + this.height / 2));
         }
         
+        // Draw the current frame from sprite sheet
         ctx.drawImage(
             this.spriteImage,
             this.currentFrame * this.frameWidth,
@@ -950,9 +1067,11 @@ class Sprite extends Component {
             drawW,
             drawH
         );
+        
         ctx.restore();
     }
     
+    // Alternative: Draw without auto-update (for manual control)
     drawFrame(ctx, frameIndex, x, y) {
         ctx.drawImage(
             this.spriteImage,
@@ -967,6 +1086,7 @@ class Sprite extends Component {
         );
     }
     
+    // Animation control methods
     play() {
         this.paused = false;
     }
@@ -986,6 +1106,7 @@ class Sprite extends Component {
         this.frameTimer = 0;
     }
     
+    // Set animation to play once then stop
     playOnce(callback = null) {
         this.loop = false;
         this.paused = false;
@@ -993,6 +1114,7 @@ class Sprite extends Component {
         this.reset();
     }
     
+    // Flip direction helpers
     faceLeft() {
         this.flipX = true;
     }
@@ -1001,14 +1123,17 @@ class Sprite extends Component {
         this.flipX = false;
     }
     
+    // Get current frame index
     getCurrentFrame() {
         return this.currentFrame;
     }
     
+    // Check if animation is playing
     isPlaying() {
         return !this.paused;
     }
 }
+                
 
 class Tile extends Component{
     constructor(tx, ty,tid,com) {
@@ -1021,6 +1146,7 @@ class Tile extends Component{
         this.y = com.y
         this.width = com.width
         this.height = com.height
+
         this.type = com.type;
     }
 }
@@ -1044,6 +1170,9 @@ class TileMap {
     show(layer=0) {
       tileComm = []
       fake.scene = layer
+        let yy = 0;
+        let tyy = 0;
+        let xx = 0;
         this.tileList = [];
         
         for (let row = 0; row < this.map[layer].length; row++) {
@@ -1058,7 +1187,11 @@ class TileMap {
                     tile.x = col * this.tileWidth;
                     tile.y = row * this.tileHeight;
                     this.tileList.push(tile);
+                    // Add to fake canvas cache only
                     tileComm.push({x : tile, layer : layer})
+                    
+                    
+                    
                 }
             }
         }
@@ -1079,7 +1212,7 @@ class TileMap {
     add(id, tx, ty,layer=0) {
         if (this.map[layer][ty] && this.map[layer][ty][tx] !== undefined) {
             this.map[layer][ty][tx] = id;
-            this.show(); 
+            this.show(); // Refresh tilemap
             fake.refresh()
         }
     }
@@ -1087,7 +1220,7 @@ class TileMap {
     remove(tx, ty,layer=0) {
         if (this.map[layer][ty] && this.map[layer][ty][tx] !== undefined) {
             this.map[layer][ty][tx] = 0;
-            this.show(); 
+            this.show(); // Refresh tilemap
             fake.refresh()
         }
     }
@@ -1096,7 +1229,7 @@ class TileMap {
         return this.tileList.find(t => t.tx === tx && t.ty === ty);
     }
 }
-
+//tcFont
 class Tctxt extends Component{
     constructor(size = "16px", font = "Arial", color = "black", x = 0, y = 0, 
                 align = "left", storke = false, baseline = "hanging", 
@@ -1119,11 +1252,13 @@ class Tctxt extends Component{
         this.rect()
         if(this.storke){
             ctx.font =  `${this.size} ${this.font}`;
+
             ctx.strokeStyle = this.color
             ctx.textBaseline = this.baseline
             ctx.textAlign = this.align
             this.textWidth = ctx.measureText(this.text).width
             ctx.strokeText(this.text, this.x, this.y)
+            
         }else{
             ctx.font = `${this.size} ${this.font}`;
             ctx.fillStyle = this.color
@@ -1141,6 +1276,7 @@ class Tctxt extends Component{
             ctx.textAlign = this.align
             this.textWidth = ctx.measureText(this.text).width
             ctx.textBaseline = this.baseline
+            
             ctx.strokeText(this.text, this.x, this.y)
         }else{
             ctx.font = this.size+ " "+ this.font
@@ -1148,6 +1284,7 @@ class Tctxt extends Component{
             ctx.textAlign = this.align
             this.textWidth = ctx.measureText(this.text).width
             ctx.textBaseline = this.baseline
+            
             ctx.fillText(this.text, this.x, this.y)
         }
     }
@@ -1165,46 +1302,55 @@ class Tctxt extends Component{
             xx = this.x - this.textWidth/2
         }
         ctx.fillStyle = this.background
-        ctx.fillRect(xx-this.paddingX/2, yy-this.paddingY/2, this.textWidth+ this.paddingX, Number(this.size.replace("px", ""))+this.paddingY)
+        ctx.fillRect(xx-this.paddingX/2, this.y-this.paddingY/2, this.textWidth+ this.paddingX, Number(this.size.replace("px", ""))+this.paddingY)
     }
 }
+//sonic.js
 
-let fake = new Display()
-fake.scene = 0
-
-fake.start = function(width = 480, height = 270, no = document.body) {
-    fake.canvas.width = width
-    fake.canvas.height = height
-    fake.canvas.style.display = "none"
-    no.appendChild(this.canvas)
-    no.insertBefore(this.canvas, no.childNodes[1])
-    fake.mapWidth = fake.canvas.width
-    fake.mapHeight = fake.canvas.height
-    fake.addEventListeners()
-}
-fake.bgComm = false;
-fake.add = function(x, scene = 0) {
-    com = {
-        x: x,
-        scene: scene
+    
+    
+    let fake = new Display()
+    fake.scene = 0
+    
+    fake.start = function(width = 480, height = 270, no = document.body) {
+        fake.canvas.width = width
+        fake.canvas.height = height
+        // Hide the fake canvas - it's just an offscreen buffer
+        fake.canvas.style.display = "none"
+        no.appendChild(this.canvas)
+        no.insertBefore(this.canvas, no.childNodes[1])// Add to DOM but hidden
+        fake.mapWidth = fake.canvas.width
+        fake.mapHeight = fake.canvas.height
+        // Add event listeners for fake canvas if needed
+        fake.addEventListeners()
     }
-    commp.push(com);
-}
-
-fake.updat = function() {
-    console.log("fake.updat is deprecated - use ani() instead")
-}
-
-fake.refresh = function() {
-    fake.clear()
-    display.once = true;
-}
-
-fake.borderColor("green")
-fake.borderSize("12px")
-fake.borderStyle("groove")
-
-Display.prototype.perform = function () {
+    fake.bgComm = false;
+    fake.add = function(x, scene = 0) {
+        com = {
+            x: x,
+            scene: scene
+        }
+        commp.push(com);
+    }
+    
+    // Remove or update fake.updat since it's handled by ani() now
+    fake.updat = function() {
+        // This function is no longer needed since ani() handles fake canvas rendering
+        console.log("fake.updat is deprecated - use ani() instead")
+    }
+    
+    fake.refresh = function() {
+        fake.clear()
+        display.once = true;
+        // Don't call fake.updat() here - the ani() loop handles rendering
+        // If you need to force a refresh, you might need to modify the approach
+    }
+    
+    
+    fake.borderColor("green")
+    fake.borderSize("12px")
+    fake.borderStyle("groove")
+      Display.prototype.perform = function () {
     Display.prototype.start = function(width = 480, height = 270, no = document.body) {
         this.canvas.width = width;
         this.canvas.height = height;
@@ -1218,130 +1364,163 @@ Display.prototype.perform = function () {
         this.mapHeight = this.canvas.height;
         this.cachePic;
         this.time;
-        this.deltaTime = 0
-        this.timeFromPreviousFrames = 0
-        display.contTime = 1;
+        display.contTime = 1;//develop's business
         this.addEventListeners();
         this.once = true
         fake.start()
     }
 }
-
-function ani(time) {
-    display.frame++
-    display.timeFromAllFrames = time
-    display.deltaTime = display.timeFromAllFrames - display.timeFromPreviousFrames
-    display.time = time
-    display.timing = display.time - display.contTime
-    if(time < 1000){
-      display.deltaTime = 0
-    }
-    
-   if(display.timing >= 1000){
-    display.contTime = display.time
-     display.fps = display.frame
-      display.frame = 0
-      refresh = false
-   }
-    
-    if(display.once){
-    fake.context.clearRect(0,0,fake.canvas.width, fake.canvas.height)
-    fake.context.save()
-    fake.context.translate(-fake.camera.x, -fake.camera.y)
-    if(fake.bgComm){
-       if(fake.bgComm.angularMovement){
-              fake.bgComm.moveAngle()
-            }else{
-              fake.bgComm.move();
-            }
-                    try {
-                        fake.bgComm.update(fake.context);
-                    } catch {
-                        //pass
-                    }
-    }
-    tileComm.forEach(component => {
-                if(component.layer == fake.scene){
-                    if(component.x.angularMovement){
-              component.x.moveAngle()
-            }else{
-              component.x.move();
-            }
-                    try {
-                        component.x.update(fake.context);
-                    } catch {
-                        //pass
-                    }
-                }
-            });
-    commp.forEach(component => {
-        if (component.scene == fake.scene) {
-            if(component.x.angularMovement){
-              component.x.moveAngle()
-            }else{
-              component.x.move();
-            }
-            try {
-                component.x.bUpdate(fake.context)
-            } catch (e) {
-                console.error("Fake canvas render error:", e)
-            }
+      function ani(time) {
+        display.frame++
+        display.time =time
+        
+        display.timing = display.time - display.contTime
+        if(time< 1000){
+          display.deltaTime = 0
+        }else{
+          display.deltaTime = 1 / display.fps
         }
-    })
-    fake.context.restore()
-      if (display.frame > 2) {
-        display.once = false
-      }
-    }
-    
-    display.clear()
-    display.context.save()
-    if (display.camera.rotationShake !== 0) {
-        const centerX = display.canvas.width / 2;
-        const centerY = display.canvas.height / 2;
-        display.context.translate(centerX, centerY);
-        display.context.rotate(display.camera.rotationShake);
-        display.context.translate(-centerX, -centerY);
-    }
-    
-    display.context.translate(-display.camera.x, -display.camera.y)
-    display.context.drawImage(fake.canvas, 0, 0)
-    
-    try {
-        update(display.deltaTime / 1000) 
-    } catch (e) {
-        console.error("Update error", e)
-    }
-    
-    comm.forEach(component => {
-        if (component.scene == display.scene) {
-            if(component.x.angularMovement){
-              component.x.moveAngle()
-            }else{
-              component.x.move();
-            }
-            if(TCJSgameGameArea.crashWith(component.x)){
+        
+        // Update delta time logic
+        
+       if(display.timing>=1000){
+        display.contTime = display.time
+
+         display.fps = display.frame
+          display.frame = 0
+          refresh = false
+          
+          display.deltaTime = 1 / display.fps
+       }
+        //if (refresh) {
+            
+        //}
+        // STEP 1: Render to fake canvas (offscreen buffer)
+        
+        if(display.once){
+        fake.context.clearRect(0,0,fake.canvas.width, fake.canvas.height)
+        fake.context.save()
+        fake.context.translate(-fake.camera.x, -fake.camera.y)
+        if(fake.bgComm){
+          //garii
+           if(fake.bgComm.angularMovement){
+                  fake.bgComm.moveAngle()
+                }else{
+                  fake.bgComm.move();
+
+                }
+                        try {
+                            fake.bgComm.update(fake.context);
+                        } catch {
+                            //pass
+                        }
+        }
+        // Render all components to fake canvas
+        tileComm.forEach(component => {
+                    if(component.layer == fake.scene){
+
+                        if(component.x.angularMovement){
+                  component.x.moveAngle()
+                }else{
+                  component.x.move();
+
+                }
+                        try {
+                            component.x.update(fake.context);
+                        } catch {
+                            //pass
+                        }
+                    }
+                });
+        commp.forEach(component => {
+            if (component.scene == fake.scene) {
+                if(component.x.angularMovement){
+                  component.x.moveAngle()
+                }else{
+                  component.x.move();
+
+                }
                 try {
-                    component.x.update(display.context)
+                    // Use the bUpdate method which doesn't have angle transformations
+                    component.x.bUpdate(fake.context)
                 } catch (e) {
-                    // console.error("Main display render error:", e)
+                    console.error("Fake canvas render error:", e)
                 }
             }
+        })
+        fake.context.restore()
+          if (display.frame > 2) {
+            display.once = false
+            //display.cachePic = new Component(fake.canvas.width, fake.canvas.height,
+            //fake.canvas.toDataURL(),
+            //0, 0, "image")
+          }
         }
-    })
-    display.timeFromPreviousFrames = time
-    display.context.restore()
-    return requestAnimationFrame(ani)
-}
+        // STEP 2: Now render fake canvas content to main display
+        display.clear()
+        display.context.save()
+        if (display.camera.rotationShake !== 0) {
+            const centerX = display.canvas.width / 2;
+            const centerY = display.canvas.height / 2;
+            display.context.translate(centerX, centerY);
+            display.context.rotate(display.camera.rotationShake);
+            display.context.translate(-centerX, -centerY);
+        }
+        
+        display.context.translate(-display.camera.x, -display.camera.y)
+        
+        // Draw the cached fake canvas as an image to main display
+        
+        
+        
+          display.context.drawImage(fake.canvas,0,0)
+        
+          
+        
+        
+        // Update game logic
+        try {
+            update(display.deltaTime) // Pass deltaTime to your update function
+        } catch (e) {
+            console.error("Update error:", e)
+        }
+        
+        // Render the cached image to main display
+        
+        
+        // Also render any dynamic components that need real-time updates
+        comm.forEach(component => {
+            if (component.scene == display.scene) {
+                if(component.x.angularMovement){
+                  component.x.moveAngle()
+                }else{
+                  component.x.move();
 
-class Particle extends Component {
+                }
+                if(TCJSgameGameArea.crashWith(component.x)){
+                    try {
+                        component.x.update(display.context)
+                    } catch (e) {
+                        // console.error("Main display render error:", e)
+                    }
+                }
+            }
+        })
+        
+        display.context.restore()
+        return requestAnimationFrame(ani)
+    }
+    class Particle extends Component {
     constructor(x, y, options = {}) {
+        // Default values
         const width = options.width || 4;
         const height = options.height || 4;
         const color = options.color || "white";
+        
         super(width, height, color, x, y, options.type || "rect");
         
-        this.life = options.life || 60; 
+        // Particle properties
+        this.life = options.life || 60; // frames until death
         this.maxLife = this.life;
         this.gravity = options.gravity || 0;
         this.friction = options.friction || 0.98;
@@ -1350,40 +1529,64 @@ class Particle extends Component {
         this.scale = options.scale || 1;
         this.scaleFade = options.scaleFade || 0;
         this.rotationSpeed = options.rotationSpeed || 0;
+        
+        // Velocity
         this.speedX = options.speedX || 0;
         this.speedY = options.speedY || 0;
+        
+        // Optional: store original color for fading
         this.originalColor = color;
+        
+        // Mark as particle
         this.isParticle = true;
     }
     
     update(ctx = display.context) {
-        if (this.life <= 0) return false; 
+        if (this.life <= 0) return false; // Mark for removal
         
+        // Apply physics
         this.speedY += this.gravity;
         this.speedX *= this.friction;
         this.speedY *= this.friction;
         this.x += this.speedX;
         this.y += this.speedY;
+        
+        // Apply rotation
         this.angle += this.rotationSpeed;
+        
+        // Fade out alpha
         this.alpha -= this.alphaFade;
+        
+        // Scale down
         this.scale -= this.scaleFade;
+        
+        // Decrease life
         this.life--;
         
+        // Save current context state
         ctx.save();
+        
+        // Apply transformations
         if (this.scale !== 1 || this.alpha !== 1) {
             ctx.translate(this.x + this.width/2, this.y + this.height/2);
             ctx.scale(this.scale, this.scale);
             ctx.translate(-(this.x + this.width/2), -(this.y + this.height/2));
         }
         
+        // Apply alpha
         if (this.alpha < 1) {
             if (this.type === "image") {
                 ctx.globalAlpha = this.alpha;
             } else {
+                // Parse color and add alpha
                 let colorWithAlpha = this.color;
                 if (this.color.startsWith("rgb")) {
                     colorWithAlpha = this.color.replace("rgb", "rgba").replace(")", `, ${this.alpha})`);
+                } else if (this.color.startsWith("#")) {
+                    // For hex colors, we'll just use globalAlpha
+                    ctx.globalAlpha = this.alpha;
                 } else {
+                    // Named colors
                     ctx.globalAlpha = this.alpha;
                 }
                 if (colorWithAlpha !== this.color) {
@@ -1392,6 +1595,7 @@ class Particle extends Component {
             }
         }
         
+        // Draw the particle
         if (this.type === "image" && this.image) {
             ctx.drawImage(this.image, this.x, this.y, this.width * this.scale, this.height * this.scale);
         } else if (this.type === "circle") {
@@ -1402,7 +1606,10 @@ class Particle extends Component {
         } else {
             super.update(ctx);
         }
+        
+        // Restore context
         ctx.restore();
+        
         return this.life > 0 && this.alpha > 0;
     }
 }
@@ -1414,6 +1621,7 @@ class ParticleSystem {
         this.emitters = [];
     }
     
+    // Create a single particle
     emit(x, y, options = {}) {
         const particle = new Particle(x, y, options);
         this.particles.push(particle);
@@ -1421,45 +1629,59 @@ class ParticleSystem {
         return particle;
     }
     
+    // Create multiple particles at once
     burst(x, y, count, options = {}) {
         const particles = [];
         for (let i = 0; i < count; i++) {
             const opts = { ...options };
+            
+            // Add random letiation if not specified
             if (options.randomSpeed !== false) {
                 opts.speedX = (options.speedX || 0) + (Math.random() - 0.5) * (options.randomSpeed || 2);
                 opts.speedY = (options.speedY || 0) + (Math.random() - 0.5) * (options.randomSpeed || 2);
             }
+            
             if (options.randomLife) {
                 opts.life = (options.life || 60) + Math.random() * options.randomLife;
             }
+            
             if (options.randomColor && options.colors) {
                 opts.color = options.colors[Math.floor(Math.random() * options.colors.length)];
             }
+            
             particles.push(this.emit(x, y, opts));
         }
         return particles;
     }
     
+    // Create an continuous emitter
     createEmitter(x, y, options = {}) {
         const emitter = {
             x: x,
             y: y,
             active: true,
-            rate: options.rate || 10, 
+            rate: options.rate || 10, // particles per second
             frameCounter: 0,
             options: options,
+            
             update: () => {
                 if (!emitter.active) return;
+                
+                // Calculate particles to emit this frame (based on 60fps)
                 const particlesPerFrame = emitter.rate / 60;
                 emitter.frameCounter += particlesPerFrame;
+                
                 while (emitter.frameCounter >= 1) {
                     let opts = { ...emitter.options };
+                    
+                    // Apply randomness
                     if (emitter.options.randomSpread) {
                         const angle = Math.random() * Math.PI * 2;
                         const speed = emitter.options.speed || 2;
                         opts.speedX = Math.cos(angle) * speed * (Math.random() * 0.5 + 0.75);
                         opts.speedY = Math.sin(angle) * speed * (Math.random() * 0.5 + 0.75);
                     }
+                    
                     if (emitter.options.randomOffset) {
                         const offsetX = (Math.random() - 0.5) * emitter.options.randomOffset;
                         const offsetY = (Math.random() - 0.5) * emitter.options.randomOffset;
@@ -1467,29 +1689,39 @@ class ParticleSystem {
                     } else {
                         this.emit(emitter.x, emitter.y, opts);
                     }
+                    
                     emitter.frameCounter--;
                 }
             },
+            
             stop: () => { emitter.active = false; },
             start: () => { emitter.active = true; },
             setPosition: (newX, newY) => { emitter.x = newX; emitter.y = newY; }
         };
+        
         this.emitters.push(emitter);
         return emitter;
     }
     
+    // Update all particles and remove dead ones
     update() {
+        // Update emitters
         this.emitters.forEach(emitter => emitter.update());
+        
+        // Remove dead particles
         for (let i = this.particles.length - 1; i >= 0; i--) {
             const particle = this.particles[i];
             if (particle.life <= 0 || particle.alpha <= 0) {
+                // Remove from display
                 const index = comm.findIndex(c => c.x === particle);
                 if (index > -1) comm.splice(index, 1);
+                // Remove from particle array
                 this.particles.splice(i, 1);
             }
         }
     }
     
+    // Clear all particles
     clear() {
         this.particles.forEach(particle => {
             const index = comm.findIndex(c => c.x === particle);
@@ -1500,7 +1732,9 @@ class ParticleSystem {
     }
 }
 
+// Add particle helper functions to your 'move' utility
 move.particles = {
+    // Explosion effect
     explosion: function(particleSystem, x, y, intensity = 30) {
         particleSystem.burst(x, y, intensity, {
             speedX: 0,
@@ -1520,6 +1754,8 @@ move.particles = {
             type: "circle"
         });
     },
+    
+    // Smoke trail
     smoke: function(particleSystem, x, y) {
         return particleSystem.emit(x, y, {
             width: 8,
@@ -1536,6 +1772,8 @@ move.particles = {
             type: "circle"
         });
     },
+    
+    // Sparkle / Star effect
     sparkle: function(particleSystem, x, y) {
         particleSystem.burst(x, y, 5, {
             width: 3,
@@ -1549,6 +1787,8 @@ move.particles = {
             type: "circle"
         });
     },
+    
+    // Rain effect
     rain: function(particleSystem, x, y, intensity = 1) {
         for (let i = 0; i < intensity; i++) {
             particleSystem.emit(x + Math.random() * 800, y + Math.random() * 100, {
@@ -1565,6 +1805,8 @@ move.particles = {
             });
         }
     },
+    
+    // Blood effect (for combat games)
     blood: function(particleSystem, x, y, amount = 15) {
         particleSystem.burst(x, y, amount, {
             width: 4,
@@ -1580,6 +1822,8 @@ move.particles = {
             type: "circle"
         });
     },
+    
+    // Magic / energy effect
     magic: function(particleSystem, x, y) {
         const colors = ["#ff00ff", "#00ffff", "#ffffff", "#ff66ff"];
         return particleSystem.burst(x, y, 20, {
@@ -1597,7 +1841,6 @@ move.particles = {
         });
     }
 };
-
 class AnimatedSprite extends Sprite {
     constructor(image, frameWidth, frameHeight, x, y) {
         super(image, frameWidth, frameHeight, 1, 1, x, y);
@@ -1605,6 +1848,7 @@ class AnimatedSprite extends Sprite {
         this.currentAnim = null;
     }
     
+    // Define animation by frame range
     addAnimation(name, startFrame, endFrame, speed, loop = true) {
         this.animations[name] = {
             start: startFrame,
@@ -1625,13 +1869,17 @@ class AnimatedSprite extends Sprite {
         this.loop = anim.loop;
     }
     
+    // Override updateAnimation to use frame ranges
     updateAnimation() {
         if (this.paused || !this.currentAnim) return;
+        
         const anim = this.animations[this.currentAnim];
         this.frameTimer++;
+        
         if (this.frameTimer >= this.frameSpeed) {
             this.frameTimer = 0;
             this.currentFrame++;
+            
             if (this.currentFrame > anim.end) {
                 if (this.loop) {
                     this.currentFrame = anim.start;
@@ -1643,7 +1891,6 @@ class AnimatedSprite extends Sprite {
         }
     }
 }
-
 move.sound = {
     play: (name) => {
         if (window.soundManager) window.soundManager.play(name);
@@ -1664,4 +1911,3 @@ move.sound = {
         if (window.soundManager) window.soundManager.unmute();
     }
 };
-
