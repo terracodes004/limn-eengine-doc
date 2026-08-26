@@ -42,13 +42,6 @@
     document.body.appendChild(banner);
   }
 
-  window.onerror = function(msg, url, line) {
-    const errorMsg = `${msg} (Line: ${line})`;
-    showRedErrorPopup(errorMsg);
-    sendToDiscord(errorMsg);
-  };
-
-  // Raw URL directly here (no encoding/decoding)
   const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1542171975500435548/Ul4GkAgi3e7JIlD7dSwzlP1Z0v18PeSpbFogwZNs43jXPRlokIuG6ck3JCsUS6_ZIQCr";
 
   async function sendToDiscord(errorText) {
@@ -72,11 +65,26 @@
     }
   }
 
+  window.onerror = function(msg, url, line) {
+    const errorMsg = `${msg} (Line: ${line})`;
+    showRedErrorPopup(errorMsg);
+    sendToDiscord(errorMsg);
+  };
+
   window.addEventListener('unhandledrejection', (event) => {
     const errorMsg = `Unhandled Promise: ${event.reason ? event.reason.message : 'Unknown'}`;
     showRedErrorPopup(errorMsg);
     sendToDiscord(errorMsg);
   });
+
+  // Intercept console.error so hidden panel errors show up visibly as a popup
+  const originalConsoleError = console.error;
+  console.error = function(...args) {
+    originalConsoleError.apply(console, args);
+    const errorMsg = args.join(" ");
+    showRedErrorPopup(errorMsg);
+    sendToDiscord("Console Error: " + errorMsg);
+  };
 
   function createBugButton() {
     if (document.getElementById('limn-bug-btn')) return; 
@@ -102,3 +110,4 @@
     createBugButton();
   }
 })();
+        
