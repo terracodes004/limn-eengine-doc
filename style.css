@@ -639,6 +639,7 @@ aside {
   max-width: 100% !important;
   box-sizing: border-box !important;
 } */
-article, table{
+article{
   width:85vw;
+  overflow-x: auto;
 }
