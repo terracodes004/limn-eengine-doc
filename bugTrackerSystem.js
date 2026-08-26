@@ -115,7 +115,6 @@
       `• **Time:** ${r.timestamp}\n  **Error:** ${r.error}\n  **File:** ${r.file}:${r.line}\n  **Desc:** ${r.description}`
     ).join('\n\n');
 
-    // CORS Proxy added here so the browser allows the webhook message through
     const proxyUrl = "https://corsproxy.io/?" + encodeURIComponent(BUG_CONFIG.discordWebhookUrl);
 
     const response = await fetch(proxyUrl, {
@@ -181,5 +180,7 @@
   } else {
     createBugButton();
   }
+
+  // Test line to verify the red banner works right away
+  showRedErrorPopup("Bug tracker successfully loaded and active!");
 })();
-  
