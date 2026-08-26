@@ -50,7 +50,7 @@
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          content: `🚨 **Lumina Engine Error:**\n${errorText}`
+          content: `🚨 **Limn Engine Error:**\n${errorText}`
         })
       });
 
