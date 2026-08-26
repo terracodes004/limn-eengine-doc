@@ -417,6 +417,7 @@ footer{
   .tut-grid{ grid-template-columns: 1fr; }
   .nav-burger{ display: block; }
   .con h1{ font-size: 2.4rem; }
+  td{width:85px}
 }
 #tip{
   background: rgba(127,255,178,0.06);
