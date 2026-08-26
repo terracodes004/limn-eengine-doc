@@ -81,28 +81,67 @@
                 </select>
 
                 <textarea id="js" wrap="off">
-const display = new Display()
-display.start()
-display.backgroundColor("green")
-let tile = new Component(12, 12, "blue", 0, 0)
-let tile2 = new Component(12, 12, "black", 0, 0)
-let tile3 = new Component(12, 12, "white", 0, 0)
-display.map = [[1, 2, 0],[0, 1, 0],[0, 3, 1]]
-display.tile =  [tile, tile2, tile3]
-display.tileMap()
+const display = new Display();
+display.perform();           // dual-canvas ON
+display.start(800, 600);
+display.backgroundColor("#0a0a0a");
+display.camera.worldWidth  = 2000;
+display.camera.worldHeight = 2000;
+display.clearMargin = [2000, 2000];
+fake.mapWidth= 2000
+fake.mapHeight = 2000
+fake.canvas.width = 2000
+fake.canvas.height =2000
+TCJSgameGameArea.width = 2000
+TCJSgameGameArea.height =2000
+// ── FAKE CANVAS — static world ──
+fake.tile = [
+    new Component(64, 64, "#1a3a1a", 0, 0), // grass
+    new Component(64, 64, "#2244aa", 0, 0), // water
+    new Component(64, 64, "#555",    0, 0), // stone
+];
+fake.map = [
+    [1,1,1,2,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,1,1,2,2,1,1,1,1,3,3,3,1,1,1,1,1,1,1,3,3,3,1,1,1,1,1,1,1,1],
+    [1,1,1,2,2,2,2,2,1,3,3,3,1,1,1,1,1,1,1,3,3,3,1,1,1,1,1,1,1,1],
+    [1,1,1,1,1,2,2,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+];
+fake.tileMap();
+fake.tileFace.show();
 
-let player = new Component(100, 100, "white", 0, 50)
-display.add(player)
-addEventListener("keydown", e =>{
-  player.speedX = 1
-  display.tileFace.add(1,0, 2)
-})
+// ── DISPLAY CANVAS — dynamic objects ──
+const player = new Component(36, 36, "blue", 400, 200, "rect");
+display.add(player);
 
-function update() {
-  display.tileFace.show()
-  if(display.tileFace.crashWith(player, 2)){
-    console.log("Hitted")
-  }
+const hud = new Tctxt("16px","Arial","white",12,20,"left",false,"alphabetic","rgba(0,0,0,0.6)",8,4);
+hud.setText("WASD to move");
+display.add(hud);
+
+const ps = new ParticleSystem(display);
+
+const SPEED = 220;
+
+function update(dt) {
+    ps.update();
+
+    // deltaTime movement
+    player.speedX = 0; player.speedY = 0;
+    if (display.keys[87]) player.speedY = -SPEED * dt;
+    if (display.keys[83]) player.speedY =  SPEED * dt;
+    if (display.keys[65]) player.speedX = -SPEED * dt;
+    if (display.keys[68]) player.speedX =  SPEED * dt;
+
+    // Trail
+    move.particles.sparkle(ps, player.x+18, player.y+18);
+
+    // Camera
+    display.camera.follow(player);
+    fake.camera.x = display.camera.x;  // sync!
+    fake.camera.y = display.camera.y;
+
+    // HUD stays fixed
+    hud.setText("X:" + Math.floor(player.x) + " Y:" + Math.floor(player.y));
+    hud.fixed();
 }
                 </textarea>
             </section>
