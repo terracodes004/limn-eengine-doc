@@ -43,31 +43,33 @@
   }
 
   window.onerror = function(msg, url, line) {
-    showRedErrorPopup(msg + " (Line: " + line + ")");
+    const errorMsg = `${msg} (Line: ${line})`;
+    showRedErrorPopup(errorMsg);
+    sendToDiscord(errorMsg);
   };
 
-  // Direct, unencoded webhook URL just like you had originally
   const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1540698567004389408/5rK-zpPKCsSnHLdvwE9WPm-_SIQXAbKK3sbzP-Ktnl0HkAmSBbcgaV7aHfGg0Mjr-fm1";
 
   async function sendToDiscord(errorText) {
     try {
-      await fetch(DISCORD_WEBHOOK_URL, {
+      const response = await fetch(DISCORD_WEBHOOK_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           content: `🚨 **Lumina Engine Error:**\n${errorText}`
         })
       });
+
+      if (response.ok) {
+        alert("Success! Sent to Discord.");
+      } else {
+        const text = await response.text();
+        alert("Discord rejected it! Status: " + response.status + " - " + text);
+      }
     } catch (err) {
-      console.error("Failed to send to Discord", err);
+      alert("Network Error / Blocked: " + err.message);
     }
   }
-
-  window.addEventListener('error', (event) => {
-    const errorMsg = `${event.message} (File: ${event.filename}, Line: ${event.lineno})`;
-    showRedErrorPopup(errorMsg);
-    sendToDiscord(errorMsg);
-  });
 
   window.addEventListener('unhandledrejection', (event) => {
     const errorMsg = `Unhandled Promise: ${event.reason ? event.reason.message : 'Unknown'}`;
@@ -87,7 +89,6 @@
       const userDescription = prompt("Briefly describe what went wrong:");
       if (userDescription) {
         sendToDiscord(`User Manual Report: ${userDescription}`);
-        alert('Bug report sent to Discord!');
       }
     });
 
@@ -100,4 +101,4 @@
     createBugButton();
   }
 })();
-  
+        
