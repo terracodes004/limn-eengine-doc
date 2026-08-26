@@ -294,7 +294,6 @@ td{
   border-bottom: 1px solid rgba(255,99,140,0.08);
   color: var(--muted);
   vertical-align: top;
-  width:20%;
   overflow-wrap: break-word;
 }
 tr:last-child td{ border-bottom: none; }
@@ -639,6 +638,6 @@ aside {
   max-width: 100% !important;
   box-sizing: border-box !important;
 } */
-article{
+article, table{
   width:85vw;
 }
