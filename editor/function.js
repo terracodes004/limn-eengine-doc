@@ -5,8 +5,8 @@ let v3xml = new XMLHttpRequest()
 v3xml.open("get","tcjsgame-v3.js")
 v3xml.send()
 let v4xml = new XMLHttpRequest()
-v2xml.open("get","epic.js")
-v2xml.send()
+v4xml.open("get","epic.js")
+v4xml.send()
 v2xml.addEventListener("load", ()=>{
   v2t = v2xml.responseText
 })
