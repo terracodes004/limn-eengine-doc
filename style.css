@@ -180,7 +180,7 @@ main > h1{
 fieldset{
   border: 1px solid var(--border);
   border-radius: 12px;
-  overflow: hidden;
+  overflow: visible;
   margin-bottom: 24px;
   background: var(--surface);
   display: block;
