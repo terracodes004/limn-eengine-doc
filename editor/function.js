@@ -1,3 +1,21 @@
+let v2xml = new XMLHttpRequest()
+v2xml.open("get","tcjsgame-v2.js")
+v2xml.send()
+let v3xml = new XMLHttpRequest()
+v3xml.open("get","tcjsgame-v3.js")
+v3xml.send()
+let v4xml = new XMLHttpRequest()
+v2xml.open("get","epic.js")
+v2xml.send()
+v2xml.addEventListener("load", ()=>{
+  v2t = v2xml.responseText
+})
+v3xml.addEventListener("load", ()=>{
+  v3t = v3xml.responseText
+})
+v4xml.addEventListener("load", ()=>{
+  v4t = v4xml.responseText
+})
 function runn(){
 
     $('dialog').fadeIn(300);
@@ -24,7 +42,7 @@ function runn(){
 
 
     
-    let engineScriptFile = "epic.js";
+    let engineScriptFile = v4t;
     let allDropdowns = document.querySelectorAll('select');
     let versionDropdown = null;
 
@@ -42,11 +60,11 @@ function runn(){
         let selectedVersion = versionDropdown.value.toLowerCase();
         
         if (selectedVersion.includes('v2')) {
-            engineScriptFile = "tcjsgame-v2.js"; 
+            engineScriptFile = v2t; 
         } else if (selectedVersion.includes('v3')) {
-            engineScriptFile = "tcjsgame-v3.js"; 
+            engineScriptFile =v3t; 
         } else if (selectedVersion.includes('v4')) {
-            engineScriptFile = "epic.js"; 
+            engineScriptFile =v4t; 
         }
     }
 
@@ -56,7 +74,7 @@ function runn(){
 <head>
     <meta charset='UTF-8'>
     
-    <script src="${engineScriptFile}"></script>
+    <script>${engineScriptFile}</script>
 </head>
 <body>
     
@@ -105,4 +123,5 @@ function runn(){
         iframe.srcdoc = code;
     }
 }
-    
+
+
