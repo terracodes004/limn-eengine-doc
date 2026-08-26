@@ -227,27 +227,23 @@ summary::before{ content: '▶'; font-size: 10px; transition: transform 0.2s; }
 details[open] summary::before{ transform: rotate(90deg); }
 details > *:not(summary){ margin-top: 14px; }
 
-pre{
-  background: var(--code-bg);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  width: 100%;
-  display: block;
-  padding: 16px 18px;
-  overflow-x: auto;
-  font-family: 'Space Mono', monospace;
-  font-size: 12.5px;
-  line-height: 1.8;
-  color: #b8b8d8;
-  
-  max-width: 100%;
-  overflow-x: auto;
-  white-space: pre !important;     /* ← Don't wrap lines */
-  word-break: normal !important;
-  word-wrap: normal !important;
-  display: block;
-  
-  margin: 12px 0;
+pre {
+    background: var(--code-bg);
+    border: 1px solid var(--border-color, #ccc);      /* separate border color */
+    border-radius: var(--border-radius, 8px);          /* separate radius */
+    box-sizing: border-box;                            /* ← critical fix */
+    width: 100%;
+    display: block;
+    padding: 16px 18px;
+    overflow-x: auto;                                  /* only need once */
+    font-family: 'Space Mono', monospace;
+    font-size: 12.5px;
+    line-height: 1.8;
+    color: #b8b8d8;
+    max-width: 100%;
+    white-space: pre !important;
+    word-break: normal !important;
+    word-wrap: normal !important;
 }
 code{
   font-family: 'Space Mono', monospace;
