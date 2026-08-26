@@ -125,14 +125,4 @@ function runn(){
 }
 
 
-let files = {}
-let filesName = [];
-if(!localStorage.files){
-  localStorage.files = []
-  localStorage.filename = []
-files = {}
-}else{
-    files = JSON.parse(localStorage.getItem("files"))
-    filesName = localStorage.getItem("filename").split(",")
-}
-let np;
+
