@@ -184,7 +184,6 @@ fieldset{
   margin-bottom: 24px;
   background: var(--surface);
   display: block;
-  width: 90%;
   
 }
 fieldset legend{
@@ -234,7 +233,7 @@ pre {
     border: 1px solid var(--border-color, #ccc);      /* separate border color */
     border-radius: var(--border-radius, 8px);          /* separate radius */
     box-sizing: border-box;                            /* ← critical fix */
-    width: 100%;
+    width: 75vw;
     display: block;
     padding: 16px 18px;
     overflow-x: auto;                                  /* only need once */
@@ -242,7 +241,7 @@ pre {
     font-size: 12.5px;
     line-height: 1.8;
     color: #b8b8d8;
-    max-width: 100%;
+    max-width: 75vw;
     white-space: pre !important;
     word-break: normal !important;
     word-wrap: normal !important;
