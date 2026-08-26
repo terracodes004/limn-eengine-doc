@@ -54,16 +54,16 @@ class Display {
             this.keys[e.keyCode] = false;
         });
         window.addEventListener('mousedown', (e) => {
-            this.x = e.pageX;
-            this.y = e.pageY;
+            this.x = e.pageX + this.camera.x;
+            this.y = e.pageY + this.camera.y;
         });
         window.addEventListener('mouseup', () => {
             this.x = false;
             this.y = false;
         });
         window.addEventListener('touchstart', (e) => {
-            this.x = e.touches[0].pageX;
-            this.y = e.touches[0].pageY;
+            this.x = e.touches[0].pageX + this.camera.x;
+            this.y = e.touches[0].pageY + this.camera.y;
         });
         window.addEventListener('touchend', () => {
             this.x = false;
