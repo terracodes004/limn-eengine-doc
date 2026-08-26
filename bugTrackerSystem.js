@@ -55,10 +55,10 @@
       });
 
       if (response.ok) {
-        alert("Success! Sent to Discord.");
+        alert("Success! the message will be sent when you are online.");
       } else {
         const text = await response.text();
-        alert("Discord rejected it! Status: " + response.status + " - " + text);
+        alert("Message rejected! Status: " + response.status + " - " + text);
       }
     } catch (err) {
       alert("Network Error / Blocked: " + err.message);
@@ -77,7 +77,6 @@
     sendToDiscord(errorMsg);
   });
 
-  // Intercept console.error so hidden panel errors show up visibly as a popup
   const originalConsoleError = console.error;
   console.error = function(...args) {
     originalConsoleError.apply(console, args);
