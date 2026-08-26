@@ -626,7 +626,7 @@ aside {
 }
 
 /* ── INSIDE PRE, KEEP CODE ON ONE LINE ── */
-pre, pre code {
+  /* pre, pre code {
   overflow-x: auto !important;
   white-space: pre !important;
   word-break: normal !important;
@@ -636,7 +636,7 @@ pre, pre code {
   width: 100% !important;
   max-width: 100% !important;
   box-sizing: border-box !important;
-}
+} */
 article{
   width:75vw;
 }
