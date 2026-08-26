@@ -98,9 +98,9 @@ function runn(){
             }
         };
 
-        try {
+        //try {
             ${userEditorCode}
-        } catch(err) {
+        //} catch(err) {
             console.log("Engine Runtime Error: " + err.message);
 
             // const discordUrl = "https://discord.com/api/webhooks/1540698567004389408/5rK-zpPKCsSnHLdvwE9WPm-_SIQXAbKK3sbzP-Ktnl0HkAmSBbcgaV7aHfGg0Mjr-fm1";
@@ -113,7 +113,7 @@ function runn(){
             //         content: "🚨 **Playground Engine Error:** " + err.message
             //     })
             // }).catch(e => console.error("Webhook dispatch failed", e));
-        }
+       // }
     </script>
 </body>
 </html>`;
