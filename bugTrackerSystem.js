@@ -54,7 +54,7 @@
     console.error("EmailJS script is not loaded!");
   }
 
-  const ENCODED_BUG_CONFIG = "eyJkaXNjb3JkV2ViaG9va1VybCI6Imh0dHBzOi8vZGlzY29yZC5jb20vYXBpL3dlYmhvb2tzLzE1NDA2OTg1NjcwMDQzODk0MDgvNXJLLXpwUEtjU25ITGR2d0U5d1BtX1NsUVhYQWJLSzNzYnotS3RsMEhrQW1TYkJiY2FWN2FIZkdnME1qci1mbTEiLCJlbWFpbENvbmZpZyI6eyJzZXJ2aWNlSWQiOiJzZXJ2aWNlXzU2MzYycmUiLCJ0ZW1wbGF0ZUlkIjoidGVtcGxhdGVfeGUzYWUzZSJ9fQ==";
+  const ENCODED_BUG_CONFIG = "eyJkaXNjb3JkV2ViaG9va1VybCI6Imh0dHBzOi8vZGlzY29yZC5jb20vYXBpL3dlYmhvb2tzLzE1NDA2OTg1NjcwMDQzODk0MDgvNXJLLXpwUEtjU25ITGR2d0U5d1BtX1NsUVhYQWJLSzNzYnotS3RsMEhrWW1TYkJiY2FWN2FIZkdnME1qci1mbTEiLCJlbWFpbENvbmZpZyI6eyJzZXJ2aWNlSWQiOiJzZXJ2aWNlXzU2MzYycmUiLCJ0ZW1wbGF0ZUlkIjoidGVtcGxhdGVfeGUzYWUzZSJ9fQ==";
   const BUG_CONFIG = JSON.parse(atob(ENCODED_BUG_CONFIG));
 
   function logBugReport(description, errorDetails = {}) {
@@ -115,7 +115,10 @@
       `• **Time:** ${r.timestamp}\n  **Error:** ${r.error}\n  **File:** ${r.file}:${r.line}\n  **Desc:** ${r.description}`
     ).join('\n\n');
 
-    const response = await fetch(BUG_CONFIG.discordWebhookUrl, {
+    // CORS Proxy added here so the browser allows the webhook message through
+    const proxyUrl = "https://corsproxy.io/?" + encodeURIComponent(BUG_CONFIG.discordWebhookUrl);
+
+    const response = await fetch(proxyUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
