@@ -180,10 +180,12 @@ main > h1{
 fieldset{
   border: 1px solid var(--border);
   border-radius: 12px;
-  overflow: visible;
+  overflow: auto;
   margin-bottom: 24px;
   background: var(--surface);
   display: block;
+  width: 90%;
+  
 }
 fieldset legend{
   padding: 0 12px;
