@@ -46,82 +46,33 @@
     showRedErrorPopup(msg + " (Line: " + line + ")");
   };
 
-  const ENCODED_BUG_CONFIG = "eyJkaXNjb3JkV2ViaG9va1VybCI6Imh0dHBzOi8vZGlzY29yZC5jb20vYXBpL3dlYmhvb2tzLzE1NDA2OTg1NjcwMDQzODk0MDgvNXJLLXpwUEtjU25ITGR2d0U5d1BtX1NsUVhYQWJLSzNzYnotS3RsMEhrWW1TYkJiY2FWN2FIZkdnME1qci1mbTEiLCJlbWFpbENvbmZpZyI6eyJzZXJ2aWNlSWQiOiJzZXJ2aWNlXzU2MzYycmUiLCJ0ZW1wbGF0ZUlkIjoidGVtcGxhdGVfeGUzYWUzZSJ9fQ==";
-  const BUG_CONFIG = JSON.parse(atob(ENCODED_BUG_CONFIG));
+  // Direct, unencoded webhook URL just like you had originally
+  const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1540698567004389408/5rK-zpPKCsSnHLdvwE9WPm-_SIQXAbKK3sbzP-Ktnl0HkAmSBbcgaV7aHfGg0Mjr-fm1";
 
-  function logBugReport(description, errorDetails = {}) {
-    const bugReport = {
-      description: description,
-      error: errorDetails.message || 'Manual submission',
-      file: errorDetails.filename || 'N/A',
-      line: errorDetails.lineno || 'N/A',
-      userAgent: navigator.userAgent,
-      timestamp: new Date().toISOString()
-    };
-
-    let reports = JSON.parse(localStorage.getItem('limn_offline_bugs') || '[]');
-    reports.push(bugReport);
-    localStorage.setItem('limn_offline_bugs', JSON.stringify(reports));
-    
-    if (navigator.onLine) {
-      syncBugReports();
+  async function sendToDiscord(errorText) {
+    try {
+      await fetch(DISCORD_WEBHOOK_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          content: `🚨 **Lumina Engine Error:**\n${errorText}`
+        })
+      });
+    } catch (err) {
+      console.error("Failed to send to Discord", err);
     }
   }
 
   window.addEventListener('error', (event) => {
-    logBugReport('Unhandled Runtime Error', {
-      message: event.message,
-      filename: event.filename,
-      lineno: event.lineno
-    });
+    const errorMsg = `${event.message} (File: ${event.filename}, Line: ${event.lineno})`;
+    showRedErrorPopup(errorMsg);
+    sendToDiscord(errorMsg);
   });
 
   window.addEventListener('unhandledrejection', (event) => {
-    logBugReport('Unhandled Promise Rejection', {
-      message: event.reason ? event.reason.message : 'Unknown async error',
-      filename: 'Async/Promise',
-      lineno: 'N/A'
-    });
-  });
-
-  async function syncBugReports() {
-    const reports = JSON.parse(localStorage.getItem('limn_offline_bugs') || '[]');
-    if (reports.length === 0) return;
-
-    try {
-      const discordSuccess = await sendToDiscord(reports);
-      if (discordSuccess) {
-        localStorage.removeItem('limn_offline_bugs');
-      }
-    } catch (error) {
-      console.error('Sync attempt failed:', error);
-    }
-  }
-
-  async function sendToDiscord(reports) {
-    const descriptionText = reports.map(r => 
-      `• **Time:** ${r.timestamp}\n  **Error:** ${r.error}\n  **File:** ${r.file}:${r.line}\n  **Desc:** ${r.description}`
-    ).join('\n\n');
-
-    const proxyUrl = "https://api.allorigins.win/raw?url=" + encodeURIComponent(BUG_CONFIG.discordWebhookUrl);
-
-    try {
-      const response = await fetch(proxyUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          content: `🚨 **Limn Engine - Offline Bug Report(s):**\n${descriptionText}`
-        })
-      });
-      return response.ok;
-    } catch (err) {
-      console.error("Discord webhook dispatch error:", err);
-      return false;
-    }
-  }
-
-  window.addEventListener('online', () => {
-    syncBugReports();
+    const errorMsg = `Unhandled Promise: ${event.reason ? event.reason.message : 'Unknown'}`;
+    showRedErrorPopup(errorMsg);
+    sendToDiscord(errorMsg);
   });
 
   function createBugButton() {
@@ -135,8 +86,8 @@
     bugButton.addEventListener('click', () => {
       const userDescription = prompt("Briefly describe what went wrong:");
       if (userDescription) {
-        logBugReport('User clicked bug button', { message: userDescription });
-        alert('Bug report saved! It will be sent automatically.');
+        sendToDiscord(`User Manual Report: ${userDescription}`);
+        alert('Bug report sent to Discord!');
       }
     });
 
@@ -148,6 +99,5 @@
   } else {
     createBugButton();
   }
-
-  showRedErrorPopup("Bug tracker successfully loaded and active!");
 })();
+  
