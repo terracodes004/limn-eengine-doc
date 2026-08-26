@@ -22,12 +22,7 @@ function runn(){
         return;
     }
 
-    let hasHtmlTags = /<[a-z][\s\S]*>/i.test(userEditorCode) || userEditorCode.includes('<!DOCTYPE');
 
-    if (hasHtmlTags && iframe) {
-        iframe.srcdoc = userEditorCode;
-        return; 
-    }
     
     let engineScriptFile = "epic.js";
     let allDropdowns = document.querySelectorAll('select');
