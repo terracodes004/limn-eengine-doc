@@ -48,13 +48,12 @@
     sendToDiscord(errorMsg);
   };
 
-  // Securely encoded configuration with your brand new webhook URL
-  const ENCODED_CONFIG = "eyJkaXNjb3JkV2ViaG9va1VybCI6Imh0dHBzOi8vZGlzY29yZC5jb20vYXBpL3dlYmhvb2tzLzE1NDIxNzE5NzU1MDA0MzU1NDgvVWw0R2tBZ2kzZTdKSWxEN2RTd3psUDFaMHYxOFBlU3BiRm9nd1pOczQzalhQUmxvaUl1RzZjazNKQ3NVU18yWlFDciJ9";
-  const BUG_CONFIG = JSON.parse(atob(ENCODED_CONFIG));
+  // Raw URL directly here (no encoding/decoding)
+  const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1542171975500435548/Ul4GkAgi3e7JIlD7dSwzlP1Z0v18PeSpbFogwZNs43jXPRlokIuG6ck3JCsUS6_ZIQCr";
 
   async function sendToDiscord(errorText) {
     try {
-      const response = await fetch(BUG_CONFIG.discordWebhookUrl, {
+      const response = await fetch(DISCORD_WEBHOOK_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
