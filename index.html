@@ -143,8 +143,14 @@ window.addEventListener('appinstalled', () => {
 const display = new Display();
 display.perform(); // dual-canvas pipeline ON
 display.start(800, 600);
-const player = new Component(50, 50, "red", 400, 300, "rect");
+display.backgroundColor("#0a0a0a");
+display.camera.worldWidth = 2000;
+display.camera.worldHeight = 2000;
+display.clearMargin = [2000, 2000];
+          
+const player = new Component(50, 50, "red", 400, 300, "rect");          
 display.add(player);
+          
 function update(dt) {
     // Game logic goes here — dt = deltaTime
     if (display.keys[39]) player.speedX =  4;
