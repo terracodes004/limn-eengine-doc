@@ -134,28 +134,35 @@ window.addEventListener('appinstalled', () => {
       <p>Create an HTML file, include <code>epic.js</code>, and write the code below. You'll see a red square on a canvas in seconds.</p>
       <details>
         <summary>see more...</summary>
-        <pre><code>&lt;!DOCTYPE html&gt;
-&lt;html&gt;
-&lt;head&gt;&lt;title&gt;My Limn Game&lt;/title&gt;&lt;/head&gt;
-&lt;body&gt;
-&lt;script src="epic.js"&gt;&lt;/script&gt;
-&lt;script&gt;
+        <pre><code></code></pre>
+        <p>✅ <code>start()</code> creates an 800×600 canvas and starts the game loop. The red square appears because <code>display.add(player)</code> tells the engine to draw it every frame.</p>
+        <div class="warn">⚠️ Your <code>Display</code><!DOCTYPE html>
+<html>
+<head><title>My Limn Game</title></head>
+<body>
+<script src="epic.js"></script>
+<script>
 const display = new Display();
 display.perform(); // dual-canvas pipeline ON
 display.start(800, 600);
+display.backgroundColor("#0a0a0a");
+display.camera.worldWidth = 2000;
+display.camera.worldHeight = 2000;
+display.clearMargin = [2000, 2000];
+
 const player = new Component(50, 50, "red", 400, 300, "rect");
 display.add(player);
+
 function update(dt) {
     // Game logic goes here — dt = deltaTime
     if (display.keys[39]) player.speedX =  4;
     if (display.keys[37]) player.speedX = -4;
     else player.speedX = 0;
 }
-&lt;/script&gt;
-&lt;/body&gt;
-&lt;/html&gt;</code></pre>
-        <p>✅ <code>start()</code> creates an 800×600 canvas and starts the game loop. The red square appears because <code>display.add(player)</code> tells the engine to draw it every frame.</p>
-        <div class="warn">⚠️ Your <code>Display</code> instance <b>must</b> be assigned to a variable named <code>display</code> — the engine uses this name internally.</div>
+</script>
+</body>
+</html>
+          instance <b>must</b> be assigned to a variable named <code>display</code> — the engine uses this name internally.</div>
       </details>
     </article>
   </fieldset>
