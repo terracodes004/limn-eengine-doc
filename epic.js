@@ -150,7 +150,7 @@ class Display {
         try {
             update();
         } catch (e) {
-            //console.error("Update error:", e);
+            console.error("Update error:", e);
         }
         comm.forEach(component => {
             if(component.scene == this.scene){
