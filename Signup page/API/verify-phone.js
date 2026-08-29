@@ -21,8 +21,6 @@ export default async function handler(req, res) {
     if (new Date() > new Date(userData.otp_expires_at)) {
         return res.status(400).json({ error: 'Verification code has expired' });
     }
-
-    // Mark as verified & subscribed
     const { error: updateError } = await supabaseAdmin
         .from('users')
         .update({ subscribed: true, otp: null, otp_expires_at: null })
