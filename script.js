@@ -16,7 +16,8 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   const navLinks = document.querySelectorAll('nav ul li a');
-  const currentPath = window.location.pathname.split('').pop() || 'index.html';
+  // Fixed: split by '/' instead of '' so it grabs the actual filename instead of the last letter
+  const currentPath = window.location.pathname.split('/').pop() || 'index.html';
 
   navLinks.forEach((link) => {
     if (link.getAttribute('href') === currentPath) {
@@ -83,3 +84,37 @@ document.addEventListener('DOMContentLoaded', () => {
     pre.appendChild(copyBtn);
   });
 });
+
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', async () => {
+    try {
+      const registration = await navigator.serviceWorker.register('./sw.js');
+
+      window.addEventListener('online', () => {
+        registration.update();
+      });
+
+      registration.addEventListener('updatefound', () => {
+        const newWorker = registration.installing;
+        newWorker.addEventListener('statechange', () => {
+          if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+            console.log('New PWA version found. Reloading...');
+            window.location.reload();
+          }
+        });
+      });
+    } catch (err) {
+      console.error('Service worker registration failed:', err);
+    }
+  });
+
+  let refreshing = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (!refreshing) {
+      refreshing = true;
+      window.location.reload();
+    }
+  });
+    }
+        
