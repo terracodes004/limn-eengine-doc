@@ -6,12 +6,11 @@ const SUPABASE_ANON_KEY = 'your-anon-key';
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 const messageEl = document.getElementById('message');
 
-// --- Session & Routing Check on Load ---
 async function checkUserRouting() {
     const { data: { session } } = await supabase.auth.getSession();
     
     if (session) {
-        // Check if user is already fully registered/verified in the database
+        
         const { data: userData } = await supabase
             .from('users')
             .select('subscribed')
@@ -19,16 +18,14 @@ async function checkUserRouting() {
             .maybeSingle();
 
         if (userData && userData.subscribed) {
-            // Already subscribed, redirect straight to home page
+            
             window.location.href = '/home.html';
             return;
         }
 
-        // Logged in with Google, but needs phone verification
         document.getElementById('step-google').classList.add('hidden');
         document.getElementById('step-phone').classList.remove('hidden');
     } else {
-        // Not logged in, show Google login step first
         document.getElementById('step-google').classList.remove('hidden');
         document.getElementById('step-phone').classList.add('hidden');
     }
@@ -36,7 +33,6 @@ async function checkUserRouting() {
 
 checkUserRouting();
 
-// --- Step 1: Google Login ---
 document.getElementById('google-login-btn').addEventListener('click', async () => {
     const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
@@ -45,7 +41,6 @@ document.getElementById('google-login-btn').addEventListener('click', async () =
     if (error) showMessage(error.message, 'error');
 });
 
-// --- Step 2: Send OTP ---
 document.getElementById('send-otp-btn').addEventListener('click', async () => {
     const phone = document.getElementById('phone-input').value.trim();
     if (!phone) return showMessage('Enter a valid phone number', 'error');
@@ -68,7 +63,6 @@ document.getElementById('send-otp-btn').addEventListener('click', async () => {
     }
 });
 
-// --- Step 3: Verify OTP ---
 document.getElementById('verify-phone-btn').addEventListener('click', async () => {
     const phone = document.getElementById('phone-input').value.trim();
     const code = document.getElementById('otp-input').value.trim();
