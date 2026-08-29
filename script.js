@@ -16,7 +16,6 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   const navLinks = document.querySelectorAll('nav ul li a');
-  // Fixed: split by '/' instead of '' so it grabs the actual filename instead of the last letter
   const currentPath = window.location.pathname.split('/').pop() || 'index.html';
 
   navLinks.forEach((link) => {
