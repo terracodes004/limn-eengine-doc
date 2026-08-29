@@ -7,11 +7,9 @@ export default async function handler(req, res) {
     const { phone, user_id } = req.body;
     if (!phone || !user_id) return res.status(400).json({ error: 'Missing phone or user ID' });
 
-    // Generate a 6-digit OTP
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 mins expiry
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
 
-    // Save/update OTP in database
     const { error: dbError } = await supabaseAdmin
         .from('users')
         .upsert({ id: user_id, phone, otp, otp_expires_at: expiresAt, subscribed: false });
