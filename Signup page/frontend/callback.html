@@ -16,20 +16,17 @@
 
         const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        // Listen to auth state changes
         const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
             if (event === 'SIGNED_IN' && session) {
                 window.location.href = '/';
             }
         });
 
-        // If already logged in, redirect immediately
         const { data: { session } } = await supabase.auth.getSession();
         if (session) {
             window.location.href = '/';
         }
 
-        // Fallback: if something goes wrong after 5 seconds
         setTimeout(() => {
             window.location.href = '/?error=login_timeout';
         }, 5000);
