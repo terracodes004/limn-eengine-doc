@@ -1,0 +1,10 @@
+{
+  "name": "whatsapp-email-alerts",
+  "version": "1.0.0",
+  "type": "module",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.39.0",
+    "axios": "^1.6.0",
+    "nodemailer": "^6.9.0"
+  }
+}
