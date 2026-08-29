@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Limn Engine - Subscribe to Alerts</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #2c2c38;
+            color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            background-image: linear-gradient(rgba(44, 44, 56, 0.9), rgba(44, 44, 56, 0.9)), url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><text x="10" y="50" fill="%231a1a24" font-size="20" font-weight="bold">LIMN</text></svg>');
+        }
+        .container {
+            background: rgba(30, 30, 40, 0.85);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            max-width: 420px;
+            width: 100%;
+            text-align: center;
+            border: 1px solid rgba(255, 77, 109, 0.2);
+        }
+        h2 {
+            margin-top: 0;
+            color: #ffffff;
+            font-size: 1.6rem;
+            margin-bottom: 10px;
+        }
+        p {
+            color: #b0b0c0;
+            font-size: 0.95rem;
+            margin-bottom: 20px;
+        }
+        input {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            margin: 12px 0;
+            background: #1a1a24;
+            border: 1px solid #444455;
+            color: #ffffff;
+            border-radius: 6px;
+            font-size: 1rem;
+            box-sizing: border-box;
+        }
+        input:focus {
+            outline: none;
+            border-color: #ff4d6d;
+        }
+        button {
+            background-color: #ff4d6d;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            margin: 8px 0;
+            cursor: pointer;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: bold;
+            width: 100%;
+            transition: background 0.2s;
+        }
+        button:hover {
+            background-color: #e03b5b;
+        }
+        .secondary-btn {
+            background: transparent;
+            border: 1px solid #ff4d6d;
+            color: #ff4d6d;
+        }
+        .secondary-btn:hover {
+            background: rgba(255, 77, 109, 0.1);
+        }
+        .hidden { display: none; }
+        .error { color: #ff6b6b; margin-top: 10px; font-size: 0.9rem; }
+        .success { color: #51cf66; margin-top: 10px; font-size: 0.9rem; }
+        #message { margin-top: 15px; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>🚀 Subscribe for Alerts</h2>
+        <p>Draw your game into existence with live updates.</p>
+
+        <!-- Step 1: Google Login -->
+        <div id="step-google">
+            <p>Sign in with Google to continue</p>
+            <button id="google-login-btn" class="secondary-btn">🔐 Sign in with Google</button>
+        </div>
+
+        <!-- Step 2: Phone Verification (shown after Google login) -->
+        <div id="step-phone" class="hidden">
+            <h3>📱 Verify your WhatsApp Number</h3>
+            <p>We'll send a 6-digit code to your WhatsApp.</p>
+            <input type="tel" id="phone-input" placeholder="e.g., 2348012345678" required>
+            <button id="send-otp-btn">Send OTP</button>
+            
+            <div id="otp-section" class="hidden">
+                <input type="text" id="otp-input" placeholder="Enter 6-digit code" maxlength="6">
+                <button id="verify-phone-btn">Verify & Subscribe</button>
+            </div>
+        </div>
+
+        <div id="message"></div>
+    </div>
+
+    <script type="module" src="app.js"></script>
+</body>
+</html>

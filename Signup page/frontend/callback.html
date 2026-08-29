@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Logging you in...</title>
+</head>
+<body>
+    <h2>⏳ Logging you in...</h2>
+    <p>Please wait, you will be redirected shortly.</p>
+
+    <script type="module">
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
+        const SUPABASE_URL = 'https://your-project.supabase.co';
+        const SUPABASE_ANON_KEY = 'your-anon-key';
+
+        const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // Listen to auth state changes
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+            if (event === 'SIGNED_IN' && session) {
+                window.location.href = '/';
+            }
+        });
+
+        // If already logged in, redirect immediately
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session) {
+            window.location.href = '/';
+        }
+
+        // Fallback: if something goes wrong after 5 seconds
+        setTimeout(() => {
+            window.location.href = '/?error=login_timeout';
+        }, 5000);
+    </script>
+</body>
+</html>
