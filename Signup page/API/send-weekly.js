@@ -2,7 +2,6 @@ import { supabaseAdmin } from './_db.js';
 import { sendWhatsAppMessage } from './_send.js';
 
 export default async function handler(req, res) {
-    // Optional: secure this route with a Vercel Cron secret check if needed
     const { data: users, error } = await supabaseAdmin
         .from('users')
         .select('phone')
