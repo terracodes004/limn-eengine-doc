@@ -18,13 +18,13 @@
 
         const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
             if (event === 'SIGNED_IN' && session) {
-                window.location.href = '/';
+                window.location.href = '../index.html';
             }
         });
 
         const { data: { session } } = await supabase.auth.getSession();
         if (session) {
-            window.location.href = '/';
+            window.location.href = '../index.html';
         }
 
         setTimeout(() => {
