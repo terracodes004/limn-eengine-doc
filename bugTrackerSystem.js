@@ -37,13 +37,7 @@ function logBugReport(description, errorDetails = {}) {
   }
 }
 
-window.addEventListener('error', (event) => {
-  logBugReport('Unhandled Runtime Error', {
-    message: event.message,
-    filename: event.filename,
-    lineno: event.lineno
-  });
-});
+// Automatic error listener removed so it only logs when the button is clicked
 
 async function syncBugReports() {
   const reports = JSON.parse(localStorage.getItem('limn_offline_bugs') || '[]');
@@ -136,5 +130,4 @@ if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', createBugButton);
 } else {
   createBugButton();
-      }
-      
+}
