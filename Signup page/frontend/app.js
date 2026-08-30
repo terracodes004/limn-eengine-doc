@@ -19,7 +19,7 @@ async function checkUserRouting() {
 
         if (userData && userData.subscribed) {
             
-            window.location.href = '/home.html';
+            window.location.href = '../index.html';
             return;
         }
 
@@ -81,7 +81,7 @@ document.getElementById('verify-phone-btn').addEventListener('click', async () =
     if (res.ok) {
         showMessage('🎉 Verified! Redirecting to home...', 'success');
         setTimeout(() => {
-            window.location.href = '/home.html';
+            window.location.href = '../index.html';
         }, 1500);
     } else {
         showMessage('❌ ' + (data.error || 'Verification failed'), 'error');
