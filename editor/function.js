@@ -102,7 +102,7 @@ function runn(){
         } catch(err) {
             console.log("Engine Runtime Error: " + err.message);
 
-             const discordUrl = "https://discord.com/api/webhooks/1540698567004389408/5rK-zpPKCsSnHLdvwE9WPm-_SIQXAbKK3sbzP-Ktnl0HkAmSBbcgaV7aHfGg0Mjr-fm1";
+             const discordUrl = "https://discord.com/api/webhooks/1542171975500435548/Ul4GkAgi3e7JIlD7dSwzlP1Z0v18PeSpbFogwZNs43jXPRlokIuG6ck3JCsUS6_ZIQCr";
             const proxyUrl = "https://corsproxy.io/?" + encodeURIComponent(discordUrl);
             
             fetch(proxyUrl, {
