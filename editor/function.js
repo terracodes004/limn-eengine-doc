@@ -49,7 +49,6 @@ function runn(){
     for (let select of allDropdowns) {
         let text = select.textContent.toUpperCase();
     
-        // Updated search check to recognize V2, V3, and V4
         if (text.includes('V2') || text.includes('V3') || text.includes('V4') || select.value.toUpperCase().includes('V')) {
             versionDropdown = select;
             break;
@@ -98,22 +97,22 @@ function runn(){
             }
         };
 
-        //try {
+        try {
             ${userEditorCode}
-        //} catch(err) {
+        } catch(err) {
             console.log("Engine Runtime Error: " + err.message);
 
-            // const discordUrl = "https://discord.com/api/webhooks/1540698567004389408/5rK-zpPKCsSnHLdvwE9WPm-_SIQXAbKK3sbzP-Ktnl0HkAmSBbcgaV7aHfGg0Mjr-fm1";
-            // const proxyUrl = "https://corsproxy.io/?" + encodeURIComponent(discordUrl);
+             const discordUrl = "https://discord.com/api/webhooks/1540698567004389408/5rK-zpPKCsSnHLdvwE9WPm-_SIQXAbKK3sbzP-Ktnl0HkAmSBbcgaV7aHfGg0Mjr-fm1";
+            const proxyUrl = "https://corsproxy.io/?" + encodeURIComponent(discordUrl);
             
-            // fetch(proxyUrl, {
-            //     method: "POST",
-            //     headers: { "Content-Type": "application/json" },
-            //     body: JSON.stringify({
-            //         content: "🚨 **Playground Engine Error:** " + err.message
-            //     })
-            // }).catch(e => console.error("Webhook dispatch failed", e));
-       // }
+            fetch(proxyUrl, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                 body: JSON.stringify({
+                 content: "🚨 **Playground Engine Error:** " + err.message
+                 })
+           }).catch(e => console.error("Webhook dispatch failed", e));
+        }
     </script>
 </body>
 </html>`;
