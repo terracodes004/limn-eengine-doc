@@ -1,25 +1,20 @@
-let v2xml = new XMLHttpRequest()
-v2xml.open("get","tcjsgame-v2.js")
-v2xml.send()
-let v3xml = new XMLHttpRequest()
-v3xml.open("get","tcjsgame-v3.js")
-v3xml.send()
-let v4xml = new XMLHttpRequest()
-v4xml.open("get","epic.js")
-v4xml.send()
-v2xml.addEventListener("load", ()=>{
-  v2t = v2xml.responseText
-})
-v3xml.addEventListener("load", ()=>{
-  v3t = v3xml.responseText
-})
-v4xml.addEventListener("load", ()=>{
-  v4t = v4xml.responseText
-})
-function runn(){
+let v2t = "", v3t = "", v4t = "";
 
+function loadScript(url, callback) {
+    let xhr = new XMLHttpRequest();
+    xhr.open("get", url);
+    xhr.onload = () => {
+        if (xhr.status === 200) callback(xhr.responseText);
+    };
+    xhr.send();
+}
+
+loadScript("tcjsgame-v2.js", (text) => v2t = text);
+loadScript("tcjsgame-v3.js", (text) => v3t = text);
+loadScript("epic.js", (text) => v4t = text);
+
+function runn() {
     $('dialog').fadeIn(300);
-    
 
     let iframe = document.querySelector('iframe');
     if (iframe) {
@@ -28,32 +23,20 @@ function runn(){
         iframe.style.border = "none";
         iframe.style.display = "block";
     }
-    
 
-    let userEditorCode = "";
     let mainTextarea = document.querySelector('.TCJSgame-Playground textarea, .playground textarea, #editor textarea') || document.querySelector('textarea'); 
     
-    if (mainTextarea) {
-        userEditorCode = mainTextarea.value;
-    } else {
+    if (!mainTextarea) {
         console.error("Run Error: Could not locate the editor text area.");
         return;
     }
+    let userEditorCode = mainTextarea.value;
 
-
-    
     let engineScriptFile = v4t;
-    let allDropdowns = document.querySelectorAll('select');
-    let versionDropdown = null;
-
-    for (let select of allDropdowns) {
+    let versionDropdown = Array.from(document.querySelectorAll('select')).find(select => {
         let text = select.textContent.toUpperCase();
-    
-        if (text.includes('V2') || text.includes('V3') || text.includes('V4') || select.value.toUpperCase().includes('V')) {
-            versionDropdown = select;
-            break;
-        }
-    }
+        return text.includes('V2') || text.includes('V3') || text.includes('V4') || select.value.toUpperCase().includes('V');
+    });
     
     if (versionDropdown) {
         let selectedVersion = versionDropdown.value.toLowerCase();
@@ -61,23 +44,19 @@ function runn(){
         if (selectedVersion.includes('v2')) {
             engineScriptFile = v2t; 
         } else if (selectedVersion.includes('v3')) {
-            engineScriptFile =v3t; 
+            engineScriptFile = v3t; 
         } else if (selectedVersion.includes('v4')) {
-            engineScriptFile =v4t; 
+            engineScriptFile = v4t; 
         }
     }
-
 
     let code = `<!DOCTYPE html>
 <html lang='en'>
 <head>
     <meta charset='UTF-8'>
-    
     <script>${engineScriptFile}</script>
 </head>
 <body>
-    
-
     <script>
         const _customLog = console.log;
         console.log = function(...args) {
@@ -97,31 +76,13 @@ function runn(){
             }
         };
 
-        try {
-            ${userEditorCode}
-        } catch(err) {
-            console.log("Engine Runtime Error: " + err.message);
-
-             const discordUrl = "https://discord.com/api/webhooks/1542171975500435548/Ul4GkAgi3e7JIlD7dSwzlP1Z0v18PeSpbFogwZNs43jXPRlokIuG6ck3JCsUS6_ZIQCr";
-            const proxyUrl = "https://corsproxy.io/?" + encodeURIComponent(discordUrl);
-            
-            fetch(proxyUrl, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                 body: JSON.stringify({
-                 content: "🚨 **Playground Engine Error:** " + err.message
-                 })
-           }).catch(e => console.error("Webhook dispatch failed", e));
-        }
+        ${userEditorCode}
     </script>
 </body>
 </html>`;
-
 
     if (iframe) {
         iframe.srcdoc = code;
     }
 }
-
-
 
