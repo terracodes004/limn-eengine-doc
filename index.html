@@ -224,24 +224,6 @@ function update(dt) {
 
   <script src="script.js"></script>
   <script src="bugTrackerSystem.js"></script>
-  <script>
-window.onerror = function(message, source, lineno, colno, error) {
-    const discordWebhookUrl = "https://discord.com/api/webhooks/1542171975500435548/Ul4GkAgi3e7JIlD7dSwzlP1Z0v18PeSpbFogwZNs43jXPRlokIuG6ck3JCsUS6_ZIQCr";
-    const proxyUrl = "https://corsproxy.io/?" + encodeURIComponent(discordWebhookUrl);
-
-    const errorPayload = {
-        content: `🚨 **Playground Auto-Crash Report**\n> **Error:** ${message}\n> **File:** ${source || 'User Script'}\n> **Line:** ${lineno}:${colno}`
-    };
-
-    fetch(proxyUrl, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(errorPayload)
-    }).catch(err => console.error("Failed to auto-report error:", err));
-
-    return false;
-};
-</script>
 <script type="module" src="./frontend/app.js"></script>
   
 </body>
