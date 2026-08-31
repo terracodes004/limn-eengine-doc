@@ -18,17 +18,21 @@ if (!localStorage.files || !localStorage.filename) {
 
 let np;
 let dbtn;
+let btn;
+
+// Helper to check if the user is signed up/logged in
+function checkAuth() {
+    return localStorage.getItem("isLoggedIn") === "true"; 
+}
 
 document.getElementById("js").addEventListener('keypress', (e) => {
     console.log(e.key);
     
     if (e.key === "(") {
         document.getElementById("js").setRangeText(')', document.getElementById("js").selectionStart, document.getElementById("js").selectionEnd);
-        console.log("hjdaa");
     }
     if (e.key === "<") {
         document.getElementById("js").setRangeText('>', document.getElementById("js").selectionStart, document.getElementById("js").selectionEnd);
-        console.log("hjhhhhhdaa");
     }
     if (e.key === "\"") {
         document.getElementById("js").setRangeText('\"', document.getElementById("js").selectionStart, document.getElementById("js").selectionEnd);
@@ -38,14 +42,12 @@ document.getElementById("js").addEventListener('keypress', (e) => {
     }
     if (e.key === "[") {
         document.getElementById("js").setRangeText(']', document.getElementById("js").selectionStart, document.getElementById("js").selectionEnd);
-        console.log("hjdaffgfa");
     }
     if (e.key === "{") {
         document.getElementById("js").setRangeText('\n  \n}', document.getElementById("js").selectionStart, document.getElementById("js").selectionEnd);
     }
 });
 
-let btn;
 filesName.forEach(e => {
     if (e) {
         np = document.createElement('p');
@@ -74,14 +76,19 @@ filesName.forEach(e => {
 });
 
 function saveAs() {
+    if (!checkAuth()) {
+        alert("⚠️ You must sign up or log in to save your files!");
+        window.location.href = "./signup/signup.html";
+        return;
+    }
+
     let name = prompt('Input file name');
     if (name === null || name.trim() === "" || name.split(",").length > 1) {
         alert("⚠️ Saved Unsuccessful");
     } else {
         document.querySelector('h5').innerText = name;
     
-        console.log(name);
-        files[name] = $('textarea').val();
+        files[name] = document.querySelector('textarea').value;
         filesName.push(name);
         localStorage.filename = filesName.toString();
         localStorage.files = JSON.stringify(files);
@@ -112,13 +119,18 @@ function saveAs() {
 }
 
 function save() {
+    if (!checkAuth()) {
+        alert("⚠️ You must sign up or log in to save your files!");
+        window.location.href = "./signup/frontend/index.html";
+        return;
+    }
+
     let currentFileName = document.querySelector('h5').innerText;
     if (currentFileName === "*Untitled*") {
         saveAs();
     } else {
         files[currentFileName] = document.querySelector('textarea').value;
         localStorage.files = JSON.stringify(files);
-        console.log("dj");
         alert("Saved Successfully");
     }
 }
@@ -127,18 +139,11 @@ function del(name, element) {
     let con = confirm("⚠️ Are you sure you want to delete this file?");
     if (con) {
         delete files[name];
-        delete filesName[filesName.indexOf(name)];
-        let nf = [];
-        filesName.forEach(e => {
-            if (e) {
-                nf.push(e);
-            }
-        });
-        filesName = nf;
+        filesName = filesName.filter(e => e !== name);
+        
         localStorage.filename = filesName.toString();
         localStorage.files = JSON.stringify(files);
         
-        console.log(element);
         element.remove();
         console.log("done");
     } else {
@@ -150,7 +155,6 @@ document.querySelector("textarea").addEventListener("keydown", (e) => {
     if (e.ctrlKey) {
         if (e.shiftKey) {
             if (e.key === "S" || e.key === "s") {
-                console.log("shv");
                 saveAs();
             }
         } else if (e.key === "s") {
@@ -173,5 +177,4 @@ function down(filename) {
     a.download = filename + ".js";
     a.click();
     URL.revokeObjectURL(url);
-          }
-                                                   
+}
