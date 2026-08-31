@@ -16,7 +16,7 @@
 
         const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        const redirectTarget = window.location.origin + '/';
+        const redirectTarget = window.location.origin + '/Signup%20page/frontend/index.html';
 
         const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
             if (event === 'SIGNED_IN' && session) {
@@ -34,4 +34,5 @@
         }, 5000);
     </script>
 </body>
-</html>
+    </html>
+    
