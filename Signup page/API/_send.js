@@ -1,18 +1,12 @@
-import nodemailer from 'nodemailer';
+import { Resend } from 'resend';
+
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function sendEmail(to, subject, htmlContent) {
-    const transporter = nodemailer.createTransport({
-        service: 'gmail',
-        auth: {
-            user: process.env.GMAIL_USER,
-            pass: process.env.GMAIL_APP_PASSWORD,
-        },
-    });
-
-    await transporter.sendMail({
-        from: process.env.GMAIL_USER,   
-        to: to,                         
-        subject: subject,
-        html: htmlContent,             
+    return await resend.emails.send({
+        from: 'Limn Engine <onboarding@resend.dev>',
+        to,
+        subject,
+        html: htmlContent,
     });
 }
