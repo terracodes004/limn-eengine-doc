@@ -1,10 +1,12 @@
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
 const SUPABASE_URL = 'https://pjtpesdhjfvcidfkxord.supabase.co';
-const SUPABASE_ANON_KEY = 'your-anon-key';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBqdHBlc2RoamZ2Y2lkZmt4b3JkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgxNDUyNDUsImV4cCI6MjEwMzcyMTI0NX0.110aDXEqJ4PxjKWNv1Z2YNR8frklg3WW1u0HePDoN38';
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 const messageEl = document.getElementById('message');
+
+const homeRedirect = window.location.origin + '/';
 
 async function checkUserRouting() {
     const { data: { session } } = await supabase.auth.getSession();
@@ -21,7 +23,7 @@ async function checkUserRouting() {
             .maybeSingle();
 
         if (userData && userData.subscribed) {
-            window.location.href = '../index.html';
+            window.location.href = homeRedirect;
             return;
         }
 
@@ -99,7 +101,7 @@ if (verifyPhoneBtn) {
         if (res.ok) {
             showMessage('🎉 Verified! Redirecting to home...', 'success');
             setTimeout(() => {
-                window.location.href = '../index.html';
+                window.location.href = homeRedirect;
             }, 1500);
         } else {
             showMessage('❌ ' + (data.error || 'Verification failed'), 'error');
@@ -112,5 +114,5 @@ function showMessage(text, type) {
         messageEl.textContent = text;
         messageEl.className = type;
     }
-    }
-            
+}
+
