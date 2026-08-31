@@ -20,7 +20,6 @@ let np;
 let dbtn;
 let btn;
 
-// Helper to check if the user is signed up/logged in
 function checkAuth() {
     return localStorage.getItem("isLoggedIn") === "true"; 
 }
@@ -78,7 +77,7 @@ filesName.forEach(e => {
 function saveAs() {
     if (!checkAuth()) {
         alert("⚠️ You must sign up or log in to save your files!");
-        window.location.href = "./Signup%20page/frontend/index.html";
+        window.location.href = "../Signup%20page/frontend/index.html";
         return;
     }
 
@@ -121,7 +120,7 @@ function saveAs() {
 function save() {
     if (!checkAuth()) {
         alert("⚠️ You must sign up or log in to save your files!");
-        window.location.href = "./Signup%20page/frontend/index.html";
+        window.location.href = "../Signup%20page/frontend/index.html";
         return;
     }
 
@@ -178,4 +177,4 @@ function down(filename) {
     a.click();
     URL.revokeObjectURL(url);
 }
-    
+
