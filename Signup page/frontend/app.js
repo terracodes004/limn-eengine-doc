@@ -28,14 +28,14 @@ async function checkUserRouting() {
         }
 
         const stepGoogle = document.getElementById('step-google');
-        const stepPhone = document.getElementById('step-phone');
+        const stepEmail = document.getElementById('step-email');
         if (stepGoogle) stepGoogle.classList.add('hidden');
-        if (stepPhone) stepPhone.classList.remove('hidden');
+        if (stepEmail) stepEmail.classList.remove('hidden');
     } else {
         const stepGoogle = document.getElementById('step-google');
-        const stepPhone = document.getElementById('step-phone');
+        const stepEmail = document.getElementById('step-email');
         if (stepGoogle) stepGoogle.classList.remove('hidden');
-        if (stepPhone) stepPhone.classList.add('hidden');
+        if (stepEmail) stepEmail.classList.add('hidden');
     }
 }
 
@@ -52,59 +52,55 @@ if (googleLoginBtn) {
     });
 }
 
-const sendOtpBtn = document.getElementById('send-otp-btn');
-if (sendOtpBtn) {
-    sendOtpBtn.addEventListener('click', async () => {
-        const phoneInput = document.getElementById('phone-input');
-        const phone = phoneInput ? phoneInput.value.trim() : '';
-        if (!phone) return showMessage('Enter a valid phone number', 'error');
+// Send OTP / Magic Link to Email
+const sendEmailBtn = document.getElementById('send-email-btn');
+if (sendEmailBtn) {
+    sendEmailBtn.addEventListener('click', async () => {
+        const emailInput = document.getElementById('email-input');
+        const email = emailInput ? emailInput.value.trim() : '';
+        if (!email) return showMessage('Enter a valid email address', 'error');
 
-        const { data: { session } } = await supabase.auth.getSession();
-        if (!session) return showMessage('Please login first', 'error');
-
-        const res = await fetch('/api/register-phone', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ phone, user_id: session.user.id })
+        const { error } = await supabase.auth.signInWithOtp({
+            email: email,
+            options: {
+                emailRedirectTo: window.location.origin + '/callback.html'
+            }
         });
-        const data = await res.json();
         
-        if (res.ok) {
-            showMessage('✅ OTP sent to your WhatsApp!', 'success');
+        if (!error) {
+            showMessage('✅ Verification code sent to your email!', 'success');
             const otpSection = document.getElementById('otp-section');
             if (otpSection) otpSection.classList.remove('hidden');
         } else {
-            showMessage('❌ ' + (data.error || 'Failed to send OTP'), 'error');
+            showMessage('❌ ' + error.message, 'error');
         }
     });
 }
 
-const verifyPhoneBtn = document.getElementById('verify-phone-btn');
-if (verifyPhoneBtn) {
-    verifyPhoneBtn.addEventListener('click', async () => {
-        const phoneInput = document.getElementById('phone-input');
+// Verify Email OTP Code
+const verifyEmailBtn = document.getElementById('verify-email-btn');
+if (verifyEmailBtn) {
+    verifyEmailBtn.addEventListener('click', async () => {
+        const emailInput = document.getElementById('email-input');
         const otpInput = document.getElementById('otp-input');
-        const phone = phoneInput ? phoneInput.value.trim() : '';
-        const code = otpInput ? otpInput.value.trim() : '';
-        if (!code || code.length !== 6) return showMessage('Enter a valid 6-digit code', 'error');
+        const email = emailInput ? emailInput.value.trim() : '';
+        const token = otpInput ? otpInput.value.trim() : '';
 
-        const { data: { session } } = await supabase.auth.getSession();
-        if (!session) return showMessage('Please login first', 'error');
+        if (!token) return showMessage('Enter the verification code', 'error');
 
-        const res = await fetch('/api/verify-phone', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ phone, code, user_id: session.user.id })
+        const { error } = await supabase.auth.verifyOtp({
+            email: email,
+            token: token,
+            type: 'email'
         });
-        const data = await res.json();
         
-        if (res.ok) {
-            showMessage('🎉 Verified! Redirecting to home...', 'success');
+        if (!error) {
+            showMessage('🎉 Email verified! Redirecting to home...', 'success');
             setTimeout(() => {
                 window.location.href = homeRedirect;
             }, 1500);
         } else {
-            showMessage('❌ ' + (data.error || 'Verification failed'), 'error');
+            showMessage('❌ ' + error.message, 'error');
         }
     });
 }
@@ -114,5 +110,5 @@ function showMessage(text, type) {
         messageEl.textContent = text;
         messageEl.className = type;
     }
-}
-
+                                                   }
+                                    
