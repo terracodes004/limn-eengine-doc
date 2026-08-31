@@ -104,7 +104,7 @@ let distanceTravelled = 0;
 let platforms     = [];  // array of Component refs
 let particles_ps;        // ParticleSystem
 let gameRunning   = false;
-
+particles_ps = new ParticleSystem(display);
 // ─────────────────────────────────────────────────────
 // FAKE CANVAS — static background (Commandment 14)
 // ─────────────────────────────────────────────────────
@@ -137,7 +137,7 @@ display.add(player, SCENE_GAME);
 // ─────────────────────────────────────────────────────
 // PARTICLE SYSTEM (Scene 1)
 // ─────────────────────────────────────────────────────
-particles_ps = new ParticleSystem(display);
+
 
 // ─────────────────────────────────────────────────────
 // UI — GAME SCENE (Commandment 10 & 11)
