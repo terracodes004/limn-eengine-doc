@@ -78,7 +78,7 @@ filesName.forEach(e => {
 function saveAs() {
     if (!checkAuth()) {
         alert("⚠️ You must sign up or log in to save your files!");
-        window.location.href = "./signup/signup.html";
+        window.location.href = "./Signup%20page/frontend/index.html";
         return;
     }
 
@@ -121,7 +121,7 @@ function saveAs() {
 function save() {
     if (!checkAuth()) {
         alert("⚠️ You must sign up or log in to save your files!");
-        window.location.href = "./signup/frontend/index.html";
+        window.location.href = "./Signup%20page/frontend/index.html";
         return;
     }
 
@@ -178,3 +178,4 @@ function down(filename) {
     a.click();
     URL.revokeObjectURL(url);
 }
+    
