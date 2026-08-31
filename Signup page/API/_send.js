@@ -1,19 +1,18 @@
-import axios from 'axios';
+import nodemailer from 'nodemailer';
 
-export async function sendWhatsAppMessage(phone, message) {
-    const token = process.env.WHATSAPP_TOKEN;
-    const phoneId = process.env.WHATSAPP_PHONE_ID;
-
-    await axios.post(
-        `https://graph.facebook.com/v18.0/${phoneId}/messages`,
-        {
-            messaging_product: 'whatsapp',
-            to: phone,
-            type: 'text',
-            text: { body: message }
+export async function sendEmail(to, subject, htmlContent) {
+    const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+            user: process.env.GMAIL_USER,
+            pass: process.env.GMAIL_APP_PASSWORD,
         },
-        {
-            headers: { Authorization: `Bearer ${token}` }
-        }
-    );
+    });
+
+    await transporter.sendMail({
+        from: process.env.GMAIL_USER,   
+        to: to,                         
+        subject: subject,
+        html: htmlContent,             
+    });
 }
