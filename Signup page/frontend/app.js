@@ -7,6 +7,7 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 const messageEl = document.getElementById('message');
 
 const homeRedirect = window.location.origin + '/';
+const callbackPath = window.location.origin + '/Signup page/frontend/callback.html';
 
 async function checkUserRouting() {
     const { data: { session } } = await supabase.auth.getSession();
@@ -46,13 +47,12 @@ if (googleLoginBtn) {
     googleLoginBtn.addEventListener('click', async () => {
         const { error } = await supabase.auth.signInWithOAuth({
             provider: 'google',
-            options: { redirectTo: window.location.origin + '/callback.html' }
+            options: { redirectTo: callbackPath }
         });
         if (error) showMessage(error.message, 'error');
     });
 }
 
-// Send OTP / Magic Link to Email
 const sendEmailBtn = document.getElementById('send-email-btn');
 if (sendEmailBtn) {
     sendEmailBtn.addEventListener('click', async () => {
@@ -63,7 +63,7 @@ if (sendEmailBtn) {
         const { error } = await supabase.auth.signInWithOtp({
             email: email,
             options: {
-                emailRedirectTo: window.location.origin + '/callback.html'
+                emailRedirectTo: callbackPath
             }
         });
         
@@ -77,7 +77,6 @@ if (sendEmailBtn) {
     });
 }
 
-// Verify Email OTP Code
 const verifyEmailBtn = document.getElementById('verify-email-btn');
 if (verifyEmailBtn) {
     verifyEmailBtn.addEventListener('click', async () => {
@@ -110,5 +109,5 @@ function showMessage(text, type) {
         messageEl.textContent = text;
         messageEl.className = type;
     }
-                                                   }
-                                    
+                }
+                
