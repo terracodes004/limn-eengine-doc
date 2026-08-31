@@ -12,23 +12,25 @@
         import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
         const SUPABASE_URL = 'https://pjtpesdhjfvcidfkxord.supabase.co';
-        const SUPABASE_ANON_KEY = 'your-anon-key';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBqdHBlc2RoamZ2Y2lkZmt4b3JkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgxNDUyNDUsImV4cCI6MjEwMzcyMTI0NX0.110aDXEqJ4PxjKWNv1Z2YNR8frklg3WW1u0HePDoN38';
 
         const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+        const redirectTarget = window.location.origin + '/';
+
         const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
             if (event === 'SIGNED_IN' && session) {
-                window.location.href = '../index.html';
+                window.location.href = redirectTarget;
             }
         });
 
         const { data: { session } } = await supabase.auth.getSession();
         if (session) {
-            window.location.href = '../index.html';
+            window.location.href = redirectTarget;
         }
 
         setTimeout(() => {
-            window.location.href = '../index.html?error=login_timeout';
+            window.location.href = redirectTarget + '?error=login_timeout';
         }, 5000);
     </script>
 </body>
