@@ -1,23 +1,33 @@
 import { supabaseAdmin } from './_db.js';
-import { sendWhatsAppMessage } from './_send.js';
+import { Resend } from 'resend';
+
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 export default async function handler(req, res) {
     const { data: users, error } = await supabaseAdmin
         .from('users')
-        .select('phone')
+        .select('email')
         .eq('subscribed', true);
 
     if (error) return res.status(500).json({ error: error.message });
 
-    const message = "🏆 *Limn Engine Monthly Digest:* Here are the top community creations and major feature updates for the month!";
+    const subject = 'Limn Engine Monthly Digest';
+    const htmlContent = '<p>🏆Here are the top community creations and major feature updates for this month!</p>';
 
     let successCount = 0;
     for (const user of users) {
+        if (!user.email) continue;
+
         try {
-            await sendWhatsAppMessage(user.phone, message);
+            await resend.emails.send({
+                from: 'Limn Engine <onboarding@resend.dev>',
+                to: user.email,
+                subject: subject,
+                html: htmlContent,
+            });
             successCount++;
         } catch (err) {
-            console.error(`Failed to send to ${user.phone}:`, err.message);
+            console.error(`Failed to send to ${user.email}:`, err.message);
         }
     }
 
