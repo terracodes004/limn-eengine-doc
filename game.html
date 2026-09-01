@@ -509,9 +509,13 @@ display.scene = SCENE_MENU;
 // ─────────────────────────────────────────────────────
 function update(dt) {
 
-  // ── PARTICLE SYSTEM ─────────────────────────────────
-  particles_ps.update();
-
+  //[ ── PARTICLE SYSTEM ─────────────────────────────────
+ try{
+  
+   particles_ps.update();
+ }catch{
+  //fufu
+ }
   // ── MENU SCENE ──────────────────────────────────────
   if (display.scene === SCENE_MENU) {
     // Animate title float
