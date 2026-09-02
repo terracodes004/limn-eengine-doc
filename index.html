@@ -80,7 +80,7 @@ window.addEventListener('appinstalled', () => {
 <body>
 
 <header>
-  <button class="btn-signin-ghost" onclick="window.location.href='/signup'">🔐 Sign In / Register</button>
+  <button class="btn-signin btn-signin-ghost" onclick="window.location.href='/signup'">🔐 Sign In / Register</button>
 
   <div id="user-banner" style="display: none;">
     <span>👤 Signed in as <strong id="persistent-name"></strong></span>
@@ -151,7 +151,6 @@ const player = new Component(50, 50, "red", 400, 300, "rect");
 display.add(player);
           
 function update(dt) {
-    // Game logic goes here — dt = deltaTime
     if (display.keys[39]) player.speedX =  4;
     if (display.keys[37]) player.speedX = -4;
     else player.speedX = 0;
@@ -225,8 +224,6 @@ function update(dt) {
 
   <script src="script.js"></script>
   <script src="bugTrackerSystem.js"></script>
-  <script type="module" src="./signup/frontend/app.js"></script>
-  
 </body>
   </html>
   
