@@ -5,7 +5,11 @@
       "destination": "/Signup page/frontend/callback.html"
     },
     {
-      "source": "/((?!api/|_next/|Signup%20page/|favicon.ico|.*\\.).*)",
+      "source": "/Signup%20page/frontend/:path*",
+      "destination": "/Signup page/frontend/:path*"
+    },
+    {
+      "source": "/((?!api/|_next/|favicon.ico|.*\\.).*)",
       "destination": "/index.html"
     }
   ],
@@ -20,3 +24,4 @@
     }
   ]
 }
+
