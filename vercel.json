@@ -1,0 +1,22 @@
+{
+  "rewrites": [
+    {
+      "source": "/callback",
+      "destination": "/Signup page/frontend/callback.html"
+    },
+    {
+      "source": "/((?!api/|_next/|Signup%20page/|Signup\\ page/|favicon.ico|.*\\.).*)",
+      "destination": "/index.html"
+    }
+  ],
+  "crons": [
+    {
+      "path": "/api/send-weekly",
+      "schedule": "0 9 * * 1"
+    },
+    {
+      "path": "/api/send-monthly",
+      "schedule": "0 10 1 * *"
+    }
+  ]
+}
