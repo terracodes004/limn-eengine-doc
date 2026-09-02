@@ -123,19 +123,19 @@
         <p>Draw your game into existence with live updates.</p>
 
         <div id="step-google">
-            <p>Sign in with Google to continue</p>
+            <p>Sign in with Google or Email to continue</p>
             <button id="google-login-btn" class="secondary-btn">🔐 Sign in with Google</button>
         </div>
 
-        <div id="step-phone" class="hidden">
-            <h3>📱 Verify your WhatsApp Number</h3>
-            <p>We'll send a 6-digit code to your WhatsApp.</p>
-            <input type="tel" id="phone-input" placeholder="e.g., 2348012345678" required>
-            <button id="send-otp-btn">Send OTP</button>
+        <div id="step-email" class="hidden">
+            <h3>📧 Verify your Email</h3>
+            <p>We'll send a verification code to your inbox.</p>
+            <input type="email" id="email-input" placeholder="e.g., user@example.com" required>
+            <button id="send-email-btn">Send Code</button>
             
             <div id="otp-section" class="hidden">
-                <input type="text" id="otp-input" placeholder="Enter 6-digit code" maxlength="6">
-                <button id="verify-phone-btn">Verify & Subscribe</button>
+                <input type="text" id="otp-input" placeholder="Enter verification code">
+                <button id="verify-email-btn">Verify & Subscribe</button>
             </div>
         </div>
 
@@ -149,6 +149,7 @@
             container.classList.toggle('zoomed');
         });
     </script>
-    <script type="module" src="app.js"></script>
+    <script type="module" src="./app.js"></script>
 </body>
-</html>
+    </html>
+    
