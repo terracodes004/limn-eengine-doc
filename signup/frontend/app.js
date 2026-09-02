@@ -6,8 +6,8 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 const messageEl = document.getElementById('message');
 
-const homeRedirect = window.location.origin + '/';
-const callbackPath = window.location.origin + '/callback';
+const homeRedirect = window.location.origin + '/index.html';
+const callbackPath = window.location.origin + '/signup/frontend/callback.html';
 
 async function checkUserRouting() {
     const { data: { session } } = await supabase.auth.getSession();
@@ -123,5 +123,4 @@ function showMessage(text, type) {
         messageEl.textContent = text;
         messageEl.className = type;
     }
-    }
-
+}
