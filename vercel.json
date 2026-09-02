@@ -1,6 +1,14 @@
 {
-  "cleanUrls": true,
-  "trailingSlash": false,
+  "rewrites": [
+    {
+      "source": "/callback",
+      "destination": "/signup/frontend/callback.html"
+    },
+    {
+      "source": "/signup",
+      "destination": "/signup/frontend/index.html"
+    }
+  ],
   "crons": [
     {
       "path": "/api/send-weekly",
@@ -12,4 +20,3 @@
     }
   ]
 }
-
