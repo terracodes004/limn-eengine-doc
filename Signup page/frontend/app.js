@@ -19,10 +19,16 @@ async function checkUserRouting() {
 
         const userBanner = document.getElementById('user-banner');
         const nameSpan = document.getElementById('persistent-name');
+        
         if (userBanner && nameSpan) {
             nameSpan.textContent = fullName;
             userBanner.innerHTML = `<span>👋 Welcome back, <strong>${fullName}</strong>!</span>`;
-            userBanner.style.display = 'block';
+            userBanner.style.display = 'inline-flex';
+        }
+
+        const signInBtn = document.querySelector('.btn-signin');
+        if (signInBtn) {
+            signInBtn.style.display = 'none';
         }
 
         const { data: userData } = await supabase
@@ -31,7 +37,7 @@ async function checkUserRouting() {
             .eq('id', session.user.id)
             .maybeSingle();
 
-        if (userData && userData.subscribed) {
+        if (userData && userData.subscribed && window.location.pathname !== '/' && window.location.pathname !== '/index.html') {
             window.location.href = homeRedirect;
             return;
         }
@@ -117,4 +123,5 @@ function showMessage(text, type) {
         messageEl.textContent = text;
         messageEl.className = type;
     }
-}
+    }
+
