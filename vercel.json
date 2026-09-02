@@ -1,12 +1,27 @@
 {
-  "rewrites": [
+  "version": 2,
+  "builds": [
     {
-      "source": "/signup",
-      "destination": "/signup/frontend/index.html"
+      "src": "api/**/*.js",
+      "use": "@vercel/node"
     },
     {
-      "source": "/callback",
-      "destination": "/signup/frontend/callback.html"
+      "src": "**/*.{html,css,js,png,jpg,jpeg,svg,json,txt}",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/signup",
+      "dest": "/signup/frontend/index.html"
+    },
+    {
+      "src": "/callback",
+      "dest": "/signup/frontend/callback.html"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/$1"
     }
   ],
   "crons": [
@@ -20,4 +35,3 @@
     }
   ]
 }
-
