@@ -1,12 +1,12 @@
 {
   "rewrites": [
     {
-      "source": "/callback",
-      "destination": "/signup/frontend/callback.html"
-    },
-    {
       "source": "/signup",
       "destination": "/signup/frontend/index.html"
+    },
+    {
+      "source": "/callback",
+      "destination": "/signup/frontend/callback.html"
     }
   ],
   "crons": [
@@ -20,3 +20,4 @@
     }
   ]
 }
+
