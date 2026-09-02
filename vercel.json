@@ -1,14 +1,6 @@
 {
-  "rewrites": [
-    {
-      "source": "/callback",
-      "destination": "/Signup page/frontend/callback.html"
-    },
-    {
-      "source": "/((?!api/|_next/|Signup%20page/|Signup\\ page/|favicon.ico|.*\\.).*)",
-      "destination": "/index.html"
-    }
-  ],
+  "cleanUrls": true,
+  "trailingSlash": false,
   "crons": [
     {
       "path": "/api/send-weekly",
@@ -20,3 +12,4 @@
     }
   ]
 }
+
