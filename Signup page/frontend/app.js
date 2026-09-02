@@ -14,8 +14,16 @@ async function checkUserRouting() {
     
     if (session) {
         const userMetadata = session.user.user_metadata;
-        const fullName = userMetadata?.full_name || userMetadata?.name || session.user.email;
+        const fullName = userMetadata?.full_name || userMetadata?.name || session.user.email.split('@')[0];
         console.log("Logged in user name:", fullName);
+
+        const userBanner = document.getElementById('user-banner');
+        const nameSpan = document.getElementById('persistent-name');
+        if (userBanner && nameSpan) {
+            nameSpan.textContent = fullName;
+            userBanner.innerHTML = `<span>👋 Welcome back, <strong>${fullName}</strong>!</span>`;
+            userBanner.style.display = 'block';
+        }
 
         const { data: userData } = await supabase
             .from('users')
