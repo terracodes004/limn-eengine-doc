@@ -1,9 +1,9 @@
 let files = {};
 let filesName = [];
 
-if (!localStorage.files || !localStorage.filename) {
-    localStorage.files = JSON.stringify({});
-    localStorage.filename = "";
+if (!localStorage.getItem("files") || !localStorage.getItem("filename")) {
+    localStorage.setItem("files", JSON.stringify({}));
+    localStorage.setItem("filename", "");
     files = {};
     filesName = [];
 } else {
@@ -13,7 +13,7 @@ if (!localStorage.files || !localStorage.filename) {
         files = {};
     }
     let rawNames = localStorage.getItem("filename");
-    filesName = rawNames ? rawNames.split(",") : [];
+    filesName = rawNames ? rawNames.split(",").filter(Boolean) : [];
 }
 
 let np;
@@ -24,95 +24,83 @@ function checkAuth() {
     return localStorage.getItem("isLoggedIn") === "true"; 
 }
 
-document.getElementById("js").addEventListener('keypress', (e) => {
-    console.log(e.key);
-    
-    if (e.key === "(") {
-        document.getElementById("js").setRangeText(')', document.getElementById("js").selectionStart, document.getElementById("js").selectionEnd);
-    }
-    if (e.key === "<") {
-        document.getElementById("js").setRangeText('>', document.getElementById("js").selectionStart, document.getElementById("js").selectionEnd);
-    }
-    if (e.key === "\"") {
-        document.getElementById("js").setRangeText('\"', document.getElementById("js").selectionStart, document.getElementById("js").selectionEnd);
-    }
-    if (e.key === "\'") {
-        document.getElementById("js").setRangeText('\'', document.getElementById("js").selectionStart, document.getElementById("js").selectionEnd);
-    }
-    if (e.key === "[") {
-        document.getElementById("js").setRangeText(']', document.getElementById("js").selectionStart, document.getElementById("js").selectionEnd);
-    }
-    if (e.key === "{") {
-        document.getElementById("js").setRangeText('\n  \n}', document.getElementById("js").selectionStart, document.getElementById("js").selectionEnd);
-    }
-});
+const editor = document.getElementById("js");
+if (editor) {
+    editor.addEventListener('keydown', (e) => {
+        const pairs = {
+            '(': ')',
+            '<': '>',
+            '"': '"',
+            "'": "'",
+            '[': ']'
+        };
+
+        if (pairs[e.key]) {
+            e.preventDefault();
+            const start = editor.selectionStart;
+            const end = editor.selectionEnd;
+            editor.setRangeText(pairs[e.key], start, end, 'preserve');
+        } else if (e.key === "{") {
+            e.preventDefault();
+            const start = editor.selectionStart;
+            const end = editor.selectionEnd;
+            editor.setRangeText('\n  \n}', start, end, 'preserve');
+        }
+    });
+}
 
 filesName.forEach(e => {
     if (e) {
-        np = document.createElement('p');
-        btn = document.createElement('button');
-        btn.innerHTML = e;
-        btn.addEventListener('click', () => {
-            document.querySelector('textarea').value = files[e];
-            document.querySelector('h5').innerText = e;
-        });
-        
-        dbtn = document.createElement('button');
-        dbtn.innerHTML = "⬇️";
-        dbtn.title = "Click to download";
-        dbtn.addEventListener("click", () => {
-            down(e);
-        });
-        
-        btn.addEventListener("dblclick", () => del(e, np));
-        btn.title = "Click to open. Double click to delete";
-        
-        np.appendChild(btn);
-        np.appendChild(dbtn);
-        
-        document.getElementById('file').appendChild(np);
+        createFileUI(e);
     }
 });
+
+function createFileUI(name) {
+    np = document.createElement('p');
+    btn = document.createElement('button');
+    btn.innerHTML = name;
+    btn.title = "Click to open. Double click to delete";
+    
+    btn.addEventListener('click', () => {
+        document.querySelector('textarea').value = files[name] || "";
+        document.querySelector('h5').innerText = name;
+    });
+    
+    btn.addEventListener("dblclick", () => del(name, np));
+
+    dbtn = document.createElement('button');
+    dbtn.innerHTML = "⬇️";
+    dbtn.title = "Click to download";
+    dbtn.addEventListener("click", () => down(name));
+
+    np.appendChild(btn);
+    np.appendChild(dbtn);
+    
+    document.getElementById('file').appendChild(np);
+}
 
 function saveAs() {
     if (!checkAuth()) {
         alert("⚠️ You must sign up or log in to save your files!");
-        window.location.href = "../Signup%20page/frontend/index.html";
+        window.location.href = "/signup/frontend/index.html";
         return;
     }
 
     let name = prompt('Input file name');
-    if (name === null || name.trim() === "" || name.split(",").length > 1) {
-        alert("⚠️ Saved Unsuccessful");
+    if (name === null || name.trim() === "" || name.includes(",")) {
+        alert("⚠️ Save Unsuccessful (Invalid name or contains commas)");
     } else {
         document.querySelector('h5').innerText = name;
     
         files[name] = document.querySelector('textarea').value;
-        filesName.push(name);
-        localStorage.filename = filesName.toString();
-        localStorage.files = JSON.stringify(files);
+        if (!filesName.includes(name)) {
+            filesName.push(name);
+        }
         
-        np = document.createElement('p');
-        btn = document.createElement('button');
-        dbtn = document.createElement('button');
-        dbtn.innerHTML = "⬇️";
-        dbtn.title = "Click to download";
-        dbtn.addEventListener("click", () => {
-            down(name);
-        });
+        localStorage.setItem("filename", filesName.join(","));
+        localStorage.setItem("files", JSON.stringify(files));
         
-        btn.innerHTML = name;
-        btn.addEventListener('click', () => {
-            document.querySelector('textarea').value = files[name];
-            document.querySelector('h5').innerText = name;
-        });
-        btn.addEventListener("dblclick", () => del(name, np));
-        btn.title = "Click to open. Double click to delete";
-
-        np.appendChild(btn);
-        np.appendChild(dbtn);
-
-        document.getElementById('file').appendChild(np);
+        createFileUI(name);
         alert("Saved Successfully ✅");
     }
 }
@@ -120,17 +108,17 @@ function saveAs() {
 function save() {
     if (!checkAuth()) {
         alert("⚠️ You must sign up or log in to save your files!");
-        window.location.href = "../Signup%20page/frontend/index.html";
+        window.location.href = "/signup/frontend/index.html";
         return;
     }
 
     let currentFileName = document.querySelector('h5').innerText;
-    if (currentFileName === "*Untitled*") {
+    if (currentFileName === "*Untitled*" || !currentFileName) {
         saveAs();
     } else {
         files[currentFileName] = document.querySelector('textarea').value;
-        localStorage.files = JSON.stringify(files);
-        alert("Saved Successfully");
+        localStorage.setItem("files", JSON.stringify(files));
+        alert("Saved Successfully ✅");
     }
 }
 
@@ -140,11 +128,11 @@ function del(name, element) {
         delete files[name];
         filesName = filesName.filter(e => e !== name);
         
-        localStorage.filename = filesName.toString();
-        localStorage.files = JSON.stringify(files);
+        localStorage.setItem("filename", filesName.join(","));
+        localStorage.setItem("files", JSON.stringify(files));
         
         element.remove();
-        console.log("done");
+        console.log("File deleted");
     } else {
         alert("File is still available ✅😁");
     }
@@ -152,29 +140,23 @@ function del(name, element) {
 
 document.querySelector("textarea").addEventListener("keydown", (e) => {
     if (e.ctrlKey) {
-        if (e.shiftKey) {
-            if (e.key === "S" || e.key === "s") {
-                saveAs();
-            }
-        } else if (e.key === "s") {
+        if (e.shiftKey && (e.key === "S" || e.key === "s")) {
+            e.preventDefault();
+            saveAs();
+        } else if (e.key === "s" || e.key === "S") {
+            e.preventDefault();
             save();
         }
     }
 });
 
-let data;
-let blob;
-let url;
-let a;
-
 function down(filename) {
-    data = document.querySelector("textarea").value;
-    blob = new Blob([data], { type: "text/plain" });
-    url = URL.createObjectURL(blob);
-    a = document.createElement("a");
+    const data = document.querySelector("textarea").value;
+    const blob = new Blob([data], { type: "text/javascript" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
     a.href = url;
-    a.download = filename + ".js";
+    a.download = filename.endsWith('.js') ? filename : filename + ".js";
     a.click();
     URL.revokeObjectURL(url);
 }
-
