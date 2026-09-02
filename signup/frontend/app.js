@@ -7,7 +7,7 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 const messageEl = document.getElementById('message');
 
 const homeRedirect = window.location.origin + '/index.html';
-const callbackPath = window.location.origin + '/signup/frontend/callback.html';
+const callbackPath = window.location.origin + '/callback';
 
 async function checkUserRouting() {
     const { data: { session } } = await supabase.auth.getSession();
@@ -123,4 +123,4 @@ function showMessage(text, type) {
         messageEl.textContent = text;
         messageEl.className = type;
     }
-}
+            }
