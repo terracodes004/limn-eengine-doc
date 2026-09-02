@@ -5,8 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Limn Engine — Home</title>
 
-<meta name="google-site-verification" content="zy67PhdUeTdSQ8CcFQk5W9DMabkATflpiCMPWjKaUYc" />
-
 <link rel="stylesheet" href="style.css">
 <link rel="manifest" href="manifest.json">
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-K5KW1W2ZXR"></script>
@@ -82,6 +80,9 @@ window.addEventListener('appinstalled', () => {
 <body>
 
 <header>
+  <!-- Top-Right Sign In Ghost Button -->
+  <a href="signup/frontend/index.html" class="btn-signin-ghost">🔐 Sign In / Register</a>
+
   <div id="user-banner" style="display: none;">
     <span>👤 Signed in as <strong id="persistent-name"></strong></span>
   </div> 
@@ -90,7 +91,6 @@ window.addEventListener('appinstalled', () => {
     <h1>Limn Engine</h1>
     <center><p class="hero-text">A zero-config 2D game engine for the browser. One file. No npm. Just creativity.</p></center>
     <div class="con-btns">
-      <a href="signup/frontend/index.html" class="btn-signin" style="display: inline-flex !important; visibility: visible !important; opacity: 1 !important;">🔐 Sign In / Register</a>
       <a href="tutorial.html" class="btn-secondary">Learn the Engine →</a>
       <a href="asset/epic.js" download class="btn-primary">⬇ Download epic.js</a>
       <a href="editor/" class="btn-secondary">🚀 Playground Code Editor</a>
