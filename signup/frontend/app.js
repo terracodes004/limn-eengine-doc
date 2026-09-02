@@ -123,4 +123,5 @@ function showMessage(text, type) {
         messageEl.textContent = text;
         messageEl.className = type;
     }
-            }
+    }
+    
