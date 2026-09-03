@@ -93,14 +93,7 @@ header{
 }
 .btn-secondary:hover{ border-color: var(--accent2); color: var(--accent2); }
 
-nav{
-  background: var(--bg);
-  border-bottom: 1px solid var(--border);
-  position: sticky;
-  top: 0;
-  z-index: 1000;
-  width: 100%;
-}
+
 nav ul{
   list-style: none;
   display: flex;
@@ -692,4 +685,11 @@ article{
   border: 2px solid rgba(255,255,255,0.25);
 }
 .btn-secondary:hover{ border-color: var(--accent2); color: var(--accent2); transform: translateY(-2px); }
-  
+  nav{
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  width: 100%;
+}
