@@ -7,7 +7,7 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 const messageEl = document.getElementById('message');
 
 const homeRedirect = window.location.origin + '/index.html';
-const callbackPath = window.location.origin + '/callback';
+const callbackPath = window.location.origin + '/signup/frontend/callback.html';
 
 function showMessage(text, type = 'error') {
     if (messageEl) {
@@ -123,4 +123,4 @@ if (verifyEmailBtn) {
             showMessage('❌ ' + error.message, 'error');
         }
     });
-}
+            }
