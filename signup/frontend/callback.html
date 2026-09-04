@@ -15,23 +15,43 @@
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBqdHBlc2RoamZ2Y2lkZmt4b3JkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgxNDUyNDUsImV4cCI6MjEwMzcyMTI0NX0.110aDXEqJ4PxjKWNv1Z2YNR8frklg3WW1u0HePDoN38';
 
         const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
         const redirectTarget = window.location.origin + '/index.html';
 
-        const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-            if (event === 'SIGNED_IN' && session) {
-                window.location.href = redirectTarget;
-            }
-        });
+        async function handleLogin() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const code = urlParams.get('code');
 
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session) {
-            window.location.href = redirectTarget;
+            // 1. If there's a PKCE code from Google, explicitly trade it for a session
+            if (code) {
+                const { error } = await supabase.auth.exchangeCodeForSession(code);
+                if (error) {
+                    console.error("Exchange error:", error.message);
+                    window.location.href = redirectTarget + '?error=' + encodeURIComponent(error.message);
+                    return;
+                }
+            }
+
+            // 2. Listen for auth state changes as a backup
+            supabase.auth.onAuthStateChange((event, session) => {
+                if (event === 'SIGNED_IN' && session) {
+                    window.location.href = redirectTarget;
+                }
+            });
+
+            // 3. Check if session already exists
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session) {
+                window.location.href = redirectTarget;
+                return;
+            }
+
+            // 4. Fallback timeout if something stalls
+            setTimeout(() => {
+                window.location.href = redirectTarget + '?error=login_timeout';
+            }, 5000);
         }
 
-        setTimeout(() => {
-            window.location.href = redirectTarget + '?error=login_timeout';
-        }, 5000);
+        handleLogin();
     </script>
 </body>
 </html>
