@@ -42,7 +42,8 @@ async function checkUserRouting() {
             .eq('id', session.user.id)
             .maybeSingle();
 
-        if (userData && userData.subscribed && window.location.pathname !== '/' && window.location.pathname !== '/index.html') {
+        const currentPath = window.location.pathname;
+        if (userData && userData.subscribed && currentPath !== '/' && currentPath !== '/index.html' && currentPath !== '') {
             window.location.href = homeRedirect;
             return;
         }
@@ -74,7 +75,7 @@ if (googleLoginBtn) {
         }
     });
 } else {
-    showMessage('⚠️ Error: Google button ID not found in HTML!', 'error');
+    console.warn('⚠️ Google button ID not found in HTML.');
 }
 
 const sendEmailBtn = document.getElementById('send-email-btn');
