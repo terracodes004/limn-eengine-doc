@@ -3,10 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <title>Logging you in...</title>
+    <style>
+        body { font-family: system-ui, sans-serif; text-align: center; padding-top: 50px; background: #0f172a; color: #f8fafc; }
+        .box { max-width: 400px; margin: 0 auto; padding: 20px; background: #1e293b; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
+        p { color: #94a3b8; }
+    </style>
 </head>
 <body>
-    <h2>⏳ Logging you in...</h2>
-    <p>Please wait while we complete your authentication...</p>
+    <div class="box">
+        <h2>⏳ Logging you in...</h2>
+        <p id="status-text">Please wait while we complete your authentication...</p>
+    </div>
 
     <script type="module">
         import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
@@ -14,30 +21,57 @@
         const SUPABASE_URL = 'https://pjtpesdhjfvcidfkxord.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBqdHBlc2RoamZ2Y2lkZmt4b3JkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgxNDUyNDUsImV4cCI6MjEwMzcyMTI0NX0.110aDXEqJ4PxjKWNv1Z2YNR8frklg3WW1u0HePDoN38';
 
-        const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+            auth: {
+                persistSession: true,
+                autoRefreshToken: true,
+                detectSessionInUrl: true
+            }
+        });
+
         const redirectTarget = window.location.origin + '/index.html';
+        const statusEl = document.getElementById('status-text');
 
         async function handleOAuthCallback() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const code = urlParams.get('code');
+            try {
+                // 1. Check for PKCE code parameter
+                const urlParams = new URLSearchParams(window.location.search);
+                const code = urlParams.get('code');
 
-            if (code) {
-                const { error } = await supabase.auth.exchangeCodeForSession(code);
-                if (error) {
-                    console.error("Code exchange error:", error.message);
-                    window.location.href = redirectTarget + '?error=' + encodeURIComponent(error.message);
-                    return;
+                if (code) {
+                    statusEl.textContent = "Exchanging security code...";
+                    const { error } = await supabase.auth.exchangeCodeForSession(code);
+                    if (error) throw error;
                 }
-            }
 
-            const { data: { session } } = await supabase.auth.getSession();
-            
-            if (session) {
-                window.location.href = redirectTarget;
-            } else {
+                // 2. Double check if session exists (handles hash tokens or auto-detection)
+                let { data: { session }, error: sessionError } = await supabase.auth.getSession();
+                
+                if (sessionError) throw sessionError;
+
+                if (session) {
+                    statusEl.textContent = "Success! Redirecting to app...";
+                    // Give storage a split second to commit tokens securely
+                    setTimeout(() => {
+                        window.location.replace(redirectTarget);
+                    }, 500);
+                } else {
+                    // Give it one more fallback check in case auto-detection is still processing
+                    setTimeout(async () => {
+                        const { data: { session: retrySession } } = await supabase.auth.getSession();
+                        if (retrySession) {
+                            window.location.replace(redirectTarget);
+                        } else {
+                            throw new Error("No active session found after callback.");
+                        }
+                    }, 1500);
+                }
+            } catch (err) {
+                console.error("Auth callback error:", err.message);
+                statusEl.textContent = "❌ Login failed: " + err.message;
                 setTimeout(() => {
-                    window.location.href = redirectTarget + '?error=login_failed';
-                }, 2000);
+                    window.location.href = redirectTarget + '?error=' + encodeURIComponent(err.message);
+                }, 3000);
             }
         }
 
