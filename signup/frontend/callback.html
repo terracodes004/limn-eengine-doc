@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -49,26 +48,18 @@
                 if (sessionError) throw sessionError;
 
                 if (session) {
-                    statusEl.textContent = "Success! Redirecting to app...";
+                    localStorage.setItem('supabase_test', 'working');
+                    
+                    statusEl.textContent = "Success! Saving session...";
                     setTimeout(() => {
                         window.location.replace(redirectTarget);
-                    }, 500);
+                    }, 1000);
                 } else {
-                    setTimeout(async () => {
-                        const { data: { session: retrySession } } = await supabase.auth.getSession();
-                        if (retrySession) {
-                            window.location.replace(redirectTarget);
-                        } else {
-                            throw new Error("No active session found after callback.");
-                        }
-                    }, 1500);
+                    throw new Error("Session object was empty after exchange.");
                 }
             } catch (err) {
                 console.error("Auth callback error:", err.message);
-                statusEl.textContent = "❌ Login failed: " + err.message;
-                setTimeout(() => {
-                    window.location.href = redirectTarget + '?error=' + encodeURIComponent(err.message);
-                }, 3000);
+                statusEl.textContent = "❌ Error: " + err.message;
             }
         }
 
