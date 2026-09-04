@@ -9,13 +9,20 @@ const messageEl = document.getElementById('message');
 const homeRedirect = window.location.origin + '/index.html';
 const callbackPath = window.location.origin + '/callback';
 
+function showMessage(text, type = 'error') {
+    if (messageEl) {
+        messageEl.textContent = text;
+        messageEl.className = type;
+        messageEl.style.display = 'block';
+    }
+}
+
 async function checkUserRouting() {
-    const { data: { session } } = await supabase.auth.getSession();
+    const { data: { session }, error } = await supabase.auth.getSession();
     
     if (session) {
         const userMetadata = session.user.user_metadata;
         const fullName = userMetadata?.full_name || userMetadata?.name || session.user.email.split('@')[0];
-        console.log("Logged in user name:", fullName);
 
         const userBanner = document.getElementById('user-banner');
         const nameSpan = document.getElementById('persistent-name');
@@ -27,9 +34,7 @@ async function checkUserRouting() {
         }
 
         const signInBtn = document.querySelector('.btn-signin');
-        if (signInBtn) {
-            signInBtn.style.display = 'none';
-        }
+        if (signInBtn) signInBtn.style.display = 'none';
 
         const { data: userData } = await supabase
             .from('users')
@@ -59,12 +64,17 @@ checkUserRouting();
 const googleLoginBtn = document.getElementById('google-login-btn');
 if (googleLoginBtn) {
     googleLoginBtn.addEventListener('click', async () => {
+        showMessage('⏳ Connecting to Google...', 'success');
         const { error } = await supabase.auth.signInWithOAuth({
             provider: 'google',
             options: { redirectTo: callbackPath }
         });
-        if (error) showMessage(error.message, 'error');
+        if (error) {
+            showMessage('❌ OAuth Error: ' + error.message, 'error');
+        }
     });
+} else {
+    showMessage('⚠️ Error: Google button ID not found in HTML!', 'error');
 }
 
 const sendEmailBtn = document.getElementById('send-email-btn');
@@ -76,9 +86,7 @@ if (sendEmailBtn) {
 
         const { error } = await supabase.auth.signInWithOtp({
             email: email,
-            options: {
-                emailRedirectTo: callbackPath
-            }
+            options: { emailRedirectTo: callbackPath }
         });
         
         if (!error) {
@@ -108,20 +116,10 @@ if (verifyEmailBtn) {
         });
         
         if (!error) {
-            showMessage('🎉 Email verified! Redirecting to home...', 'success');
-            setTimeout(() => {
-                window.location.href = homeRedirect;
-            }, 1500);
+            showMessage('🎉 Email verified! Redirecting...', 'success');
+            setTimeout(() => { window.location.href = homeRedirect; }, 1500);
         } else {
             showMessage('❌ ' + error.message, 'error');
         }
     });
 }
-
-function showMessage(text, type) {
-    if (messageEl) {
-        messageEl.textContent = text;
-        messageEl.className = type;
-    }
-    }
-    
