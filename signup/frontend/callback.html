@@ -3,17 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <title>Logging you in...</title>
-    <style>
-        body { font-family: system-ui, sans-serif; text-align: center; padding-top: 50px; background: #0f172a; color: #f8fafc; }
-        .box { max-width: 400px; margin: 0 auto; padding: 20px; background: #1e293b; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
-        p { color: #94a3b8; }
-    </style>
 </head>
 <body>
-    <div class="box">
-        <h2>⏳ Logging you in...</h2>
-        <p id="status-text">Please wait while we complete your authentication...</p>
-    </div>
+    <h2>⏳ Logging you in...</h2>
+    <p>Please wait, you will be redirected shortly.</p>
 
     <script type="module">
         import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
@@ -21,49 +14,24 @@
         const SUPABASE_URL = 'https://pjtpesdhjfvcidfkxord.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBqdHBlc2RoamZ2Y2lkZmt4b3JkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgxNDUyNDUsImV4cCI6MjEwMzcyMTI0NX0.110aDXEqJ4PxjKWNv1Z2YNR8frklg3WW1u0HePDoN38';
 
-        const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-            auth: {
-                persistSession: true,
-                autoRefreshToken: true,
-                detectSessionInUrl: true
+        const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        const redirectTarget = window.location.origin + '/index.html';
+
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+            if (event === 'SIGNED_IN' && session) {
+                window.location.href = redirectTarget;
             }
         });
 
-        const redirectTarget = window.location.origin + '/index.html';
-        const statusEl = document.getElementById('status-text');
-
-        async function handleOAuthCallback() {
-            try {
-                const urlParams = new URLSearchParams(window.location.search);
-                const code = urlParams.get('code');
-
-                if (code) {
-                    statusEl.textContent = "Exchanging security code...";
-                    const { error } = await supabase.auth.exchangeCodeForSession(code);
-                    if (error) throw error;
-                }
-
-                let { data: { session }, error: sessionError } = await supabase.auth.getSession();
-                
-                if (sessionError) throw sessionError;
-
-                if (session) {
-                    localStorage.setItem('supabase_test', 'working');
-                    
-                    statusEl.textContent = "Success! Saving session...";
-                    setTimeout(() => {
-                        window.location.replace(redirectTarget);
-                    }, 1000);
-                } else {
-                    throw new Error("Session object was empty after exchange.");
-                }
-            } catch (err) {
-                console.error("Auth callback error:", err.message);
-                statusEl.textContent = "❌ Error: " + err.message;
-            }
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session) {
+            window.location.href = redirectTarget;
         }
 
-        handleOAuthCallback();
+        setTimeout(() => {
+            window.location.href = redirectTarget + '?error=login_timeout';
+        }, 5000);
     </script>
 </body>
 </html>
