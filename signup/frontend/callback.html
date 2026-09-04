@@ -6,7 +6,7 @@
 </head>
 <body>
     <h2>⏳ Logging you in...</h2>
-    <p>Please wait, you will be redirected shortly.</p>
+    <p>Please wait while we complete your authentication...</p>
 
     <script type="module">
         import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
@@ -16,39 +16,32 @@
 
         const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         const redirectTarget = window.location.origin + '/index.html';
-        supabase.auth.onAuthStateChange((event, session) => {
-            if (event === 'SIGNED_IN' && session) {
-                window.location.href = redirectTarget;
-            }
-        });
 
-        async function handleCallback() {
-            // Check if a session already exists upon loading this callback page
-            const { data: { session }, error } = await supabase.auth.getSession();
+        async function handleOAuthCallback() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const code = urlParams.get('code');
+
+            if (code) {
+                const { error } = await supabase.auth.exchangeCodeForSession(code);
+                if (error) {
+                    console.error("Code exchange error:", error.message);
+                    window.location.href = redirectTarget + '?error=' + encodeURIComponent(error.message);
+                    return;
+                }
+            }
+
+            const { data: { session } } = await supabase.auth.getSession();
             
             if (session) {
                 window.location.href = redirectTarget;
-                return;
-            }
-
-            if (error) {
-                console.error("Auth session error:", error.message);
+            } else {
+                setTimeout(() => {
+                    window.location.href = redirectTarget + '?error=login_failed';
+                }, 2000);
             }
         }
 
-        handleCallback();
-
-        
-        setTimeout(() => {
-        
-            supabase.auth.getSession().then(({ data: { session } }) => {
-                if (session) {
-                    window.location.href = redirectTarget;
-                } else {
-                    window.location.href = redirectTarget + '?error=login_timeout';
-                }
-            });
-        }, 8000);
+        handleOAuthCallback();
     </script>
 </body>
 </html>
