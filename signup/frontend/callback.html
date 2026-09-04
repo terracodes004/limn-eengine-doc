@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -34,7 +35,6 @@
 
         async function handleOAuthCallback() {
             try {
-                // 1. Check for PKCE code parameter
                 const urlParams = new URLSearchParams(window.location.search);
                 const code = urlParams.get('code');
 
@@ -44,19 +44,16 @@
                     if (error) throw error;
                 }
 
-                // 2. Double check if session exists (handles hash tokens or auto-detection)
                 let { data: { session }, error: sessionError } = await supabase.auth.getSession();
                 
                 if (sessionError) throw sessionError;
 
                 if (session) {
                     statusEl.textContent = "Success! Redirecting to app...";
-                    // Give storage a split second to commit tokens securely
                     setTimeout(() => {
                         window.location.replace(redirectTarget);
                     }, 500);
                 } else {
-                    // Give it one more fallback check in case auto-detection is still processing
                     setTimeout(async () => {
                         const { data: { session: retrySession } } = await supabase.auth.getSession();
                         if (retrySession) {
