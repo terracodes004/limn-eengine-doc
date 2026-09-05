@@ -31,6 +31,7 @@ if (dropdownToggle && dropdownMenu) {
 if (logoutBtn) {
     logoutBtn.addEventListener('click', async () => {
         await supabase.auth.signOut();
+        localStorage.clear();
         window.location.href = homeRedirect;
     });
 }
@@ -56,9 +57,21 @@ async function checkUserRouting() {
 
     if (session) {
         const userMetadata = session.user.user_metadata;
-        const fullName = userMetadata?.full_name || userMetadata?.name || session.user.email.split('@')[0];
         const userEmail = session.user.email;
-        const userAvatarUrl = userMetadata?.avatar_url || userMetadata?.picture || 'img/logo.png';
+        
+        let fullName = userMetadata?.full_name || userMetadata?.name || session.user.email.split('@')[0];
+        let userAvatarUrl = userMetadata?.avatar_url || userMetadata?.picture || 'img/logo.png';
+
+        const { data: userData } = await supabase
+            .from('users')
+            .select('name, avatar_url, subscribed')
+            .eq('id', session.user.id)
+            .maybeSingle();
+
+        if (userData) {
+            if (userData.name) fullName = userData.name;
+            if (userData.avatar_url) userAvatarUrl = userData.avatar_url;
+        }
 
         if (userBanner) {
             userBanner.innerHTML = `<span>👋 Welcome back, <strong id="persistent-name">${fullName}</strong>!</span>`;
@@ -73,12 +86,6 @@ async function checkUserRouting() {
 
         const avatarImg = document.getElementById('user-avatar');
         if (avatarImg) avatarImg.src = userAvatarUrl;
-
-        const { data: userData } = await supabase
-            .from('users')
-            .select('subscribed')
-            .eq('id', session.user.id)
-            .maybeSingle();
 
         const currentPath = window.location.pathname;
         if (userData && userData.subscribed && currentPath !== '/' && currentPath !== '/index.html' && currentPath !== '') {
@@ -164,4 +171,4 @@ if (verifyEmailBtn) {
         }
     });
     }
-
+                                            
