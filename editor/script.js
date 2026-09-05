@@ -12,39 +12,41 @@ let dbtn;
 let btn;
 
 async function checkAuth() {
-    let { data: { session } } = await supabase.auth.getSession();
-    if (!session) {
-        await new Promise(resolve => setTimeout(resolve, 300));
-        const retryResult = await supabase.auth.getSession();
-        session = retryResult.data.session;
+    try {
+        let { data: { session }, error } = await supabase.auth.getSession();
+        if (!session) {
+            await new Promise(resolve => setTimeout(resolve, 300));
+            const retryResult = await supabase.auth.getSession();
+            session = retryResult.data.session;
+        }
+        return session;
+    } catch (err) {
+        console.error("Auth check failed:", err);
+        return null;
     }
-    return session;
 }
 
 async function loadUserData() {
     const session = await checkAuth();
     if (session) {
-        const userId = session.user.id;
-        const { data, error } = await supabase
-            .from('user_documents')
-            .select('files, filenames')
-            .eq('user_id', userId)
-            .maybeSingle();
+        try {
+            const userId = session.user.id;
+            const { data, error } = await supabase
+                .from('user_documents')
+                .select('files, filenames')
+                .eq('user_id', userId)
+                .maybeSingle();
 
-        if (data) {
-            files = data.files || {};
-            filesName = data.filenames || [];
-            
-            const fileContainer = document.getElementById('file');
-            if (fileContainer) fileContainer.innerHTML = '';
-            
-            filesName.forEach(e => {
-                if (e) {
-                    createFileUI(e);
-                }
-            });
+            if (data) {
+                files = data.files || {};
+                filesName = data.filenames || [];
+            }
+        } catch (err) {
+            console.error("Cloud load failed, falling back to local storage:", err);
         }
-    } else {
+    }
+
+    if (!filesName || filesName.length === 0) {
         if (!localStorage.getItem("files") || !localStorage.getItem("filename")) {
             localStorage.setItem("files", JSON.stringify({}));
             localStorage.setItem("filename", "");
@@ -59,13 +61,16 @@ async function loadUserData() {
             let rawNames = localStorage.getItem("filename");
             filesName = rawNames ? rawNames.split(",").filter(Boolean) : [];
         }
-
-        filesName.forEach(e => {
-            if (e) {
-                createFileUI(e);
-            }
-        });
     }
+
+    const fileContainer = document.getElementById('file');
+    if (fileContainer) fileContainer.innerHTML = '';
+
+    filesName.forEach(e => {
+        if (e) {
+            createFileUI(e);
+        }
+    });
 }
 
 loadUserData();
@@ -102,8 +107,10 @@ function createFileUI(name) {
     btn.title = "Click to open. Double click to delete";
     
     btn.addEventListener('click', () => {
-        document.querySelector('textarea').value = files[name] || "";
-        document.querySelector('h5').innerText = name;
+        const textarea = document.querySelector('textarea');
+        const h5 = document.querySelector('h5');
+        if (textarea) textarea.value = files[name] || "";
+        if (h5) h5.innerText = name;
     });
     
     btn.addEventListener("dblclick", () => del(name, np));
@@ -116,25 +123,29 @@ function createFileUI(name) {
     np.appendChild(btn);
     np.appendChild(dbtn);
     
-    document.getElementById('file').appendChild(np);
+    const fileListEl = document.getElementById('file');
+    if (fileListEl) fileListEl.appendChild(np);
 }
 
 async function persistData() {
     const session = await checkAuth();
     if (session) {
-        await supabase.from('user_documents').upsert({
-            user_id: session.user.id,
-            files: files,
-            filenames: filesName,
-            updated_at: new Date()
-        }, { onConflict: 'user_id' });
-    } else {
-        localStorage.setItem("filename", filesName.join(","));
-        localStorage.setItem("files", JSON.stringify(files));
+        try {
+            await supabase.from('user_documents').upsert({
+                user_id: session.user.id,
+                files: files,
+                filenames: filesName,
+                updated_at: new Date()
+            }, { onConflict: 'user_id' });
+        } catch (err) {
+            console.error("Cloud sync failed, saving locally:", err);
+        }
     }
+    localStorage.setItem("filename", filesName.join(","));
+    localStorage.setItem("files", JSON.stringify(files));
 }
 
-async function saveAs() {
+window.saveAs = async function() {
     const session = await checkAuth();
     if (!session) {
         alert("⚠️ You must sign up or log in to save your files!");
@@ -145,21 +156,27 @@ async function saveAs() {
     let name = prompt('Input file name');
     if (name === null || name.trim() === "" || name.includes(",")) {
         alert("⚠️ Save Unsuccessful (Invalid name or contains commas)");
-    } else {
-        document.querySelector('h5').innerText = name;
-    
-        files[name] = document.querySelector('textarea').value;
-        if (!filesName.includes(name)) {
-            filesName.push(name);
-        }
-        
-        await persistData();
-        createFileUI(name);
-        alert("Saved Successfully ✅");
+        return;
     }
-}
 
-async function save() {
+    const h5 = document.querySelector('h5');
+    const textarea = document.querySelector('textarea');
+    
+    if (h5) h5.innerText = name;
+    if (textarea) {
+        files[name] = textarea.value;
+    }
+
+    if (!filesName.includes(name)) {
+        filesName.push(name);
+    }
+    
+    await persistData();
+    createFileUI(name);
+    alert("Saved Successfully ✅");
+};
+
+window.save = async function() {
     const session = await checkAuth();
     if (!session) {
         alert("⚠️ You must sign up or log in to save your files!");
@@ -167,15 +184,20 @@ async function save() {
         return;
     }
 
-    let currentFileName = document.querySelector('h5').innerText;
+    const h5 = document.querySelector('h5');
+    const textarea = document.querySelector('textarea');
+    let currentFileName = h5 ? h5.innerText : "*Untitled*";
+
     if (currentFileName === "*Untitled*" || !currentFileName) {
-        saveAs();
+        window.saveAs();
     } else {
-        files[currentFileName] = document.querySelector('textarea').value;
+        if (textarea) {
+            files[currentFileName] = textarea.value;
+        }
         await persistData();
         alert("Saved Successfully ✅");
     }
-}
+};
 
 async function del(name, element) {
     let con = confirm("⚠️ Are you sure you want to delete this file?");
@@ -192,20 +214,24 @@ async function del(name, element) {
     }
 }
 
-document.querySelector("textarea").addEventListener("keydown", (e) => {
-    if (e.ctrlKey) {
-        if (e.shiftKey && (e.key === "S" || e.key === "s")) {
-            e.preventDefault();
-            saveAs();
-        } else if (e.key === "s" || e.key === "S") {
-            e.preventDefault();
-            save();
+const textareaEl = document.querySelector("textarea");
+if (textareaEl) {
+    textareaEl.addEventListener("keydown", (e) => {
+        if (e.ctrlKey) {
+            if (e.shiftKey && (e.key === "S" || e.key === "s")) {
+                e.preventDefault();
+                window.saveAs();
+            } else if (e.key === "s" || e.key === "S") {
+                e.preventDefault();
+                window.save();
+            }
         }
-    }
-});
+    });
+}
 
-function down(filename) {
-    const data = document.querySelector("textarea").value;
+window.down = function(filename) {
+    const textarea = document.querySelector("textarea");
+    const data = textarea ? textarea.value : "";
     const blob = new Blob([data], { type: "text/javascript" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -213,4 +239,5 @@ function down(filename) {
     a.download = filename.endsWith('.js') ? filename : filename + ".js";
     a.click();
     URL.revokeObjectURL(url);
-}
+};
+            
