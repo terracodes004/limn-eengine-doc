@@ -88,38 +88,23 @@
 
       emailInput.value = user.email || '';
 
-      const localName = localStorage.getItem('limn_username');
-      const localAvatar = localStorage.getItem('limn_avatar');
-      const localSubscribed = localStorage.getItem('limn_subscribed');
-
-      if (localName) nameInput.value = localName;
-      if (localAvatar) {
-        avatarInput.value = localAvatar;
-        avatarPreview.src = localAvatar;
-      }
-      if (localSubscribed !== null) {
-        subscribedInput.checked = localSubscribed === 'true';
-      }
+      nameInput.value = '';
+      avatarInput.value = '';
+      avatarPreview.src = 'https://via.placeholder.com/50';
+      subscribedInput.checked = false;
 
       const { data, error } = await supabase
         .from('users')
         .select('name, subscribed, avatar_url')
         .eq('id', user.id)
-        .single();
+        .maybeSingle();
 
       if (data) {
-        if (data.name) {
-          nameInput.value = data.name;
-          localStorage.setItem('limn_username', data.name);
-        }
-        if (data.subscribed !== undefined) {
-          subscribedInput.checked = data.subscribed;
-          localStorage.setItem('limn_subscribed', data.subscribed);
-        }
+        if (data.name) nameInput.value = data.name;
+        if (data.subscribed !== undefined) subscribedInput.checked = data.subscribed;
         if (data.avatar_url) {
           avatarInput.value = data.avatar_url;
           avatarPreview.src = data.avatar_url;
-          localStorage.setItem('limn_avatar', data.avatar_url);
         }
       }
     }
@@ -133,10 +118,6 @@
       const newName = nameInput.value.trim();
       const newAvatarUrl = avatarInput.value.trim();
       const isSubscribed = subscribedInput.checked;
-
-      localStorage.setItem('limn_username', newName);
-      localStorage.setItem('limn_avatar', newAvatarUrl);
-      localStorage.setItem('limn_subscribed', isSubscribed);
 
       try {
         const { data: { user } } = await supabase.auth.getUser();
@@ -162,5 +143,5 @@
     fetchUserData();
   </script>
 </body>
-</html>
-            
+          </html>
+          
