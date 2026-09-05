@@ -168,7 +168,15 @@ header {
   z-index: 100;
 }
 
-/* Neon Green Dropdown Styling */
+.user-avatar, 
+header img.avatar, 
+#user-avatar-btn img {
+  border: 2px solid var(--accent2);
+  box-shadow: 0 0 10px rgba(127, 255, 178, 0.4);
+  border-radius: 50%;
+  object-fit: cover;
+}
+
 #dropdown-menu {
   background: var(--surface);
   border: 1.5px solid var(--accent2);
