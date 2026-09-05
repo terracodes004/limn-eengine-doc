@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>✨ Your Sweet Inbox — Limn Engine</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body style="background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; padding: 40px 20px;">
+
+  <div style="max-width: 720px; margin: 0 auto;">
+    
+    <!-- Cute Header Section -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 35px; border-bottom: 1.5px solid var(--border); padding-bottom: 20px;">
+      <div>
+        <h1 style="font-size: 2.2rem; font-weight: 800; color: #ffffff; letter-spacing: -1px; display: flex; align-items: center; gap: 10px;">
+          💌 Your Inbox
+        </h1>
+        <p style="color: var(--muted); font-size: 0.95rem; margin-top: 4px;">Catch up on all the latest updates and community creations!</p>
+      </div>
+      <a href="index.html" class="btn-secondary" style="padding: 10px 20px; font-size: 13px; text-decoration: none; border-radius: 8px;">← Home</a>
+    </div>
+
+    <!-- Notifications Container -->
+    <div id="notifications-list" style="display: flex; flex-direction: column; gap: 18px;">
+      <div style="background: var(--surface); border: 1.5px solid var(--accent2); border-radius: 14px; padding: 30px; text-align: center; box-shadow: 0 0 20px rgba(127, 255, 178, 0.15);">
+        <p style="color: var(--accent2); font-weight: 600; font-size: 1rem;">✨ Loading your lovely messages...</p>
+      </div>
+    </div>
+
+  </div>
+
+  <script type="module" src="inbox.js"></script>
+</body>
+</html>
