@@ -14,6 +14,10 @@ export default async function handler(req, res) {
     const subject = 'Limn Engine Monthly Digest';
     const htmlContent = '<p>🏆Here are the top community creations and major feature updates for this month!</p>';
 
+    await supabaseAdmin
+        .from('notifications')
+        .insert([{ title: subject, content: htmlContent }]);
+
     let successCount = 0;
     for (const user of users) {
         if (!user.email) continue;
@@ -33,3 +37,4 @@ export default async function handler(req, res) {
 
     return res.status(200).json({ success: true, sent: successCount });
 }
+
