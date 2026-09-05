@@ -27,15 +27,14 @@ async function checkUserRouting() {
     }
 
     const userBanner = document.getElementById('user-banner');
-    const nameSpan = document.getElementById('persistent-name');
     const signInBtn = document.querySelector('.btn-signin-ghost');
 
     if (session) {
         const userMetadata = session.user.user_metadata;
         const fullName = userMetadata?.full_name || userMetadata?.name || session.user.email.split('@')[0];
 
-        if (userBanner && nameSpan) {
-            nameSpan.textContent = fullName;
+        if (userBanner) {
+            userBanner.innerHTML = `<span>👋 Welcome back, <strong id="persistent-name">${fullName}</strong>!</span>`;
             userBanner.style.display = 'inline-flex';
         }
 
