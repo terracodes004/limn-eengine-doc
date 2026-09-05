@@ -1,4 +1,4 @@
-const CACHE_NAME = 'limn-engine-v9';
+const CACHE_NAME = 'limn-engine-v10';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -17,6 +17,8 @@ const ASSETS_TO_CACHE = [
   './test11.html',
   './test15.html',
   './10x.html',
+  './inbox.html',
+  './settings.html',
   './epic.js',
   './script.js',
   './bugTrackerSystem.js',
@@ -59,9 +61,23 @@ self.addEventListener('activate', (e) => {
 });
 
 self.addEventListener('fetch', (e) => {
+  if (e.request.method !== 'GET') return;
+
   e.respondWith(
     caches.match(e.request).then((cachedResponse) => {
-      return cachedResponse || fetch(e.request).catch(() => {
+      const fetchPromise = fetch(e.request).then((networkResponse) => {
+        if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
+          const responseClone = networkResponse.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(e.request, responseClone);
+          });
+        }
+        return networkResponse;
+      }).catch(() => {
+        return cachedResponse;
+      });
+
+      return cachedResponse || fetchPromise.catch(() => {
         if (e.request.mode === 'navigate') {
           return caches.match('./index.html') || caches.match('./');
         }
@@ -69,4 +85,3 @@ self.addEventListener('fetch', (e) => {
     })
   );
 });
-        
