@@ -4,7 +4,6 @@ import { Resend } from 'resend';
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 export default async function handler(req, res) {
-    // Fetch email addresses of all subscribed users
     const { data: users, error } = await supabaseAdmin
         .from('users')
         .select('email')
@@ -14,6 +13,10 @@ export default async function handler(req, res) {
 
     const subject = 'Limn Engine Weekly Update';
     const htmlContent = '<p>Check out what\'s new in game creation this week!</p>';
+
+    await supabaseAdmin
+        .from('notifications')
+        .insert([{ title: subject, content: htmlContent }]);
 
     let successCount = 0;
     for (const user of users) {
@@ -33,4 +36,5 @@ export default async function handler(req, res) {
     }
 
     return res.status(200).json({ success: true, sent: successCount });
-}
+        }
+    
