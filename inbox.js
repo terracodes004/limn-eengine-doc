@@ -12,13 +12,18 @@ async function loadInbox() {
   let notifications = [];
 
   try {
-    const { data, error } = await supabase
-      .from('notifications')
-      .select('*')
-      .order('created_at', { ascending: false });
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    
+    if (!userError && user) {
+      const { data, error } = await supabase
+        .from('user_documents')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
 
-    if (!error && data && data.length > 0) {
-      notifications = data;
+      if (!error && data && data.length > 0) {
+        notifications = data;
+      }
     }
   } catch (err) {
     console.log('Using local fallback inbox');
@@ -119,4 +124,3 @@ async function loadInbox() {
 }
 
 loadInbox();
-      
