@@ -1,4 +1,4 @@
-const CACHE_NAME = 'limn-engine-v12';
+const CACHE_NAME = 'limn-engine-v14';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
