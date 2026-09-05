@@ -165,6 +165,39 @@ header {
   box-shadow: 0 4px 15px rgba(255, 255, 255, 0.1);
 }
 
+#user-banner {
+  position: absolute;
+  top: 24px;
+  right: 32px;
+  z-index: 100;
+  background: rgba(5, 8, 61, 0.75);
+  color: var(--accent2) !important;
+  border: 1.5px solid var(--accent2);
+  padding: 10px 20px;
+  border-radius: 100px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  text-decoration: none !important;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 0 20px rgba(127, 255, 178, 0.25), inset 0 0 10px rgba(127, 255, 178, 0.1);
+  transition: all 0.25s ease;
+}
+
+#user-banner:hover {
+  box-shadow: 0 0 25px rgba(127, 255, 178, 0.4), inset 0 0 15px rgba(127, 255, 178, 0.2);
+  transform: translateY(-2px);
+}
+
+#user-banner strong {
+  color: #ffffff;
+  font-weight: 700;
+}
+
 #installAppBtn {
   background: transparent;
   color: var(--accent2);
@@ -468,7 +501,8 @@ footer {
     padding: 80px 16px 40px 16px;
   }
 
-  .btn-signin-ghost {
+  .btn-signin-ghost,
+  #user-banner {
     top: 12px;
     right: 12px;
     padding: 6px 12px;
