@@ -44,6 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   codeBlocks.forEach((pre) => {
     pre.style.position = 'relative';
+    pre.style.overflowX = 'auto'; // Fixes horizontal scrollbar for long code lines
 
     const copyBtn = document.createElement('button');
     copyBtn.className = 'copy-code-btn';
@@ -61,11 +62,24 @@ document.addEventListener('DOMContentLoaded', () => {
       fontSize: '11px',
       fontFamily: "'Space Mono', monospace",
       cursor: 'pointer',
-      transition: 'all 0.2s ease'
+      transition: 'all 0.2s ease',
+      zIndex: '10'
     });
 
     copyBtn.addEventListener('click', async () => {
-      const codeText = pre.querySelector('code')?.innerText || pre.innerText;
+      let codeText = '';
+      const codeElement = pre.querySelector('code');
+      
+      if (codeElement) {
+        codeText = codeElement.innerText;
+      } else {
+        // Clone element and strip the button text so it isn't copied into clipboard
+        const clone = pre.cloneNode(true);
+        const btnClone = clone.querySelector('.copy-code-btn');
+        if (btnClone) btnClone.remove();
+        codeText = clone.innerText;
+      }
+
       try {
         await navigator.clipboard.writeText(codeText);
         copyBtn.innerText = '✅ Copied!';
@@ -83,7 +97,6 @@ document.addEventListener('DOMContentLoaded', () => {
     pre.appendChild(copyBtn);
   });
 });
-
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', async () => {
@@ -115,5 +128,5 @@ if ('serviceWorker' in navigator) {
       window.location.reload();
     }
   });  
- }
-        
+      }
+                              
