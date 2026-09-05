@@ -79,6 +79,8 @@ window.addEventListener('appinstalled', () => {
 <body>
 
 <header>
+  <div id="admin-container" style="position: absolute; top: 20px; right: 280px; z-index: 10;"></div>
+  
   <div id="auth-container" style="position: absolute; top: 20px; right: 20px; z-index: 10;">
     <div id="auth-buttons">
       <button class="btn-signin btn-signin-ghost" onclick="window.location.href='/signup'">🔐 Sign In / Register</button>
@@ -269,8 +271,59 @@ function update(dt) {
       if (nameEl) nameEl.textContent = savedName;
     }
   });
+
+  const ADMIN_EMAILS = [
+      "Kehindeowolabi004@gmail.com",
+      "evolvedtech004@gmail.com",
+      "desiregeorge434@gmail.com"
+  ];
+
+  async function checkAndRenderAdminButton() {
+      const userEmail = localStorage.getItem('limn_user_email');
+      
+      if (userEmail && ADMIN_EMAILS.includes(userEmail)) {
+          const container = document.getElementById("admin-container");
+          if (container) {
+              container.innerHTML = `
+                  <button onclick="window.triggerChangelog()" style="
+                      background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+                      color: white;
+                      border: none;
+                      padding: 8px 14px;
+                      border-radius: 6px;
+                      font-family: inherit;
+                      font-size: 13px;
+                      font-weight: 600;
+                      cursor: pointer;
+                      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+                      transition: all 0.2s ease;
+                  " onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">
+                      🚀 Generate Changelog
+                  </button>
+              `;
+          }
+      }
+  }
+
+  window.triggerChangelog = async function() {
+      if (!confirm("Do you want to fetch the latest GitHub commits and generate the changelog?")) return;
+
+      alert("🔍 Fetching commits and generating AI changelog...");
+
+      try {
+          const { data, error } = await supabase.functions.invoke('generate-changelog');
+          if (error) throw error;
+
+          alert("🎉 Changelog generated and saved to database successfully!");
+          console.log("Changelog:", data.changelog);
+      } catch (err) {
+          console.error("Error triggering function:", err);
+          alert("⚠️ Failed to generate changelog: " + err.message);
+      }
+  };
+
+  window.addEventListener('DOMContentLoaded', checkAndRenderAdminButton);
 </script>
 <script src="script.js" defer></script>
 </body>
-  </html>
-  
+</html>
