@@ -44,8 +44,9 @@
                     <li><button onclick="$('.file').fadeIn(500)">Open</button></li>
                     <li><button id="run" onclick="runn()">Run</button></li>
                     <li><button onclick="save()">Save</button></li>
-                    <li><a href="/reference.html"><button>Doc</button></a></li>
                     <li><button onclick="saveAs()">Save As</button></li>
+                    <li><button onclick="shareProject()" style="background: #2563eb; color: white;">🔗 Share</button></li>
+                    <li><a href="/reference.html"><button>Doc</button></a></li>
                 </ul>
             </nav>
             <h5 id="title">*Untitled*</h5>
@@ -87,12 +88,12 @@
                 <select id="version">
                     <option value="v2">Limn Version 2</option>
                     <option value="v3">Limn Version 3</option>
-                    <option value="v4" selected>LIMN V4</option>
+                    <option value="v4" selected>Limn <b>Epic</b> V4</option>
                 </select>
 
                 <textarea id="js" wrap="off">
 const display = new Display();
-display.perform();           // dual-canvas ON
+display.perform();           
 display.start(800, 600);
 display.backgroundColor("#0a0a0a");
 display.camera.worldWidth  = 2000;
@@ -104,11 +105,11 @@ fake.canvas.width = 2000
 fake.canvas.height =2000
 TCJSgameGameArea.width = 2000
 TCJSgameGameArea.height =2000
-// ── FAKE CANVAS — static world ──
+
 fake.tile = [
-    new Component(64, 64, "#1a3a1a", 0, 0), // grass
-    new Component(64, 64, "#2244aa", 0, 0), // water
-    new Component(64, 64, "#555",    0, 0), // stone
+    new Component(64, 64, "#1a3a1a", 0, 0), 
+    new Component(64, 64, "#2244aa", 0, 0), 
+    new Component(64, 64, "#555",    0, 0), 
 ];
 fake.map = [
     [1,1,1,2,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
@@ -119,7 +120,6 @@ fake.map = [
 fake.tileMap();
 fake.tileFace.show();
 
-// ── DISPLAY CANVAS — dynamic objects ──
 const player = new Component(36, 36, "blue", 400, 200, "rect");
 display.add(player);
 
@@ -134,22 +134,18 @@ const SPEED = 220;
 function update(dt) {
     ps.update();
 
-    // deltaTime movement
     player.speedX = 0; player.speedY = 0;
     if (display.keys[87]) player.speedY = -SPEED * dt;
     if (display.keys[83]) player.speedY =  SPEED * dt;
     if (display.keys[65]) player.speedX = -SPEED * dt;
     if (display.keys[68]) player.speedX =  SPEED * dt;
 
-    // Trail
     move.particles.sparkle(ps, player.x+18, player.y+18);
 
-    // Camera
     display.camera.follow(player);
-    fake.camera.x = display.camera.x;  // sync!
+    fake.camera.x = display.camera.x;  
     fake.camera.y = display.camera.y;
 
-    // HUD stays fixed
     hud.setText("X:" + Math.floor(player.x) + " Y:" + Math.floor(player.y));
     hud.fixed();
 }
@@ -174,4 +170,5 @@ function update(dt) {
     </script>
     <script type="module" src="script.js"></script>
 </body>
-</html>
+    </html>
+        
