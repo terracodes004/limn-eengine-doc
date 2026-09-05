@@ -12,7 +12,6 @@
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
-
   gtag('config', 'G-K5KW1W2ZXR');
 </script>
 <meta name="description" content="Limn Engine — A lightweight, high-performance 2D HTML5 Canvas game engine framework featuring an automated dual-canvas baking system, advanced physics, kinematic projectiles, multi-channel sound cloning, and built-in particle systems for rapid indie web game development.">
@@ -80,7 +79,37 @@ window.addEventListener('appinstalled', () => {
 <body>
 
 <header>
-  <button class="btn-signin btn-signin-ghost" onclick="window.location.href='/signup'">🔐 Sign In / Register</button>
+  <div id="auth-container" style="position: absolute; top: 20px; right: 20px; z-index: 10;">
+    <div id="auth-buttons">
+      <button class="btn-signin btn-signin-ghost" onclick="window.location.href='/signup'">🔐 Sign In / Register</button>
+    </div>
+
+    <div id="user-dropdown" style="display: none; position: relative;">
+      <button id="dropdown-toggle" style="background: none; border: none; cursor: pointer; display: flex; align-items: center; padding: 0;">
+        <img id="user-avatar" src="img/logo.png" alt="Avatar" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid #3b82f6;" />
+      </button>
+      
+      <div id="dropdown-menu" class="hidden" style="position: absolute; right: 0; top: 120%; width: 220px; background-color: #0f172a; border: 1px solid #1e293b; border-radius: 8px; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5); z-index: 100; text-align: left;">
+        <div style="padding: 12px 16px; border-bottom: 1px solid #1e293b; background: #020617; border-top-left-radius: 8px; border-top-right-radius: 8px;">
+          <p style="font-size: 10px; color: #94a3b8; margin: 0; text-transform: uppercase; letter-spacing: 0.5px;">Signed in as</p>
+          <p id="user-email-display" style="font-size: 13px; font-weight: 600; color: #f8fafc; margin: 2px 0 0 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"></p>
+        </div>
+
+        <div style="padding: 6px 0;">
+          <a href="/dashboard" class="dropdown-item">Dashboard Home</a>
+          <a href="/inbox" class="dropdown-item" style="display: flex; justify-content: space-between; align-items: center;">
+            <span>Inbox</span>
+            <span id="inbox-badge" style="background: #3b82f6; color: white; font-size: 10px; font-weight: bold; padding: 2px 6px; border-radius: 10px; display: none;">New</span>
+          </a>
+          <a href="/settings" class="dropdown-item">Settings</a>
+        </div>
+
+        <div style="border-top: 1px solid #1e293b; margin: 4px 0;"></div>
+        
+        <button id="logout-btn" class="dropdown-item" style="color: #ef4444; font-weight: 500; background: none; border: none; width: 100%; text-align: left; cursor: pointer;">Log Out</button>
+      </div>
+    </div>
+  </div>
 
   <div id="user-banner" style="display: none;">
     <span>👤 Signed in as <strong id="persistent-name"></strong></span>
@@ -145,7 +174,7 @@ window.addEventListener('appinstalled', () => {
 &lt;script src="epic.js"&gt;&lt;/script&gt;
 &lt;script&gt;
 const display = new Display();
-display.perform(); // dual-canvas pipeline ON
+display.perform(); 
 display.start(800, 600);
 const player = new Component(50, 50, "red", 400, 300, "rect");          
 display.add(player);
@@ -224,8 +253,7 @@ function update(dt) {
 </footer>
 
 <script type="module" src="signup/frontend/app.js"></script>
-  
-  <script src="bugTrackerSystem.js"></script>
+<script src="bugTrackerSystem.js"></script>
 </body>
   </html>
   
