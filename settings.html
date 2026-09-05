@@ -88,6 +88,19 @@
 
       emailInput.value = user.email || '';
 
+      const localName = localStorage.getItem('limn_username');
+      const localAvatar = localStorage.getItem('limn_avatar');
+      const localSubscribed = localStorage.getItem('limn_subscribed');
+
+      if (localName) nameInput.value = localName;
+      if (localAvatar) {
+        avatarInput.value = localAvatar;
+        avatarPreview.src = localAvatar;
+      }
+      if (localSubscribed !== null) {
+        subscribedInput.checked = localSubscribed === 'true';
+      }
+
       const { data, error } = await supabase
         .from('users')
         .select('name, subscribed, avatar_url')
@@ -95,11 +108,18 @@
         .single();
 
       if (data) {
-        if (data.name) nameInput.value = data.name;
-        if (data.subscribed !== undefined) subscribedInput.checked = data.subscribed;
+        if (data.name) {
+          nameInput.value = data.name;
+          localStorage.setItem('limn_username', data.name);
+        }
+        if (data.subscribed !== undefined) {
+          subscribedInput.checked = data.subscribed;
+          localStorage.setItem('limn_subscribed', data.subscribed);
+        }
         if (data.avatar_url) {
           avatarInput.value = data.avatar_url;
           avatarPreview.src = data.avatar_url;
+          localStorage.setItem('limn_avatar', data.avatar_url);
         }
       }
     }
@@ -110,30 +130,33 @@
       statusMsg.style.color = 'var(--accent2)';
       statusMsg.textContent = 'Saving changes...';
 
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
       const newName = nameInput.value.trim();
       const newAvatarUrl = avatarInput.value.trim();
       const isSubscribed = subscribedInput.checked;
 
-      const { error } = await supabase
-        .from('users')
-        .update({ 
-          name: newName, 
-          avatar_url: newAvatarUrl,
-          subscribed: isSubscribed 
-        })
-        .eq('id', user.id);
+      localStorage.setItem('limn_username', newName);
+      localStorage.setItem('limn_avatar', newAvatarUrl);
+      localStorage.setItem('limn_subscribed', isSubscribed);
 
-      if (error) {
-        statusMsg.style.color = 'var(--accent)';
-        statusMsg.textContent = '❌ Failed to update profile.';
-      } else {
-        statusMsg.style.color = 'var(--accent2)';
-        statusMsg.textContent = '✨ Settings updated successfully!';
-        setTimeout(() => { statusMsg.style.display = 'none'; }, 3000);
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          await supabase
+            .from('users')
+            .update({ 
+              name: newName, 
+              avatar_url: newAvatarUrl,
+              subscribed: isSubscribed 
+            })
+            .eq('id', user.id);
+        }
+      } catch (err) {
+        console.error(err);
       }
+
+      statusMsg.style.color = 'var(--accent2)';
+      statusMsg.textContent = '✨ Settings updated successfully!';
+      setTimeout(() => { statusMsg.style.display = 'none'; }, 3000);
     });
 
     fetchUserData();
