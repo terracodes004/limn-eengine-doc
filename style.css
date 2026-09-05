@@ -138,10 +138,6 @@ header {
 }
 
 .btn-signin-ghost {
-  position: absolute;
-  top: 16px;
-  right: 16px;
-  z-index: 100;
   background: rgba(255, 255, 255, 0.08);
   color: #ffffff !important;
   border: 1px solid rgba(255, 255, 255, 0.3);
@@ -163,6 +159,35 @@ header {
   border-color: rgba(255, 255, 255, 0.7);
   transform: translateY(-2px);
   box-shadow: 0 4px 15px rgba(255, 255, 255, 0.1);
+}
+
+#auth-container {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 100;
+}
+
+.dropdown-item {
+  display: block;
+  width: 100%;
+  padding: 10px 16px;
+  color: #cbd5e1;
+  background: none;
+  border: none;
+  font-size: 14px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.dropdown-item:hover {
+  background-color: #1e293b;
+  color: #ffffff;
+}
+
+.hidden {
+  display: none !important;
 }
 
 #user-banner {
@@ -502,7 +527,8 @@ footer {
   }
 
   .btn-signin-ghost,
-  #user-banner {
+  #user-banner,
+  #auth-container {
     top: 12px;
     right: 12px;
     padding: 6px 12px;
@@ -555,4 +581,5 @@ footer {
     width: 100% !important;
     padding: 16px !important;
   }
-}
+  }
+  
