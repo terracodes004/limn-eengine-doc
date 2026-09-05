@@ -164,5 +164,4 @@ if (verifyEmailBtn) {
             showMessage('❌ ' + error.message, 'error');
         }
     });
-                                             }
-    
+}
