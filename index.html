@@ -257,7 +257,7 @@ function update(dt) {
 <script type="module" src="signup/frontend/app.js"></script>
 <script src="bugTrackerSystem.js"></script>
 <script>
-  window.addEventListener('DOMContentLoaded', () => {
+window.addEventListener('DOMContentLoaded', () => {
     const savedAvatar = localStorage.getItem('limn_avatar');
     const savedName = localStorage.getItem('limn_username');
 
@@ -270,59 +270,60 @@ function update(dt) {
       const nameEl = document.getElementById('persistent-name');
       if (nameEl) nameEl.textContent = savedName;
     }
-  });
+});
 
-  const ADMIN_EMAILS = [
-      "Kehindeowolabi004@gmail.com",
-      "evolvedtech004@gmail.com",
-      "desiregeorge434@gmail.com"
-  ];
+const ADMIN_EMAILS = [
+    "Kehindeowolabi004@gmail.com",
+    "evolvedtech004@gmail.com",
+    "desiregeorge434@gmail.com"
+];
 
-  async function checkAndRenderAdminButton() {
-      const userEmail = localStorage.getItem('limn_user_email');
-      
-      if (userEmail && ADMIN_EMAILS.includes(userEmail)) {
-          const container = document.getElementById("admin-container");
-          if (container) {
-              container.innerHTML = `
-                  <button onclick="window.triggerChangelog()" style="
-                      background: linear-gradient(135deg, #3b82f6, #1d4ed8);
-                      color: white;
-                      border: none;
-                      padding: 8px 14px;
-                      border-radius: 6px;
-                      font-family: inherit;
-                      font-size: 13px;
-                      font-weight: 600;
-                      cursor: pointer;
-                      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
-                      transition: all 0.2s ease;
-                  " onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">
-                      🚀 Generate Changelog
-                  </button>
-              `;
-          }
-      }
-  }
+async function checkAndRenderAdminButton() {
+    const userEmail = localStorage.getItem('limn_user_email');
+    
+    if (userEmail && ADMIN_EMAILS.includes(userEmail)) {
+        const container = document.getElementById("admin-container");
+        if (container) {
+            container.innerHTML = `
+                <button onclick="window.triggerChangelog()" style="
+                    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+                    color: white;
+                    border: none;
+                    padding: 8px 14px;
+                    border-radius: 6px;
+                    font-family: inherit;
+                    font-size: 13px;
+                    font-weight: 600;
+                    cursor: pointer;
+                    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+                    transition: all 0.2s ease;
+                " onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">
+                    🚀 Generate Changelog
+                </button>
+            `;
+        }
+    }
+}
 
-  window.triggerChangelog = async function() {
-      if (!confirm("Do you want to fetch the latest GitHub commits and generate the changelog?")) return;
+window.triggerChangelog = async function() {
+    if (!confirm("Do you want to fetch the latest GitHub commits and generate the changelog?")) return;
 
-      alert("🔍 Fetching commits and generating AI changelog...");
+    alert("🔍 Fetching commits and generating AI changelog...");
 
-      try {
-          const { data, error } = await supabase.functions.invoke('generate-changelog');
-          if (error) throw error;
+    try {
+        const { data, error } = await supabase.functions.invoke('generate-changelog');
+        if (error) throw error;
 
-          alert("🎉 Changelog generated and saved to database successfully!");
-          console.log("Changelog:", data.changelog);
-      } catch (err) {
-          console.error("Error triggering function:", err);
-          alert("⚠️ Failed to generate changelog: " + err.message);
-      }
-  };
+        alert("🎉 Changelog generated and saved to database successfully!");
+        console.log("Changelog:", data.changelog);
+    } catch (err) {
+        console.error("Error triggering function:", err);
+        alert("⚠️ Failed to generate changelog: " + err.message);
+    }
+};
 
-  window.addEventListener('DOMContentLoaded', checkAndRenderAdminButton);
+window.addEventListener('DOMContentLoaded', checkAndRenderAdminButton);
+
 </script>
 <script src="script.js" defer></script>
 </body>
