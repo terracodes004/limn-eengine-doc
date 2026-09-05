@@ -1,28 +1,74 @@
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
+const SUPABASE_URL = 'https://pjtpesdhjfvcidfkxord.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBqdHBlc2RoamZ2Y2lkZmt4b3JkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgxNDUyNDUsImV4cCI6MjEwMzcyMTI0NX0.110aDXEqJ4PxjKWNv1Z2YNR8frklg3WW1u0HePDoN38';
+
+const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
 let files = {};
 let filesName = [];
-
-if (!localStorage.getItem("files") || !localStorage.getItem("filename")) {
-    localStorage.setItem("files", JSON.stringify({}));
-    localStorage.setItem("filename", "");
-    files = {};
-    filesName = [];
-} else {
-    try {
-        files = JSON.parse(localStorage.getItem("files")) || {};
-    } catch (e) {
-        files = {};
-    }
-    let rawNames = localStorage.getItem("filename");
-    filesName = rawNames ? rawNames.split(",").filter(Boolean) : [];
-}
-
 let np;
 let dbtn;
 let btn;
 
-function checkAuth() {
-    return localStorage.getItem("isLoggedIn") === "true"; 
+async function checkAuth() {
+    let { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+        await new Promise(resolve => setTimeout(resolve, 300));
+        const retryResult = await supabase.auth.getSession();
+        session = retryResult.data.session;
+    }
+    return session;
 }
+
+async function loadUserData() {
+    const session = await checkAuth();
+    if (session) {
+        const userId = session.user.id;
+        const { data, error } = await supabase
+            .from('user_documents')
+            .select('files, filenames')
+            .eq('user_id', userId)
+            .maybeSingle();
+
+        if (data) {
+            files = data.files || {};
+            filesName = data.filenames || [];
+            
+            const fileContainer = document.getElementById('file');
+            if (fileContainer) fileContainer.innerHTML = '';
+            
+            filesName.forEach(e => {
+                if (e) {
+                    createFileUI(e);
+                }
+            });
+        }
+    } else {
+        if (!localStorage.getItem("files") || !localStorage.getItem("filename")) {
+            localStorage.setItem("files", JSON.stringify({}));
+            localStorage.setItem("filename", "");
+            files = {};
+            filesName = [];
+        } else {
+            try {
+                files = JSON.parse(localStorage.getItem("files")) || {};
+            } catch (e) {
+                files = {};
+            }
+            let rawNames = localStorage.getItem("filename");
+            filesName = rawNames ? rawNames.split(",").filter(Boolean) : [];
+        }
+
+        filesName.forEach(e => {
+            if (e) {
+                createFileUI(e);
+            }
+        });
+    }
+}
+
+loadUserData();
 
 const editor = document.getElementById("js");
 if (editor) {
@@ -49,12 +95,6 @@ if (editor) {
     });
 }
 
-filesName.forEach(e => {
-    if (e) {
-        createFileUI(e);
-    }
-});
-
 function createFileUI(name) {
     np = document.createElement('p');
     btn = document.createElement('button');
@@ -79,8 +119,24 @@ function createFileUI(name) {
     document.getElementById('file').appendChild(np);
 }
 
-function saveAs() {
-    if (!checkAuth()) {
+async function persistData() {
+    const session = await checkAuth();
+    if (session) {
+        await supabase.from('user_documents').upsert({
+            user_id: session.user.id,
+            files: files,
+            filenames: filesName,
+            updated_at: new Date()
+        }, { onConflict: 'user_id' });
+    } else {
+        localStorage.setItem("filename", filesName.join(","));
+        localStorage.setItem("files", JSON.stringify(files));
+    }
+}
+
+async function saveAs() {
+    const session = await checkAuth();
+    if (!session) {
         alert("⚠️ You must sign up or log in to save your files!");
         window.location.href = "/signup/frontend/index.html";
         return;
@@ -97,16 +153,15 @@ function saveAs() {
             filesName.push(name);
         }
         
-        localStorage.setItem("filename", filesName.join(","));
-        localStorage.setItem("files", JSON.stringify(files));
-        
+        await persistData();
         createFileUI(name);
         alert("Saved Successfully ✅");
     }
 }
 
-function save() {
-    if (!checkAuth()) {
+async function save() {
+    const session = await checkAuth();
+    if (!session) {
         alert("⚠️ You must sign up or log in to save your files!");
         window.location.href = "/signup/frontend/index.html";
         return;
@@ -117,19 +172,18 @@ function save() {
         saveAs();
     } else {
         files[currentFileName] = document.querySelector('textarea').value;
-        localStorage.setItem("files", JSON.stringify(files));
+        await persistData();
         alert("Saved Successfully ✅");
     }
 }
 
-function del(name, element) {
+async function del(name, element) {
     let con = confirm("⚠️ Are you sure you want to delete this file?");
     if (con) {
         delete files[name];
         filesName = filesName.filter(e => e !== name);
         
-        localStorage.setItem("filename", filesName.join(","));
-        localStorage.setItem("files", JSON.stringify(files));
+        await persistData();
         
         element.remove();
         console.log("File deleted");
