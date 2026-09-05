@@ -15,63 +15,28 @@ async function loadInbox() {
     const { data: { user }, error: userError } = await supabase.auth.getUser();
     
     if (!userError && user) {
-      const { data, error } = await supabase
+      const { data: userDocs, error: docError } = await supabase
         .from('user_documents')
         .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
+        .eq('user_id', user.id);
 
-      if (!error && data && data.length > 0) {
-        notifications = data;
+      if (!docError && userDocs) {
+        notifications = notifications.concat(userDocs);
       }
     }
+
+    const { data: engineUpdates, error: updateError } = await supabase
+      .from('engine_updates')
+      .select('*');
+
+    if (!updateError && engineUpdates) {
+      notifications = notifications.concat(engineUpdates);
+    }
   } catch (err) {
-    console.log('Using local fallback inbox');
+    console.log('Error fetching from Supabase');
   }
 
-  if (notifications.length === 0) {
-    const currentDate = new Date();
-    const monthName = currentDate.toLocaleString('default', { month: 'long' });
-    
-    const startOfYear = new Date(currentDate.getFullYear(), 0, 1);
-    const weekNumber = Math.ceil(((currentDate - startOfYear) / 86400000 + startOfYear.getDay() + 1) / 7);
-
-    const weeklyTopics = [
-      {
-        title: '🚀 Weekly Engine Optimization Report',
-        content: 'Local offline service worker caches and Supabase synchronization pipelines are running smoothly. Zero bottlenecks detected.'
-      },
-      {
-        title: '🎨 Creator Spotlight & Particle Presets',
-        content: 'Check out the new built-in particle presets this week! Try experimenting with the explosion and magic effects in your playground.'
-      },
-      {
-        title: '⚡ Dual-Canvas Performance Tip',
-        content: 'Remember that static background objects perform best when utilizing the offscreen buffer rendering pipeline in v4.'
-      },
-      {
-        title: '🎮 Physics & Collision Spotlight',
-        content: 'Round objects are fully supported this week with enableCircleCollision(). Test out your custom hitboxes!'
-      }
-    ];
-
-    const currentWeeklyTopic = weeklyTopics[weekNumber % weeklyTopics.length];
-
-    notifications = [
-      {
-        id: `auto-monthly-${currentDate.getFullYear()}-${currentDate.getMonth()}`,
-        title: `✨ ${monthName} Creator Digest & Updates`,
-        content: `Your automated ${monthName} community summary is ready! Top creations feature advanced canvas optimizations and smooth camera shakes. Keep building!`,
-        created_at: new Date().toISOString()
-      },
-      {
-        id: `auto-weekly-${weekNumber}`,
-        title: currentWeeklyTopic.title,
-        content: currentWeeklyTopic.content,
-        created_at: new Date().toISOString()
-      }
-    ];
-  }
+  notifications.sort((a, b) => new Date(b.created_at || Date.now()) - new Date(a.created_at || Date.now()));
 
   let readIds = JSON.parse(localStorage.getItem('limn_read_notifications') || '[]');
 
