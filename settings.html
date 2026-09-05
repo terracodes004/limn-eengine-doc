@@ -124,12 +124,12 @@
         if (user) {
           await supabase
             .from('users')
-            .update({ 
+            .upsert({ 
+              id: user.id,
               name: newName, 
               avatar_url: newAvatarUrl,
               subscribed: isSubscribed 
-            })
-            .eq('id', user.id);
+            });
         }
       } catch (err) {
         console.error(err);
