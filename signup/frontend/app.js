@@ -31,16 +31,16 @@ async function checkUserRouting() {
         const fullName = userMetadata?.full_name || userMetadata?.name || session.user.email.split('@')[0];
 
         const userBanner = document.getElementById('user-banner');
-        const nameSpan = document.getElementById('persistent-name');
+        const signInBtn = document.querySelector('.btn-signin-ghost');
         
-        if (userBanner && nameSpan) {
-            nameSpan.textContent = fullName;
-            userBanner.innerHTML = `<span>👋 Welcome back, <strong>${fullName}</strong>!</span>`;
+        if (userBanner) {
+            userBanner.innerHTML = `👋 Welcome back, <strong>${fullName}</strong>!`;
             userBanner.style.display = 'inline-flex';
         }
 
-        const signInBtn = document.querySelector('.btn-signin');
-        if (signInBtn) signInBtn.style.display = 'none';
+        if (signInBtn) {
+            signInBtn.style.display = 'none';
+        }
 
         const { data: userData } = await supabase
             .from('users')
@@ -59,6 +59,12 @@ async function checkUserRouting() {
         if (stepGoogle) stepGoogle.classList.add('hidden');
         if (stepEmail) stepEmail.classList.remove('hidden');
     } else {
+        const userBanner = document.getElementById('user-banner');
+        const signInBtn = document.querySelector('.btn-signin-ghost');
+
+        if (userBanner) userBanner.style.display = 'none';
+        if (signInBtn) signInBtn.style.display = 'inline-flex';
+
         const stepGoogle = document.getElementById('step-google');
         const stepEmail = document.getElementById('step-email');
         if (stepGoogle) stepGoogle.classList.remove('hidden');
@@ -80,8 +86,6 @@ if (googleLoginBtn) {
             showMessage('❌ OAuth Error: ' + error.message, 'error');
         }
     });
-} else {
-    console.warn('⚠️ Google button ID not found in HTML.');
 }
 
 const sendEmailBtn = document.getElementById('send-email-btn');
