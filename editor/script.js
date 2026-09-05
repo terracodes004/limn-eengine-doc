@@ -133,7 +133,7 @@ function createFileUI(name) {
 
     let dbtn = document.createElement('button');
     dbtn.innerHTML = "⬇️";
-    dbtn.title = "Click to download";
+    dbtn.title = "Click to download standalone game";
     dbtn.addEventListener("click", () => down(name));
 
     np.appendChild(btn);
@@ -279,12 +279,31 @@ if (textareaEl) {
 
 window.down = function(filename) {
     const textarea = document.querySelector("textarea");
-    const data = textarea ? textarea.value : "";
-    const blob = new Blob([data], { type: "text/javascript" });
+    const codeData = textarea ? textarea.value : "";
+    
+    const htmlTemplate = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${filename} - Limn Engine Game</title>
+    <style>
+        body { margin: 0; background: #0a0a0a; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
+        canvas { display: block; }
+    </style>
+</head>
+<body>
+    <script>
+        ${codeData}
+    </script>
+</body>
+</html>`;
+
+    const blob = new Blob([htmlTemplate], { type: "text/html" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = filename.endsWith('.js') ? filename : filename + ".js";
+    a.download = filename.replace(/\.[^/.]+$/, "") + ".html";
     a.click();
     URL.revokeObjectURL(url);
 };
