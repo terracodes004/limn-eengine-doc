@@ -17,7 +17,7 @@ header{
 
 nav ul{
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     padding: 0;
     margin: 0;
     list-style: none;
@@ -39,6 +39,52 @@ nav ul li button:hover{
     background-color: #2a2d2e;
 }
 
+.dropdown {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+}
+
+.dropbtn {
+    width: 100%;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 100%;
+    background-color: #252526;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px rgba(0,0,0,0.6);
+    z-index: 1000;
+    border: 1px solid #333;
+    border-radius: 0 0 4px 4px;
+}
+
+.dropdown-content button, 
+.dropdown-content a button {
+    color: #cccccc;
+    padding: 10px 14px;
+    text-decoration: none;
+    display: block;
+    width: 100%;
+    text-align: left;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+}
+
+.dropdown-content button:hover, 
+.dropdown-content a button:hover {
+    background-color: #2a2d2e;
+    color: #ffffff;
+}
+
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+
 main{
     margin: 0;
     text-align: center;
@@ -55,7 +101,7 @@ textarea{
     font-family: 'Consolas', 'Courier New', monospace;
     font-size: 14px;
     background-color: #1e1e1e;
-    color: #9cdcfe; /* Gives your code a nice blue coding hue */
+    color: #9cdcfe;
     border: none;
     border-top: 1px solid #333;
     border-bottom: 1px solid #333;
@@ -179,4 +225,4 @@ dialog button:hover {
     background-color: #2a2d2e;
     color: #fff;
     }
-    
+                                  
