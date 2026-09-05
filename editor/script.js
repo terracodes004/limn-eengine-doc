@@ -19,6 +19,44 @@ async function getActiveUser() {
 }
 
 async function loadUserData() {
+    const params = new URLSearchParams(window.location.search);
+    const snippetId = params.get('id');
+
+    if (snippetId) {
+        try {
+            const { data, error } = await supabase
+                .from('snippets')
+                .select('code')
+                .eq('id', snippetId)
+                .single();
+
+            if (!error && data) {
+                const parsed = JSON.parse(data.code);
+                if (parsed.files && parsed.filesName) {
+                    files = parsed.files;
+                    filesName = parsed.filesName;
+                    
+                    const fileContainer = document.getElementById('file');
+                    if (fileContainer) fileContainer.innerHTML = '';
+                    filesName.forEach(e => {
+                        if (e) createFileUI(e);
+                    });
+
+                    if (filesName.length > 0) {
+                        const firstFile = filesName[0];
+                        const textarea = document.querySelector('textarea');
+                        const h5 = document.querySelector('h5');
+                        if (textarea) textarea.value = files[firstFile] || "";
+                        if (h5) h5.innerText = firstFile;
+                    }
+                    return;
+                }
+            }
+        } catch (err) {
+            console.error("Error loading shared project:", err);
+        }
+    }
+
     const user = await getActiveUser();
     
     if (user) {
@@ -174,6 +212,43 @@ window.save = async function() {
     }
 };
 
+window.shareProject = async function() {
+    const user = await getActiveUser();
+    
+    const h5 = document.querySelector('h5');
+    const textarea = document.querySelector('textarea');
+    let currentFileName = h5 ? h5.innerText : "";
+    if (currentFileName && currentFileName !== "*Untitled*" && textarea) {
+        files[currentFileName] = textarea.value;
+    }
+
+    if (Object.keys(files).length === 0) {
+        alert("⚠️ You have no files to share!");
+        return;
+    }
+
+    const { data, error } = await supabase
+        .from('snippets')
+        .insert([{ 
+            code: JSON.stringify({ files, filesName }), 
+            user_id: user ? user.id : null 
+        }])
+        .select('id')
+        .single();
+
+    if (error) {
+        console.error("Share error:", error.message);
+        alert("⚠️ Failed to generate share link.");
+        return;
+    }
+
+    const shareUrl = `${window.location.origin}${window.location.pathname}?id=${data.id}`;
+    await navigator.clipboard.writeText(shareUrl);
+    window.history.pushState({}, '', `?id=${data.id}`);
+    
+    alert("🔗 Shareable project link copied to clipboard! ✅");
+};
+
 async function del(name, element) {
     let con = confirm("⚠️ Are you sure you want to delete this file?");
     if (con) {
@@ -213,3 +288,4 @@ window.down = function(filename) {
     a.click();
     URL.revokeObjectURL(url);
 };
+
