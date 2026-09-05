@@ -26,15 +26,16 @@ async function checkUserRouting() {
         session = retryResult.data.session;
     }
 
+    const userBanner = document.getElementById('user-banner');
+    const nameSpan = document.getElementById('persistent-name');
+    const signInBtn = document.querySelector('.btn-signin-ghost');
+
     if (session) {
         const userMetadata = session.user.user_metadata;
         const fullName = userMetadata?.full_name || userMetadata?.name || session.user.email.split('@')[0];
 
-        const userBanner = document.getElementById('user-banner');
-        const signInBtn = document.querySelector('.btn-signin-ghost');
-        
-        if (userBanner) {
-            userBanner.innerHTML = `👋 Welcome back, <strong>${fullName}</strong>!`;
+        if (userBanner && nameSpan) {
+            nameSpan.textContent = fullName;
             userBanner.style.display = 'inline-flex';
         }
 
@@ -59,9 +60,6 @@ async function checkUserRouting() {
         if (stepGoogle) stepGoogle.classList.add('hidden');
         if (stepEmail) stepEmail.classList.remove('hidden');
     } else {
-        const userBanner = document.getElementById('user-banner');
-        const signInBtn = document.querySelector('.btn-signin-ghost');
-
         if (userBanner) userBanner.style.display = 'none';
         if (signInBtn) signInBtn.style.display = 'inline-flex';
 
