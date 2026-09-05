@@ -9,6 +9,32 @@ const messageEl = document.getElementById('message');
 const homeRedirect = window.location.origin + '/index.html';
 const callbackPath = window.location.origin + '/signup/frontend/callback.html';
 
+const authButtons = document.getElementById('auth-buttons');
+const userDropdown = document.getElementById('user-dropdown');
+const dropdownToggle = document.getElementById('dropdown-toggle');
+const dropdownMenu = document.getElementById('dropdown-menu');
+const logoutBtn = document.getElementById('logout-btn');
+
+if (dropdownToggle && dropdownMenu) {
+    dropdownToggle.addEventListener('click', (e) => {
+        e.stopPropagation();
+        dropdownMenu.classList.toggle('hidden');
+    });
+
+    window.addEventListener('click', () => {
+        if (!dropdownMenu.classList.contains('hidden')) {
+            dropdownMenu.classList.add('hidden');
+        }
+    });
+}
+
+if (logoutBtn) {
+    logoutBtn.addEventListener('click', async () => {
+        await supabase.auth.signOut();
+        window.location.href = homeRedirect;
+    });
+}
+
 function showMessage(text, type = 'error') {
     if (messageEl) {
         messageEl.textContent = text;
@@ -32,15 +58,22 @@ async function checkUserRouting() {
     if (session) {
         const userMetadata = session.user.user_metadata;
         const fullName = userMetadata?.full_name || userMetadata?.name || session.user.email.split('@')[0];
+        const userEmail = session.user.email;
+        const userAvatarUrl = userMetadata?.avatar_url || userMetadata?.picture || 'img/logo.png';
 
         if (userBanner) {
             userBanner.innerHTML = `<span>👋 Welcome back, <strong id="persistent-name">${fullName}</strong>!</span>`;
             userBanner.style.display = 'inline-flex';
         }
 
-        if (signInBtn) {
-            signInBtn.style.display = 'none';
-        }
+        if (authButtons) authButtons.style.display = 'none';
+        if (userDropdown) userDropdown.style.display = 'block';
+
+        const emailDisplay = document.getElementById('user-email-display');
+        if (emailDisplay) emailDisplay.textContent = userEmail;
+
+        const avatarImg = document.getElementById('user-avatar');
+        if (avatarImg) avatarImg.src = userAvatarUrl;
 
         const { data: userData } = await supabase
             .from('users')
@@ -60,7 +93,8 @@ async function checkUserRouting() {
         if (stepEmail) stepEmail.classList.remove('hidden');
     } else {
         if (userBanner) userBanner.style.display = 'none';
-        if (signInBtn) signInBtn.style.display = 'inline-flex';
+        if (authButtons) authButtons.style.display = 'block';
+        if (userDropdown) userDropdown.style.display = 'none';
 
         const stepGoogle = document.getElementById('step-google');
         const stepEmail = document.getElementById('step-email');
@@ -130,4 +164,5 @@ if (verifyEmailBtn) {
             showMessage('❌ ' + error.message, 'error');
         }
     });
-}
+                                             }
+    
