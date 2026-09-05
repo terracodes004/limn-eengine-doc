@@ -53,7 +53,6 @@ async function checkUserRouting() {
     }
 
     const userBanner = document.getElementById('user-banner');
-    const signInBtn = document.querySelector('.btn-signin-ghost');
 
     if (session) {
         const userMetadata = session.user.user_metadata;
@@ -164,4 +163,5 @@ if (verifyEmailBtn) {
             showMessage('❌ ' + error.message, 'error');
         }
     });
-}
+    }
+
