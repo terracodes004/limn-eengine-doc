@@ -8,34 +8,35 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 let files = {};
 let filesName = [];
 
-function getCurrentUserSession() {
-    const key = Object.keys(localStorage).find(k => k.includes('auth-token'));
-    if (key) {
-        try {
-            const data = JSON.parse(localStorage.getItem(key));
-            if (data && data.user) return data;
-        } catch (e) {}
+async function getActiveUser() {
+    try {
+        const { data: { session } } = await supabase.auth.getSession();
+        return session ? session.user : null;
+    } catch (e) {
+        console.error("Auth session error:", e);
+        return null;
     }
-    return null;
 }
 
 async function loadUserData() {
-    const sessionData = getCurrentUserSession();
+    const user = await getActiveUser();
     
-    if (sessionData && sessionData.user) {
+    if (user) {
         try {
-            const { data } = await supabase
+            const { data, error } = await supabase
                 .from('user_documents')
                 .select('files, filenames')
-                .eq('user_id', sessionData.user.id)
+                .eq('user_id', user.id)
                 .maybeSingle();
+
+            if (error) console.error("Cloud fetch error:", error.message);
 
             if (data) {
                 files = data.files || {};
                 filesName = data.filenames || [];
             }
         } catch (err) {
-            console.log("Using local backup files");
+            console.error("Failed to load from cloud:", err);
         }
     }
 
@@ -105,22 +106,27 @@ function createFileUI(name) {
 }
 
 async function persistData() {
-    const sessionData = getCurrentUserSession();
-    if (sessionData && sessionData.user) {
-        supabase.from('user_documents').upsert({
-            user_id: sessionData.user.id,
+    const user = await getActiveUser();
+    if (user) {
+        const { error } = await supabase.from('user_documents').upsert({
+            user_id: user.id,
             files: files,
             filenames: filesName,
             updated_at: new Date()
-        }, { onConflict: 'user_id' }).then();
+        }, { onConflict: 'user_id' });
+
+        if (error) {
+            console.error("Cloud save failed:", error.message);
+            alert("⚠️ Cloud Sync Error: " + error.message);
+        }
     }
     localStorage.setItem("filename", filesName.join(","));
     localStorage.setItem("files", JSON.stringify(files));
 }
 
-window.saveAs = function() {
-    const sessionData = getCurrentUserSession();
-    if (!sessionData || !sessionData.user) {
+window.saveAs = async function() {
+    const user = await getActiveUser();
+    if (!user) {
         alert("⚠️ You must sign up or log in to save your files!");
         window.location.href = "/signup/frontend/index.html";
         return;
@@ -142,14 +148,14 @@ window.saveAs = function() {
         filesName.push(name);
     }
     
-    persistData();
+    await persistData();
     createFileUI(name);
     alert("Saved Successfully ✅");
 };
 
-window.save = function() {
-    const sessionData = getCurrentUserSession();
-    if (!sessionData || !sessionData.user) {
+window.save = async function() {
+    const user = await getActiveUser();
+    if (!user) {
         alert("⚠️ You must sign up or log in to save your files!");
         window.location.href = "/signup/frontend/index.html";
         return;
@@ -163,17 +169,17 @@ window.save = function() {
         window.saveAs();
     } else {
         if (textarea) files[currentFileName] = textarea.value;
-        persistData();
+        await persistData();
         alert("Saved Successfully ✅");
     }
 };
 
-function del(name, element) {
+async function del(name, element) {
     let con = confirm("⚠️ Are you sure you want to delete this file?");
     if (con) {
         delete files[name];
         filesName = filesName.filter(e => e !== name);
-        persistData();
+        await persistData();
         element.remove();
         alert("File deleted 🗑️");
     } else {
