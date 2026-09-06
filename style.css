@@ -769,3 +769,135 @@ th {
     overflow-x: auto;
   }
   }
+/* ── ORIGINAL NAV ── */
+nav ul {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 16px;
+  height: 52px;
+  gap: 4px;
+}
+
+nav ul li a {
+  display: block;
+  padding: 6px 14px;
+  border-radius: 6px;
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.15s;
+}
+
+nav ul li a:hover {
+  color: var(--text);
+  background: var(--surface);
+}
+
+nav ul li.active a {
+  color: var(--accent);
+}
+
+.nav-spacer {
+  flex: 1;
+}
+
+.nav-burger {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  display: none;
+}
+
+/* ── ORIGINAL ASIDE ── */
+aside {
+  position: fixed;
+  left: 0;
+  top: 52px;
+  bottom: 0;
+  width: 260px;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  overflow-y: auto;
+  z-index: 500;
+  display: none;
+  padding: 16px 0 40px;
+}
+
+aside.open {
+  display: block;
+}
+
+aside ul {
+  list-style: none;
+  display: block;
+}
+
+aside ul li {
+  border-bottom: 1px solid var(--border);
+}
+
+aside ul li a {
+  display: block;
+  padding: 10px 20px;
+  color: #9090b8;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.15s;
+}
+
+aside ul li a:hover {
+  color: var(--accent2);
+  background: rgba(127, 255, 178, 0.05);
+  }
+/* ── ORIGINAL FIELDSET ── */
+fieldset {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: auto;
+  margin-bottom: 24px;
+  background: var(--surface);
+  display: block;
+}
+
+fieldset legend {
+  padding: 0 12px;
+  margin-left: 16px;
+}
+
+legend h2 {
+  display: inline-block;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text);
+  padding: 4px 0;
+  }
+/* ── ORIGINAL MOBILE ── */
+@media (max-width: 750px) {
+  .tut-grid {
+    grid-template-columns: 1fr;
+  }
+  .nav-burger {
+    display: block;
+  }
+  .con h1 {
+    font-size: 2.4rem;
+  }
+  td {
+    width: 85px;
+  }
+}
+
+@media (max-width: 600px) {
+  nav ul li:not(:last-child) {
+    font-size: 13px;
+  }
+}
