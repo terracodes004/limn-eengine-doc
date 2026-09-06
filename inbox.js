@@ -62,8 +62,9 @@ async function loadInbox() {
       year: 'numeric'
     });
 
-    const displayTitle = item.title || item.name || 'Untitled Update';
-    const displayContent = item.content || item.message || item.body || 'No content provided.';
+    const keys = Object.keys(item);
+    const displayTitle = item.title || item.Title || item.name || item.heading || item[keys.find(k => k.toLowerCase().includes('title') || k.toLowerCase().includes('name'))] || 'Limn Engine Update';
+    const displayContent = item.content || item.Content || item.message || item.body || item.text || item[keys.find(k => k.toLowerCase().includes('content') || k.toLowerCase().includes('message') || k.toLowerCase().includes('body'))] || 'New platform update available.';
 
     const card = document.createElement('div');
     const borderColor = isRead ? 'var(--border)' : 'var(--accent)';
