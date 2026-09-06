@@ -941,3 +941,66 @@ aside ul li a:hover {
     font-size: 13px;
   }
       }
+
+/* ============================================================
+   🔒 FINAL OVERRIDES — DO NOT TOUCH
+   ============================================================ */
+
+/* ── FIX: Remove page border ── */
+html, body {
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* ── FIX: Restore original pre responsiveness ── */
+pre {
+  border: 1px solid var(--border-color, #ccc) !important;
+  border-radius: var(--border-radius, 8px) !important;
+  overflow-x: auto !important;
+  white-space: pre !important;
+  word-break: normal !important;
+  word-wrap: normal !important;
+  max-width: 100% !important;
+  width: 80vw !important;
+  box-sizing: border-box !important;
+}
+
+pre code {
+  white-space: pre !important;
+  word-break: normal !important;
+  word-wrap: normal !important;
+  display: block !important;
+  min-width: max-content !important;
+  font-size: inherit !important;
+}
+
+/* ── FIX: Restore original fieldset ── */
+fieldset {
+  overflow: auto !important;
+}
+
+/* ── FIX: Restore original article ── */
+article {
+  width: 74vw !important;
+  overflow-x: auto !important;
+}
+
+/* ── FIX: Restore original table ── */
+table {
+  width: 80vw !important;
+  overflow-x: auto !important;
+  white-space: nowrap !important;
+}
+
+/* ── FIX: Restore original mobile pre ── */
+@media (max-width: 750px) {
+  article {
+    width: 85vw !important;
+    overflow-x: auto !important;
+  }
+  
+  pre {
+    font-size: 11px !important;
+    padding: 12px !important;
+  }
+}
