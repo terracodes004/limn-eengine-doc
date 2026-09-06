@@ -716,7 +716,7 @@ footer {
 
 /* ── FIELDSET ── */
 fieldset {
-  border: 1px solid var(--border);
+  border: 3px solid var(--border);
   border-radius: 12px;
   overflow: auto !important;
   margin-bottom: 24px;
@@ -724,6 +724,7 @@ fieldset {
   display: block;
   width: 100%;
   max-width: 100%;
+  padding:5mm;
   box-sizing: border-box;
 }
 
