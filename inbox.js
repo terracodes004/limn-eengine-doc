@@ -113,14 +113,20 @@ async function loadInbox() {
       container.appendChild(card);
     });
 
-    const supportCard = document.createElement('div');
-    supportCard.style.cssText = `background: var(--surface); border: 1.5px solid var(--accent2); border-radius: 14px; padding: 20px; text-align: center; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); margin-top: 20px;`;
-    supportCard.innerHTML = `
-      <p style="margin: 0 0 10px 0; font-size: 0.95rem; color: var(--text);">
-        Having issues or need help? Message us at <a href="mailto:evolvedtech004@gmail.com" style="color: var(--accent2); text-decoration: underline;">evolvedtech004@gmail.com</a>
-      </p>
+    const discordCard = document.createElement('div');
+    discordCard.style.cssText = `background: var(--surface); border: 1.5px solid var(--accent); border-radius: 14px; padding: 20px; text-align: center; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); margin-top: 20px;`;
+    discordCard.innerHTML = `
       <p style="margin: 0; font-size: 0.95rem; color: var(--text);">
-        Join our community discussions on Discord: <a href="https://discord.gg/kVpSmYWXr" target="_blank" style="color: var(--accent2); text-decoration: underline;">discord.gg/kVpSmYWXr</a>
+        💬 Want to chat and share ideas? Join our community on <a href="https://discord.gg/kVpSmYWXr" target="_blank" style="color: var(--accent); text-decoration: underline; font-weight: 600;">Discord</a>
+      </p>
+    `;
+    container.appendChild(discordCard);
+
+    const supportCard = document.createElement('div');
+    supportCard.style.cssText = `background: var(--surface); border: 1.5px solid var(--accent2); border-radius: 14px; padding: 20px; text-align: center; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); margin-top: 15px;`;
+    supportCard.innerHTML = `
+      <p style="margin: 0; font-size: 0.95rem; color: var(--text);">
+        Having issues or need help? Message us at <a href="mailto:evolvedtech004@gmail.com" style="color: var(--accent2); text-decoration: underline;">evolvedtech004@gmail.com</a>
       </p>
     `;
     container.appendChild(supportCard);
@@ -137,3 +143,4 @@ async function loadInbox() {
 }
 
 loadInbox();
+                                            
