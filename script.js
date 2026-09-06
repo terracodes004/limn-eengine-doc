@@ -1,3 +1,10 @@
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
+const SUPABASE_URL = 'https://pjtpesdhjfvcidfkxord.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBqdHBlc2RoamZ2Y2lkZmt4b3JkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgxNDUyNDUsImV4cCI6MjEwMzcyMTI0NX0.110aDXEqJ4PxjKWNv1Z2YNR8frklg3WW1u0HePDoN38';
+
+const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
 document.addEventListener('DOMContentLoaded', () => {
   const burgerBtn = document.getElementById('nav-burger');
   const asideNav = document.querySelector('aside');
@@ -61,6 +68,7 @@ document.addEventListener('DOMContentLoaded', () => {
       fontSize: '11px',
       fontFamily: "'Space Mono', monospace",
       cursor: 'pointer',
+      zIndex: '10',
       transition: 'all 0.2s ease'
     });
 
@@ -85,13 +93,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   checkUnreadBadge();
 });
-
-import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
-
-const SUPABASE_URL = 'https://pjtpesdhjfvcidfkxord.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBqdHBlc2RoamZ2Y2lkZmt4b3JkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgxNDUyNDUsImV4cCI6MjEwMzcyMTI0NX0.110aDXEqJ4PxjKWNv1Z2YNR8frklg3WW1u0HePDoN38';
-
-const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 async function checkUnreadBadge() {
   const badge = document.getElementById('avatar-badge');
@@ -160,5 +161,5 @@ if ('serviceWorker' in navigator) {
       window.location.reload();
     }
   });
-}
-                               
+                          }
+      
