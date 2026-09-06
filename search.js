@@ -72,8 +72,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         html += `
           <div class="page-search-result-item" data-match-index="${index}" style="padding: 12px 16px; border-bottom: 1px solid rgba(255,255,255,0.05); text-decoration: none; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: background 0.1s;">
-            <span style="color: #f8fafc; font-size: 14px; font-weight: 500;">${snippet}</span>
-            <span style="background: rgba(127,255,178,0.1); color: #7fffb2; font-size: 11px; padding: 2px 8px; border-radius: 4px; font-family: 'Space Mono', monospace;">Found on page</span>
+            <span style="color: #f8fafc; font-size: 14px; font-weight: 500; pointer-events: none;">${snippet}</span>
+            <span style="background: rgba(127,255,178,0.1); color: #7fffb2; font-size: 11px; padding: 2px 8px; border-radius: 4px; font-family: 'Space Mono', monospace; pointer-events: none;">Found on page</span>
           </div>
         `;
       });
@@ -82,22 +82,28 @@ document.addEventListener('DOMContentLoaded', () => {
       searchResults.innerHTML = html;
 
       const resultNodes = searchResults.querySelectorAll('.page-search-result-item');
-      resultNodes.forEach((node, index) => {
+      resultNodes.forEach((node) => {
         node.addEventListener('click', () => {
-          const targetElement = matches[index];
+          const matchIndex = node.getAttribute('data-match-index');
+          const targetElement = matches[matchIndex];
+          
           closeSearch();
           
-          targetElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          
-          targetElement.style.transition = 'background 0.3s ease';
-          const originalBg = targetElement.style.backgroundColor;
-          targetElement.style.backgroundColor = 'rgba(127, 255, 178, 0.25)';
-          setTimeout(() => {
-            targetElement.style.backgroundColor = originalBg;
-          }, 1200);
+          if (targetElement) {
+            setTimeout(() => {
+              targetElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              
+              targetElement.style.transition = 'background 0.3s ease';
+              const originalBg = targetElement.style.backgroundColor;
+              targetElement.style.backgroundColor = 'rgba(127, 255, 178, 0.25)';
+              setTimeout(() => {
+                targetElement.style.backgroundColor = originalBg;
+              }, 1200);
+            }, 100);
+          }
         });
       });
     });
   }
 });
-    
+  
