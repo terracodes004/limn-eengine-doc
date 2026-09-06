@@ -172,15 +172,33 @@ header {
 #user-dropdown {
   position: relative;
 }
-.user-avatar,
-header img.avatar,
-#user-avatar-btn img {
-  border: none;
+
+.avatar-ring-container {
+  position: relative;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
-  object-fit: cover;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 12px rgba(66, 133, 244, 0.5), 0 0 20px rgba(234, 67, 53, 0.3);
+}
+
+.avatar-ring-container::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
   padding: 2.5px;
-  background: conic-gradient(#ea4335 0deg 90deg, #4285f4 90deg 180deg, #fbbc05 180deg 270deg, #34a853 270deg 360deg);
-  box-shadow: 0 0 12px rgba(66, 133, 244, 0.4);
+  background: conic-gradient(
+    #ea4335 0deg 90deg,
+    #4285f4 90deg 180deg,
+    #fbbc05 180deg 270deg,
+    #34a853 270deg 360deg
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
   animation: rotateSector 6s linear infinite;
 }
 
