@@ -1,4 +1,4 @@
-const CACHE_NAME = 'limn-engine-v53';
+const CACHE_NAME = 'limn-engine-v52';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -63,6 +63,9 @@ self.addEventListener('activate', (e) => {
 self.addEventListener('fetch', (e) => {
   if (e.request.method !== 'GET') return;
 
+  const url = new URL(e.request.url);
+  if (url.hostname.includes('supabase.co')) return;
+
   e.respondWith(
     caches.match(e.request).then((cachedResponse) => {
       const fetchPromise = fetch(e.request).then((networkResponse) => {
@@ -85,3 +88,4 @@ self.addEventListener('fetch', (e) => {
     })
   );
 });
+                       
