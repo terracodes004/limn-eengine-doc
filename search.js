@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
     openSearchBtn.addEventListener('click', (e) => {
       e.preventDefault();
       if (searchModalOverlay) {
-        searchModalOverlay.style.display = 'flex';
+        searchModalOverlay.classList.add('active');
         if (searchInput) searchInput.focus();
       }
     });
@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const closeSearch = () => {
     if (searchModalOverlay) {
-      searchModalOverlay.style.display = 'none';
+      searchModalOverlay.classList.remove('active');
       if (searchInput) searchInput.value = '';
       if (searchResults) searchResults.innerHTML = '<div style="padding: 20px; text-align: center; color: #64748b; font-size: 14px;">Start typing to search across Limn Engine...</div>';
     }
@@ -85,3 +85,4 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 });
+     
