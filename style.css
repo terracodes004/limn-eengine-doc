@@ -1004,3 +1004,69 @@ table {
     padding: 12px !important;
   }
 }
+/* ============================================================
+   🚨 FORCE TUTORIAL CARD STYLES
+   ============================================================ */
+
+.tut-grid {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 16px !important;
+  margin-top: 8px !important;
+}
+
+.tut-card {
+  border: 1px solid var(--border) !important;
+  border-radius: 10px !important;
+  padding: 20px !important;
+  background: var(--surface) !important;
+  transition: border-color 0.2s, transform 0.15s !important;
+}
+
+.tut-card:hover {
+  border-color: var(--accent) !important;
+  transform: translateY(-2px) !important;
+}
+
+.tut-card h3 {
+  font-size: 1rem !important;
+  font-weight: 700 !important;
+  margin-bottom: 8px !important;
+  color: var(--text) !important;
+}
+
+.tut-card p {
+  font-size: 13px !important;
+  color: var(--muted) !important;
+  margin-bottom: 12px !important;
+}
+
+.tut-card ol {
+  font-size: 12.5px !important;
+  margin-bottom: 14px !important;
+  padding-left: 20px !important;
+}
+
+.tut-card a.start-btn {
+  display: inline-block !important;
+  padding: 6px 16px !important;
+  background: var(--accent) !important;
+  color: white !important;
+  border-radius: 6px !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  text-decoration: none !important;
+  transition: background 0.2s !important;
+}
+
+.tut-card a.start-btn:hover {
+  background: #e0405f !important;
+}
+
+/* ── Mobile fix ── */
+@media (max-width: 750px) {
+  .tut-grid {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+  }
+  }
