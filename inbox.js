@@ -62,6 +62,9 @@ async function loadInbox() {
       year: 'numeric'
     });
 
+    const displayTitle = item.title || item.name || 'Untitled Update';
+    const displayContent = item.content || item.message || item.body || 'No content provided.';
+
     const card = document.createElement('div');
     const borderColor = isRead ? 'var(--border)' : 'var(--accent)';
     const bgStyle = isRead ? 'var(--surface)' : 'rgba(255, 99, 140, 0.04)';
@@ -75,12 +78,12 @@ async function loadInbox() {
     card.innerHTML = `
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1px solid rgba(255, 99, 140, 0.1); padding-bottom: 10px;">
         <h3 style="margin: 0; font-size: 1.1rem; font-weight: 700; color: #ffffff; display: flex; align-items: center;">
-          ${unreadDot}${item.title}
+          ${unreadDot}${displayTitle}
         </h3>
         <span style="font-size: 0.8rem; color: var(--accent2); font-family: 'Space Mono', monospace; background: rgba(127, 255, 178, 0.08); padding: 4px 10px; border-radius: 20px; border: 1px solid rgba(127, 255, 178, 0.2);">${dateFormatted}</span>
       </div>
       <div style="font-size: 0.95rem; color: var(--text); line-height: 1.6;">
-        ${item.content}
+        ${displayContent}
       </div>
     `;
 
@@ -110,4 +113,4 @@ async function loadInbox() {
 }
 
 loadInbox();
-        
+  
