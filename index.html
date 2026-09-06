@@ -279,29 +279,33 @@ const ADMIN_EMAILS = [
 ];
 
 async function checkAndRenderAdminButton() {
-    const userEmail = localStorage.getItem('limn_user_email');
-    
-    if (userEmail && ADMIN_EMAILS.includes(userEmail)) {
-        const container = document.getElementById("admin-container");
-        if (container) {
-            container.innerHTML = `
-                <button onclick="window.triggerChangelog()" style="
-                    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
-                    color: white;
-                    border: none;
-                    padding: 8px 14px;
-                    border-radius: 6px;
-                    font-family: inherit;
-                    font-size: 13px;
-                    font-weight: 600;
-                    cursor: pointer;
-                    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
-                    transition: all 0.2s ease;
-                " onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">
-                    🚀 Generate Changelog
-                </button>
-            `;
+    try {
+        const { data: { user } } = await supabase.auth.getUser();
+        
+        if (user && user.email && ADMIN_EMAILS.includes(user.email)) {
+            const container = document.getElementById("admin-container");
+            if (container) {
+                container.innerHTML = `
+                    <button onclick="window.triggerChangelog()" style="
+                        background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+                        color: white;
+                        border: none;
+                        padding: 8px 14px;
+                        border-radius: 6px;
+                        font-family: inherit;
+                        font-size: 13px;
+                        font-weight: 600;
+                        cursor: pointer;
+                        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+                        transition: all 0.2s ease;
+                    " onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">
+                        🚀 Generate Changelog
+                    </button>
+                `;
+            }
         }
+    } catch (err) {
+        console.error("Error checking auth user:", err);
     }
 }
 
@@ -323,6 +327,7 @@ window.triggerChangelog = async function() {
 };
 
 window.addEventListener('DOMContentLoaded', checkAndRenderAdminButton);
+  
 
 </script>
 <script src="script.js" defer></script>
