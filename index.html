@@ -6,6 +6,7 @@
 <title>Limn Engine — Home</title>
 
 <link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="search.css">
 <link rel="manifest" href="manifest.json">
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-K5KW1W2ZXR"></script>
 <script>
@@ -79,8 +80,6 @@ window.addEventListener('appinstalled', () => {
 <body>
 
 <header>
-  <div id="admin-container" style="position: absolute; top: 20px; right: 280px; z-index: 10;"></div>
-  
   <div id="auth-container" style="position: absolute; top: 20px; right: 20px; z-index: 10;">
     <div id="auth-buttons">
       <button class="btn-signin btn-signin-ghost" onclick="window.location.href='/signup'">🔐 Sign In / Register</button>
@@ -99,6 +98,9 @@ window.addEventListener('appinstalled', () => {
 
         <div style="padding: 6px 0;">
           <a href="/index.html" class="dropdown-item">Dashboard Home</a>
+          <a href="#" id="open-search-modal" class="dropdown-item" style="display: flex; align-items: center; gap: 8px;">
+            <span>🔍 Search Docs</span>
+          </a>
           <a href="/inbox.html" class="dropdown-item" style="display: flex; justify-content: space-between; align-items: center;">
             <span>Inbox</span>
             <span id="inbox-badge" style="background: #3b82f6; color: white; font-size: 10px; font-weight: bold; padding: 2px 6px; border-radius: 10px; display: none;">New</span>
@@ -254,82 +256,23 @@ function update(dt) {
     <span>| <a href="/privacy.html" style="color: inherit; text-decoration: underline;">Privacy Policy</a></span>
 </footer>
 
+<div id="universal-search-overlay">
+    <div class="search-modal-box">
+        <div class="search-modal-header">
+            <span style="font-size: 18px; margin-right: 12px;">🔍</span>
+            <input type="text" id="overlay-search-input" class="search-modal-input" placeholder="Type to search documentation, tutorials, and updates...">
+            <button id="close-search-overlay" class="search-modal-close">ESC</button>
+        </div>
+        <div id="overlay-search-results" class="search-modal-results">
+            <div style="padding: 20px; text-align: center; color: #64748b; font-size: 14px;">Start typing to search across Limn Engine...</div>
+        </div>
+    </div>
+</div>
+
 <script type="module" src="signup/frontend/app.js"></script>
 <script src="bugTrackerSystem.js"></script>
-<script type="module">
-
-
-  window.addEventListener('DOMContentLoaded', () => {
-    const savedAvatar = localStorage.getItem('limn_avatar');
-    const savedName = localStorage.getItem('limn_username');
-
-    if (savedAvatar) {
-      const avatarEl = document.getElementById('user-avatar');
-      if (avatarEl) avatarEl.src = savedAvatar;
-    }
-
-    if (savedName) {
-      const nameEl = document.getElementById('persistent-name');
-      if (nameEl) nameEl.textContent = savedName;
-    }
-
-    const userEmail = localStorage.getItem('limn_user_email') || (savedName === 'Kehinde Owolabi' ? 'Kehindeowolabi004@gmail.com' : '');
-    const ADMIN_EMAILS = [
-        "Kehindeowolabi004@gmail.com",
-        "evolvedtech004@gmail.com",
-        "desiregeorge434@gmail.com"
-    ];
-
-    if (userEmail && ADMIN_EMAILS.includes(userEmail)) {
-        let container = document.getElementById("admin-container");
-        
-        if (!container) {
-            container = document.createElement('div');
-            container.id = 'admin-container';
-            container.style.cssText = 'position: fixed; top: 20px; right: 20px; z-index: 9999;';
-            document.body.appendChild(container);
-        }
-
-        container.style.display = 'block';
-        container.innerHTML = `
-            <button onclick="window.triggerChangelog()" style="
-                background: linear-gradient(135deg, #3b82f6, #1d4ed8);
-                color: white;
-                border: none;
-                padding: 10px 18px;
-                border-radius: 8px;
-                font-family: inherit;
-                font-size: 14px;
-                font-weight: 700;
-                cursor: pointer;
-                box-shadow: 0 4px 20px rgba(59, 130, 246, 0.5);
-                transition: all 0.2s ease;
-            ">
-                🚀 Generate Changelog
-            </button>
-        `;
-    }
-});
-
-window.triggerChangelog = async function() {
-    if (!confirm("Do you want to fetch the latest GitHub commits and generate the changelog?")) return;
-
-    alert("🔍 Fetching commits and generating AI changelog...");
-
-    try {
-        const { data, error } = await supabase.functions.invoke('generate-changelog');
-        if (error) throw error;
-
-        alert("🎉 Changelog generated and saved to database successfully!");
-        console.log("Changelog:", data.changelog);
-    } catch (err) {
-        console.error("Error triggering function:", err);
-        alert("⚠️ Failed to generate changelog: " + err.message);
-    }
-};
-
-
-</script>
+<script src="search.js"></script>
 <script src="script.js" defer></script>
 </body>
-</html>
+  </html>
+  
