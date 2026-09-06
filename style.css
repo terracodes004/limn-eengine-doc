@@ -710,3 +710,52 @@ footer {
     padding: 16px !important;
   }
 }
+/* ============================================================
+   🔒 ORIGINAL RESPONSIVE FIXES — DO NOT TOUCH
+   ============================================================ */
+
+article {
+  padding: 20px 24px;
+  width: 74vw;
+  overflow-x: auto;
+}
+
+table {
+  width: 80vw;
+  max-width: 100%;
+  display: block;
+  overflow-x: auto;
+  white-space: nowrap;
+  border-collapse: collapse;
+  margin: 14px 0;
+  font-size: 13px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+td {
+  padding: 10px 14px;
+  border-bottom: 1px solid rgba(255, 99, 140, 0.08);
+  color: var(--muted);
+  vertical-align: top;
+  white-space: nowrap;
+}
+
+th {
+  background: var(--surface2);
+  color: var(--accent2);
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 10px 14px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+
+@media (max-width: 750px) {
+  article {
+    width: 85vw;
+    overflow-x: auto;
+  }
+  }
