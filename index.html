@@ -271,6 +271,22 @@ function update(dt) {
 
 <script type="module" src="signup/frontend/app.js"></script>
 <script src="bugTrackerSystem.js"></script>
+<script>
+window.addEventListener('DOMContentLoaded', () => {
+  const savedAvatar = localStorage.getItem('limn_avatar');
+  const savedName = localStorage.getItem('limn_username');
+
+  if (savedAvatar) {
+    const avatarEl = document.getElementById('user-avatar');
+    if (avatarEl) avatarEl.src = savedAvatar;
+  }
+
+  if (savedName) {
+    const nameEl = document.getElementById('persistent-name');
+    if (nameEl) nameEl.textContent = savedName;
+  }
+});
+</script>
 <script src="search.js"></script>
 <script src="script.js" defer></script>
 </body>
