@@ -44,73 +44,96 @@ async function loadInbox() {
 
   let readIds = JSON.parse(localStorage.getItem('limn_read_notifications') || '[]');
 
-  container.innerHTML = '';
-  
-  if (notifications.length === 0) {
-    container.innerHTML = `
-      <div style="background: var(--surface); border: 1.5px solid var(--border); border-radius: 14px; padding: 24px; text-align: center; color: var(--muted); margin-bottom: 16px;">
-        No notifications or updates found right now.
-      </div>
-    `;
-  }
+  function renderList(filterQuery = '') {
+    container.innerHTML = '';
 
-  notifications.forEach(item => {
-    const isRead = readIds.includes(item.uniqueId);
-    const dateFormatted = new Date(item.created_at || Date.now()).toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric'
+    const filtered = notifications.filter(item => {
+      const keys = Object.keys(item);
+      const title = String(item.title || item.Title || item.name || item[keys.find(k => k.toLowerCase().includes('title'))] || '').toLowerCase();
+      const content = String(item.content || item.Content || item.message || item[keys.find(k => k.toLowerCase().includes('content'))] || '').toLowerCase();
+      const query = filterQuery.toLowerCase();
+      return title.includes(query) || content.includes(query);
     });
 
-    const displayTitle = "Raw Data: " + JSON.stringify(item);
-    const displayContent = JSON.stringify(item);
-
-    const card = document.createElement('div');
-    const borderColor = isRead ? 'var(--border)' : 'var(--accent)';
-    const bgStyle = isRead ? 'var(--surface)' : 'rgba(255, 99, 140, 0.04)';
-
-    card.style.cssText = `background: ${bgStyle}; border: 1.5px solid ${borderColor}; border-radius: 14px; padding: 24px; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); position: relative; margin-bottom: 16px;`;
-    
-    const unreadDot = !isRead 
-      ? `<span class="unread-dot" style="height: 10px; width: 10px; background-color: var(--accent); border-radius: 50%; display: inline-block; box-shadow: 0 0 10px var(--accent); margin-right: 8px;"></span>` 
-      : '';
-
-    card.innerHTML = `
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1px solid rgba(255, 99, 140, 0.1); padding-bottom: 10px;">
-        <h3 style="margin: 0; font-size: 1.1rem; font-weight: 700; color: #ffffff; display: flex; align-items: center;">
-          ${unreadDot}${displayTitle}
-        </h3>
-        <span style="font-size: 0.8rem; color: var(--accent2); font-family: 'Space Mono', monospace; background: rgba(127, 255, 178, 0.08); padding: 4px 10px; border-radius: 20px; border: 1px solid rgba(127, 255, 178, 0.2);">${dateFormatted}</span>
-      </div>
-      <div style="font-size: 0.95rem; color: var(--text); line-height: 1.6;">
-        ${displayContent}
-      </div>
-    `;
-
-    if (!isRead) {
-      card.addEventListener('click', () => {
-        readIds.push(item.uniqueId);
-        localStorage.setItem('limn_read_notifications', JSON.stringify(readIds));
-
-        card.style.borderColor = 'var(--border)';
-        card.style.background = 'var(--surface)';
-        const dot = card.querySelector('.unread-dot');
-        if (dot) dot.remove();
-      });
+    if (filtered.length === 0) {
+      container.innerHTML = `
+        <div style="background: var(--surface); border: 1.5px solid var(--border); border-radius: 14px; padding: 24px; text-align: center; color: var(--muted); margin-bottom: 16px;">
+          No matching notifications or updates found.
+        </div>
+      `;
+      return;
     }
 
-    container.appendChild(card);
-  });
+    filtered.forEach(item => {
+      const isRead = readIds.includes(item.uniqueId);
+      const dateFormatted = new Date(item.created_at || Date.now()).toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric'
+      });
 
-  const supportCard = document.createElement('div');
-  supportCard.style.cssText = `background: var(--surface); border: 1.5px solid var(--accent2); border-radius: 14px; padding: 20px; text-align: center; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); margin-top: 20px;`;
-  supportCard.innerHTML = `
-    <p style="margin: 0; font-size: 0.95rem; color: var(--text);">
-      Having issues or need help? Message us at <a href="mailto:evolvedtech004@gmail.com" style="color: var(--accent2); text-decoration: underline;">evolvedtech004@gmail.com</a>
-    </p>
-  `;
-  container.appendChild(supportCard);
+      const keys = Object.keys(item);
+      const displayTitle = item.title || item.Title || item.name || item.heading || item[keys.find(k => k.toLowerCase().includes('title') || k.toLowerCase().includes('name'))] || 'Limn Engine Update';
+      const displayContent = item.content || item.Content || item.message || item.body || item.text || item[keys.find(k => k.toLowerCase().includes('content') || k.toLowerCase().includes('message') || k.toLowerCase().includes('body'))] || 'New platform update available.';
+
+      const card = document.createElement('div');
+      const borderColor = isRead ? 'var(--border)' : 'var(--accent)';
+      const bgStyle = isRead ? 'var(--surface)' : 'rgba(255, 99, 140, 0.04)';
+
+      card.style.cssText = `background: ${bgStyle}; border: 1.5px solid ${borderColor}; border-radius: 14px; padding: 24px; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); position: relative; margin-bottom: 16px;`;
+      
+      const unreadDot = !isRead 
+        ? `<span class="unread-dot" style="height: 10px; width: 10px; background-color: var(--accent); border-radius: 50%; display: inline-block; box-shadow: 0 0 10px var(--accent); margin-right: 8px;"></span>` 
+        : '';
+
+      card.innerHTML = `
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1.5px solid rgba(255, 99, 140, 0.1); padding-bottom: 10px;">
+          <h3 style="margin: 0; font-size: 1.1rem; font-weight: 700; color: #ffffff; display: flex; align-items: center;">
+            ${unreadDot}${displayTitle}
+          </h3>
+          <span style="font-size: 0.8rem; color: var(--accent2); font-family: 'Space Mono', monospace; background: rgba(127, 255, 178, 0.08); padding: 4px 10px; border-radius: 20px; border: 1px solid rgba(127, 255, 178, 0.2);">${dateFormatted}</span>
+        </div>
+        <div style="font-size: 0.95rem; color: var(--text); line-height: 1.6;">
+          ${displayContent}
+        </div>
+      `;
+
+      if (!isRead) {
+        card.addEventListener('click', () => {
+          readIds.push(item.uniqueId);
+          localStorage.setItem('limn_read_notifications', JSON.stringify(readIds));
+
+          card.style.borderColor = 'var(--border)';
+          card.style.background = 'var(--surface)';
+          const dot = card.querySelector('.unread-dot');
+          if (dot) dot.remove();
+        });
+      }
+
+      container.appendChild(card);
+    });
+
+    const supportCard = document.createElement('div');
+    supportCard.style.cssText = `background: var(--surface); border: 1.5px solid var(--accent2); border-radius: 14px; padding: 20px; text-align: center; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); margin-top: 20px;`;
+    supportCard.innerHTML = `
+      <p style="margin: 0 0 10px 0; font-size: 0.95rem; color: var(--text);">
+        Having issues or need help? Message us at <a href="mailto:evolvedtech004@gmail.com" style="color: var(--accent2); text-decoration: underline;">evolvedtech004@gmail.com</a>
+      </p>
+      <p style="margin: 0; font-size: 0.95rem; color: var(--text);">
+        Join our community discussions on Discord: <a href="https://discord.gg/kVpSmYWXr" target="_blank" style="color: var(--accent2); text-decoration: underline;">discord.gg/kVpSmYWXr</a>
+      </p>
+    `;
+    container.appendChild(supportCard);
+  }
+
+  renderList();
+
+  const searchInput = document.getElementById('search-input');
+  if (searchInput) {
+    searchInput.addEventListener('input', (e) => {
+      renderList(e.target.value);
+    });
+  }
 }
 
 loadInbox();
-    
