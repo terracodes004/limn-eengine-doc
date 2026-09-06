@@ -1,4 +1,4 @@
-Import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
 const SUPABASE_URL = 'https://pjtpesdhjfvcidfkxord.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBqdHBlc2RoamZ2Y2lkZmt4b3JkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgxNDUyNDUsImV4cCI6MjEwMzcyMTI0NX0.110aDXEqJ4PxjKWNv1Z2YNR8frklg3WW1u0HePDoN38';
@@ -21,7 +21,9 @@ async function loadInbox() {
         .eq('user_id', user.id);
 
       if (!docError && userDocs) {
-        notifications = notifications.concat(userDocs);
+        userDocs.forEach(doc => {
+          notifications.push({ ...doc, uniqueId: 'doc-' + doc.id });
+        });
       }
     }
 
@@ -30,7 +32,9 @@ async function loadInbox() {
       .select('*');
 
     if (!updateError && engineUpdates) {
-      notifications = notifications.concat(engineUpdates);
+      engineUpdates.forEach(update => {
+        notifications.push({ ...update, uniqueId: 'update-' + update.id });
+      });
     }
   } catch (err) {
     console.log('Error fetching from Supabase');
@@ -42,8 +46,16 @@ async function loadInbox() {
 
   container.innerHTML = '';
   
+  if (notifications.length === 0) {
+    container.innerHTML = `
+      <div style="background: var(--surface); border: 1.5px solid var(--border); border-radius: 14px; padding: 24px; text-align: center; color: var(--muted); margin-bottom: 16px;">
+        No notifications or updates found right now.
+      </div>
+    `;
+  }
+
   notifications.forEach(item => {
-    const isRead = readIds.includes(item.id);
+    const isRead = readIds.includes(item.uniqueId);
     const dateFormatted = new Date(item.created_at || Date.now()).toLocaleDateString('en-US', {
       month: 'short',
       day: 'numeric',
@@ -54,7 +66,7 @@ async function loadInbox() {
     const borderColor = isRead ? 'var(--border)' : 'var(--accent)';
     const bgStyle = isRead ? 'var(--surface)' : 'rgba(255, 99, 140, 0.04)';
 
-    card.style.cssText = `background: ${bgStyle}; border: 1.5px solid ${borderColor}; border-radius: 14px; padding: 24px; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); position: relative;`;
+    card.style.cssText = `background: ${bgStyle}; border: 1.5px solid ${borderColor}; border-radius: 14px; padding: 24px; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); position: relative; margin-bottom: 16px;`;
     
     const unreadDot = !isRead 
       ? `<span class="unread-dot" style="height: 10px; width: 10px; background-color: var(--accent); border-radius: 50%; display: inline-block; box-shadow: 0 0 10px var(--accent); margin-right: 8px;"></span>` 
@@ -74,7 +86,7 @@ async function loadInbox() {
 
     if (!isRead) {
       card.addEventListener('click', () => {
-        readIds.push(item.id);
+        readIds.push(item.uniqueId);
         localStorage.setItem('limn_read_notifications', JSON.stringify(readIds));
 
         card.style.borderColor = 'var(--border)';
@@ -86,6 +98,16 @@ async function loadInbox() {
 
     container.appendChild(card);
   });
+
+  const supportCard = document.createElement('div');
+  supportCard.style.cssText = `background: var(--surface); border: 1.5px solid var(--accent2); border-radius: 14px; padding: 20px; text-align: center; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); margin-top: 20px;`;
+  supportCard.innerHTML = `
+    <p style="margin: 0; font-size: 0.95rem; color: var(--text);">
+      Having issues or need help? Message us at <a href="mailto:evolvedtech004@gmail.com" style="color: var(--accent2); text-decoration: underline;">evolvedtech004@gmail.com</a>
+    </p>
+  `;
+  container.appendChild(supportCard);
 }
 
 loadInbox();
+        
