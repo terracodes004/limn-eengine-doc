@@ -82,8 +82,53 @@ document.addEventListener('DOMContentLoaded', () => {
 
     pre.appendChild(copyBtn);
   });
+
+  checkUnreadBadge();
 });
 
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
+const SUPABASE_URL = 'https://pjtpesdhjfvcidfkxord.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBqdHBlc2RoamZ2Y2lkZmt4b3JkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgxNDUyNDUsImV4cCI6MjEwMzcyMTI0NX0.110aDXEqJ4PxjKWNv1Z2YNR8frklg3WW1u0HePDoN38';
+
+const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+async function checkUnreadBadge() {
+  const badge = document.getElementById('avatar-badge');
+  if (!badge) return;
+
+  try {
+    let allIds = [];
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      const { data: userDocs } = await supabase
+        .from('user_documents')
+        .select('id')
+        .eq('user_id', user.id);
+
+      if (userDocs) {
+        userDocs.forEach(doc => allIds.push('doc-' + doc.id));
+      }
+    }
+
+    const { data: engineUpdates } = await supabase
+      .from('engine_updates')
+      .select('id');
+
+    if (engineUpdates) {
+      engineUpdates.forEach(update => allIds.push('update-' + update.id));
+    }
+
+    const readIds = JSON.parse(localStorage.getItem('limn_read_notifications') || '[]');
+    const hasUnread = allIds.some(id => !readIds.includes(id));
+
+    badge.style.display = hasUnread ? 'inline-block' : 'none';
+
+  } catch (err) {
+    console.log('Error checking unread badge:', err);
+  }
+}
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', async () => {
@@ -115,4 +160,5 @@ if ('serviceWorker' in navigator) {
       window.location.reload();
     }
   });
-  }
+}
+                               
