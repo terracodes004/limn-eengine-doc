@@ -9,15 +9,6 @@ async function loadInbox() {
   const container = document.getElementById('notifications-list');
   if (!container) return;
 
-  if (!document.getElementById('search-input')) {
-    const searchWrapper = document.createElement('div');
-    searchWrapper.style.cssText = 'margin-bottom: 25px;';
-    searchWrapper.innerHTML = `
-      <input type="text" id="search-input" placeholder="Search updates and documents within seconds..." style="width: 100%; padding: 14px 18px; background: var(--surface); border: 1.5px solid var(--border); border-radius: 12px; color: #ffffff; font-size: 0.95rem; outline: none; box-sizing: border-box;">
-    `;
-    container.parentNode.insertBefore(searchWrapper, container);
-  }
-
   let notifications = [];
 
   try {
@@ -146,4 +137,4 @@ async function loadInbox() {
 }
 
 loadInbox();
-      
+           
