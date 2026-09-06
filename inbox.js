@@ -62,9 +62,8 @@ async function loadInbox() {
       year: 'numeric'
     });
 
-    const keys = Object.keys(item);
-    const displayTitle = item.title || item.Title || item.name || item.heading || item[keys.find(k => k.toLowerCase().includes('title') || k.toLowerCase().includes('name'))] || 'Limn Engine Update';
-    const displayContent = item.content || item.Content || item.message || item.body || item.text || item[keys.find(k => k.toLowerCase().includes('content') || k.toLowerCase().includes('message') || k.toLowerCase().includes('body'))] || 'New platform update available.';
+    const displayTitle = "Raw Data: " + JSON.stringify(item);
+    const displayContent = JSON.stringify(item);
 
     const card = document.createElement('div');
     const borderColor = isRead ? 'var(--border)' : 'var(--accent)';
@@ -114,4 +113,4 @@ async function loadInbox() {
 }
 
 loadInbox();
-  
+    
