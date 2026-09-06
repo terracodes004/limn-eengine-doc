@@ -246,53 +246,71 @@ header {
   background-color: rgba(127, 255, 178, 0.12);
   color: var(--accent2);
 }
+header #user-banner,
 #user-banner {
-  position: absolute;
-  top: 30px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 90;
-  background: #05083d;
+  position: absolute !important;
+  top: 30px !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  z-index: 90 !important;
+  background: #05083d !important;
   color: #ffffff !important;
-  padding: 8px 20px;
-  border-radius: 50px;
-  font-size: 0.75rem;
-  font-weight: 500;
-  letter-spacing: 0.2px;
+  padding: 8px 20px !important;
+  border-radius: 50px !important;
+  font-size: 0.75rem !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.2px !important;
   text-decoration: none !important;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  filter: drop-shadow(0 0 8px rgba(66, 133, 244, 0.7)) drop-shadow(0 0 12px rgba(234, 67, 53, 0.5));
-  overflow: visible;
+  display: none;
+  align-items: center !important;
+  gap: 8px !important;
+  border: none !important;
+  filter: drop-shadow(0 0 8px rgba(66, 133, 244, 0.8)) drop-shadow(0 0 12px rgba(234, 67, 53, 0.6)) !important;
+  overflow: visible !important;
 }
 
+header #user-banner::before,
 #user-banner::before {
-  content: '';
-  position: absolute;
-  top: -2.5px;
-  left: -2.5px;
-  right: -2.5px;
-  bottom: -2.5px;
-  border-radius: 50px;
-  padding: 2.5px;
-  background: conic-gradient(
-    #ea4335 0deg 90deg,
-    #4285f4 90deg 180deg,
-    #fbbc05 180deg 270deg,
-    #34a853 270deg 360deg
-  );
+  content: '' !important;
+  position: absolute !important;
+  top: -2.5px !important;
+  left: -2.5px !important;
+  right: -2.5px !important;
+  bottom: -2.5px !important;
+  border-radius: 50px !important;
+  padding: 2.5px !important;
+  /* 200% width gradient containing your 4 colors repeated for a smooth loop */
+  background: linear-gradient(
+    90deg,
+    #ea4335,
+    #4285f4,
+    #fbbc05,
+    #34a853,
+    #ea4335
+  ) !important;
+  background-size: 300% 100% !important;
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
           mask-composite: exclude;
-  animation: rotateSector 6s linear infinite;
-  pointer-events: none;
+  animation: slideBorder 4s linear infinite !important;
+  pointer-events: none !important;
 }
 
 #user-banner:hover {
-  transform: translateX(-50%) translateY(-2px);
-  filter: drop-shadow(0 0 12px rgba(66, 133, 244, 0.9)) drop-shadow(0 0 18px rgba(234, 67, 53, 0.7));
+  transform: translateX(-50%) translateY(-2px) !important;
+  filter: drop-shadow(0 0 12px rgba(66, 133, 244, 0.9)) drop-shadow(0 0 18px rgba(234, 67, 53, 0.7)) !important;
 }
+
+/* Horizontal sliding animation */
+@keyframes slideBorder {
+  0% {
+    background-position: 0% 0%;
+  }
+  100% {
+    background-position: 100% 0%;
+  }
+}
+
 
 #installAppBtn {
   background: transparent;
