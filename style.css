@@ -713,7 +713,17 @@ footer {
 /* ============================================================
    🔒 ORIGINAL RESPONSIVE FIXES — DO NOT TOUCH
    ============================================================ */
-
+fieldset {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: auto;
+  margin-bottom: 24px;
+  background: var(--surface);
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+    }
 article {
   padding: 20px 24px;
   width: 74vw;
