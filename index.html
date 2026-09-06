@@ -84,13 +84,13 @@ window.addEventListener('appinstalled', () => {
     <div id="auth-buttons">
       <button class="btn-signin btn-signin-ghost" onclick="window.location.href='/signup'">🔐 Sign In / Register</button>
     </div>
-<div id="user-dropdown" style="display: none; position: relative;">
-<button id="dropdown-toggle" style="background: none; border: none; cursor: pointer; display: flex; align-items: center; padding: 0; position: relative;">
+<button id="dropdown-toggle" style="background: none; border: none; cursor: pointer; display: flex; align-items: center; padding: 0; position: relative; overflow: visible;">
   <div class="avatar-ring-container">
     <img id="user-avatar" src="img/logo.png" alt="Avatar" style="width: 39px; height: 39px; border-radius: 50%; object-fit: cover; display: block; z-index: 1;">
   </div>
   <span id="avatar-badge" style="display: none; position: absolute; top: -1px; right: -1px; width: 10px; height: 10px; background-color: #ff3b30; border-radius: 50%; border: 2px solid #000; z-index: 2;"></span>
-</button>
+    </button>
+    
 
 
       
