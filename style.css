@@ -405,14 +405,16 @@ nav ul li.active a {
   flex: 1;
 }
 
+
 main {
   max-width: 900px;
   width: 100%;
   margin: 0 auto;
   padding: 32px 20px 60px;
   box-sizing: border-box;
+  position: relative;
+  z-index: 999;   
 }
-
 main > h1 {
   font-size: 2rem;
   font-weight: 800;
