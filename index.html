@@ -257,7 +257,9 @@ function update(dt) {
 <script type="module" src="signup/frontend/app.js"></script>
 <script src="bugTrackerSystem.js"></script>
 <script>
-window.addEventListener('DOMContentLoaded', () => {
+
+
+  window.addEventListener('DOMContentLoaded', () => {
     const savedAvatar = localStorage.getItem('limn_avatar');
     const savedName = localStorage.getItem('limn_username');
 
@@ -270,44 +272,44 @@ window.addEventListener('DOMContentLoaded', () => {
       const nameEl = document.getElementById('persistent-name');
       if (nameEl) nameEl.textContent = savedName;
     }
-});
 
-const ADMIN_EMAILS = [
-    "Kehindeowolabi004@gmail.com",
-    "evolvedtech004@gmail.com",
-    "desiregeorge434@gmail.com"
-];
+    const userEmail = localStorage.getItem('limn_user_email') || (savedName === 'Kehinde Owolabi' ? 'Kehindeowolabi004@gmail.com' : '');
+    const ADMIN_EMAILS = [
+        "Kehindeowolabi004@gmail.com",
+        "evolvedtech004@gmail.com",
+        "desiregeorge434@gmail.com"
+    ];
 
-async function checkAndRenderAdminButton() {
-    try {
-        const { data: { user } } = await supabase.auth.getUser();
+    if (userEmail && ADMIN_EMAILS.includes(userEmail)) {
+        let container = document.getElementById("admin-container");
         
-        if (user && user.email && ADMIN_EMAILS.includes(user.email)) {
-            const container = document.getElementById("admin-container");
-            if (container) {
-                container.innerHTML = `
-                    <button onclick="window.triggerChangelog()" style="
-                        background: linear-gradient(135deg, #3b82f6, #1d4ed8);
-                        color: white;
-                        border: none;
-                        padding: 8px 14px;
-                        border-radius: 6px;
-                        font-family: inherit;
-                        font-size: 13px;
-                        font-weight: 600;
-                        cursor: pointer;
-                        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
-                        transition: all 0.2s ease;
-                    " onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">
-                        🚀 Generate Changelog
-                    </button>
-                `;
-            }
+        if (!container) {
+            container = document.createElement('div');
+            container.id = 'admin-container';
+            container.style.cssText = 'position: fixed; top: 20px; right: 20px; z-index: 9999;';
+            document.body.appendChild(container);
         }
-    } catch (err) {
-        console.error("Error checking auth user:", err);
+
+        container.style.display = 'block';
+        container.innerHTML = `
+            <button onclick="window.triggerChangelog()" style="
+                background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+                color: white;
+                border: none;
+                padding: 10px 18px;
+                border-radius: 8px;
+                font-family: inherit;
+                font-size: 14px;
+                font-weight: 700;
+                cursor: pointer;
+                box-shadow: 0 4px 20px rgba(59, 130, 246, 0.5);
+                transition: all 0.2s ease;
+            ">
+                🚀 Generate Changelog
+            </button>
+        `;
     }
-}
+});
 
 window.triggerChangelog = async function() {
     if (!confirm("Do you want to fetch the latest GitHub commits and generate the changelog?")) return;
@@ -326,8 +328,6 @@ window.triggerChangelog = async function() {
     }
 };
 
-window.addEventListener('DOMContentLoaded', checkAndRenderAdminButton);
-  
 
 </script>
 <script src="script.js" defer></script>
