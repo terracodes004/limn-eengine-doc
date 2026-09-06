@@ -181,7 +181,8 @@ header {
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 0 12px rgba(66, 133, 244, 0.5), 0 0 20px rgba(234, 67, 53, 0.3);
+  margin: 4px;
+  filter: drop-shadow(0 0 6px rgba(66, 133, 244, 0.8)) drop-shadow(0 0 10px rgba(234, 67, 53, 0.6));
 }
 
 .avatar-ring-container::before {
