@@ -122,9 +122,14 @@ async function checkUnreadBadge() {
     }
 
     const readIds = JSON.parse(localStorage.getItem('limn_read_notifications') || '[]');
-    const hasUnread = allIds.some(id => !readIds.includes(id));
+    const unreadCount = allIds.filter(id => !readIds.includes(id)).length;
 
-    badge.style.display = hasUnread ? 'inline-block' : 'none';
+    if (unreadCount > 0) {
+      badge.textContent = unreadCount;
+      badge.style.display = 'flex';
+    } else {
+      badge.style.display = 'none';
+    }
 
   } catch (err) {
     console.log('Error checking unread badge:', err);
@@ -161,5 +166,4 @@ if ('serviceWorker' in navigator) {
       window.location.reload();
     }
   });
-                          }
-      
+                               }
