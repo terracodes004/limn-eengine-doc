@@ -173,15 +173,39 @@ header {
   position: relative;
 }
 
-.user-avatar, 
-header img.avatar, 
-#user-avatar-btn img {
-  border: 2px solid var(--accent2);
-  box-shadow: 0 0 10px rgba(127, 255, 178, 0.4);
-  border-radius: 50%;
-  object-fit: cover;
+
+#dropdown-toggle {
+    background: conic-gradient(from 0deg, #0066ff, #ff0000, #ff8800, #00cc00, #39ff14, #0066ff) border-box !important;
+    border: 2px solid transparent !important;
+    border-radius: 50%;
+    padding: 2px !important;
+    position: relative;
+    cursor: pointer;
+    width: auto !important;
+    height: auto !important;
+    box-shadow: 0 0 10px rgba(0, 102, 255, 0.5), 
+                0 0 20px rgba(255, 0, 0, 0.3), 
+                0 0 30px rgba(255, 136, 0, 0.3), 
+                0 0 40px rgba(0, 204, 0, 0.3), 
+                0 0 50px rgba(57, 255, 20, 0.3), 
+                0 0 60px rgba(255, 221, 0, 0.3);
 }
 
+#dropdown-toggle #user-avatar {
+    border: none !important;
+    box-shadow: none !important;
+    border-radius: 50%;
+    width: 40px !important;
+    height: 40px !important;
+    object-fit: cover;
+    display: block;
+    background: transparent !important;
+}
+
+#dropdown-toggle #avatar-badge {
+    z-index: 999 !important;
+    position: absolute;
+}
 #dropdown-menu {
   position: absolute;
   right: 0;
