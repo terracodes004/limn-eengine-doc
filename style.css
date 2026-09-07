@@ -172,13 +172,22 @@ header {
 #user-dropdown {
   position: relative;
 }
-
+.user-avatar,
 #user-avatar-btn {
     position: relative;
-    display: inline-block;
-    padding: 2px;
+    z-index: 0;
     border-radius: 50%;
+}
+
+.user-avatar::before,
+#user-avatar-btn::before {
+    content: "";
+    position: absolute;
+    inset: -1.5px;
+    border-radius: inherit;
     background: conic-gradient(from 0deg, #0066ff, #ff0000, #ff8800, #00cc00, #39ff14, #0066ff);
+    z-index: -1;
+    padding: 1.5px;
     -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
     -webkit-mask-composite: xor;
     mask-composite: exclude;
@@ -192,15 +201,16 @@ header {
 
 header img.avatar,
 #user-avatar-btn img {
-    border: none;
-    box-shadow: none;
+    border: none !important;
+    box-shadow: none !important;
     border-radius: 50%;
     object-fit: cover;
-    display: block;
     width: 100%;
     height: 100%;
-      }
-
+    display: block;
+    position: relative;
+    z-index: 1;
+}
 #dropdown-menu {
   position: absolute;
   right: 0;
