@@ -1,3 +1,226 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Inter:wght@400;500;600;700;800&display=swap');
+
+:root {
+  --bg: #000321;
+  --surface: #05083d;
+  --surface2: #080c4a;
+  --accent: #ff638c;
+  --accent2: #7fffb2;
+  --text: #e8e8f5;
+  --muted: #7878a0;
+  --border: rgba(255, 99, 140, 0.2);
+  --code-bg: #02041a;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  border-radius: 0;
+}
+
+html, body {
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden;
+  font-family: 'Inter', Consolas, sans-serif;
+  font-size: 15px;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.7;
+  scroll-behavior: smooth;
+}
+
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--accent);
+  border-radius: 3px;
+}
+
+header {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  min-height: 100vh;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  padding: 20px;
+}
+
+#logo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.55;
+  z-index: 0;
+  filter: blur(1px);
+}
+
+.con {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  width: 100%;
+  max-width: 700px;
+}
+
+.con h1 {
+  font-size: clamp(2.5rem, 8vw, 5rem);
+  font-weight: 800;
+  color: white;
+  letter-spacing: -2px;
+  margin-bottom: 8px;
+}
+
+.con p {
+  color: var(--muted);
+  font-size: 1.1rem;
+  margin-bottom: 28px;
+  max-width: 480px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.con-btns {
+  display: flex;
+  gap: 14px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.con-btns a,
+.con-btns button {
+  display: inline-block;
+  padding: 12px 28px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 15px;
+  text-decoration: none;
+  transition: all 0.2s;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: white;
+  border: 2px solid var(--accent);
+}
+
+.btn-primary:hover {
+  background: #e0405f;
+  border-color: #e0405f;
+  transform: translateY(-2px);
+}
+
+.btn-secondary {
+  background: transparent;
+  color: var(--text);
+  border: 2px solid rgba(255, 255, 255, 0.25);
+}
+
+.btn-secondary:hover {
+  border-color: var(--accent2);
+  color: var(--accent2);
+  transform: translateY(-2px);
+}
+
+.btn-signin-ghost {
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  text-decoration: none !important;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  backdrop-filter: blur(8px);
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.btn-signin-ghost:hover {
+  background: rgba(255, 255, 255, 0.18);
+  border-color: rgba(255, 255, 255, 0.7);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(255, 255, 255, 0.1);
+}
+
+#auth-container {
+  position: absolute;
+  top: 30px;
+  right: 30px;
+  z-index: 100;
+}
+
+#user-dropdown {
+  position: relative;
+}
+
+.user-avatar, 
+header img.avatar, 
+#user-avatar-btn img {
+  border: 2px solid var(--accent2);
+  box-shadow: 0 0 10px rgba(127, 255, 178, 0.4);
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+#dropdown-menu {
+  position: absolute;
+  right: 0;
+  top: 100%;
+  z-index: 99999;
+  background: var(--surface);
+  border: 1.5px solid var(--accent2);
+  border-radius: 10px;
+  box-shadow: 0 0 20px rgba(127, 255, 178, 0.25), inset 0 0 10px rgba(127, 255, 178, 0.05);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  overflow-y: auto;
+  max-height: 50vh;
+  margin-top: 8px;
+  }
+    
+.dropdown-item {
+  display: block;
+  width: 100%;
+  padding: 10px 16px;
+  color: #cbd5e1;
+  background: none;
+  border: none;
+  font-size: 14px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+  text-align: left;
+}
+
+.dropdown-item:hover {
+  background-color: rgba(127, 255, 178, 0.12);
+  color: var(--accent2);
+}
+
+.hidden {
+  display: none !important;
+}
+
 #user-banner {
   position: absolute;
   top: 30px;
@@ -48,7 +271,7 @@
 #user-banner strong {
   color: #ffffff;
   font-weight: 700;
-  }
+}
 
 #installAppBtn {
   background: transparent;
@@ -867,4 +1090,4 @@ table {
     grid-template-columns: 1fr !important;
     gap: 16px !important;
   }
-  }
+}
