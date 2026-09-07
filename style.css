@@ -204,11 +204,17 @@ header {
 #dropdown-toggle #user-avatar {
     border: none !important;
     box-shadow: none !important;
-    position: relative;
-    z-index: 1;
+    border-radius: 50%;
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover;
     display: block;
-    width: 40px !important;
-    height: 40px !important;
+    background: transparent !important;
+}
+
+#dropdown-toggle #avatar-badge {
+    z-index: 999 !important;
+    position: absolute;
   }
 #dropdown-menu {
   position: absolute;
