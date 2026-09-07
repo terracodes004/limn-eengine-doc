@@ -43,8 +43,20 @@ async function loadInbox() {
   notifications.sort((a, b) => new Date(b.created_at || Date.now()) - new Date(a.created_at || Date.now()));
 
   let readIds = JSON.parse(localStorage.getItem('limn_read_notifications') || '[]');
+  let currentFilter = '';
+
+  function markAllAsRead() {
+    notifications.forEach(item => {
+      if (!readIds.includes(item.uniqueId)) {
+        readIds.push(item.uniqueId);
+      }
+    });
+    localStorage.setItem('limn_read_notifications', JSON.stringify(readIds));
+    renderList(currentFilter);
+  }
 
   function renderList(filterQuery = '') {
+    currentFilter = filterQuery;
     container.innerHTML = '';
 
     const filtered = notifications.filter(item => {
@@ -55,12 +67,55 @@ async function loadInbox() {
       return title.includes(query) || content.includes(query);
     });
 
-    if (filtered.length === 0) {
-      container.innerHTML = `
-        <div style="background: var(--surface); border: 1.5px solid var(--border); border-radius: 14px; padding: 24px; text-align: center; color: var(--muted); margin-bottom: 16px;">
-          No matching notifications or updates found.
-        </div>
+    const unreadCount = notifications.filter(item => !readIds.includes(item.uniqueId)).length;
+    if (unreadCount > 0) {
+      const markAllDiv = document.createElement('div');
+      markAllDiv.style.cssText = `
+        display: flex;
+        justify-content: flex-end;
+        margin-bottom: 16px;
       `;
+
+      const markAllBtn = document.createElement('button');
+      markAllBtn.textContent = `✓ Mark all as read (${unreadCount} unread)`;
+      markAllBtn.style.cssText = `
+        background: var(--accent);
+        color: #fff;
+        border: none;
+        border-radius: 20px;
+        padding: 8px 18px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.2s;
+        box-shadow: 0 2px 10px rgba(255, 99, 140, 0.3);
+      `;
+      markAllBtn.addEventListener('mouseenter', () => {
+        markAllBtn.style.background = 'var(--accent-dark)';
+      });
+      markAllBtn.addEventListener('mouseleave', () => {
+        markAllBtn.style.background = 'var(--accent)';
+      });
+      markAllBtn.addEventListener('click', markAllAsRead);
+
+      markAllDiv.appendChild(markAllBtn);
+      container.appendChild(markAllDiv);
+    }
+
+    if (filtered.length === 0) {
+      const emptyMsg = document.createElement('div');
+      emptyMsg.style.cssText = `
+        background: var(--surface);
+        border: 1.5px solid var(--border);
+        border-radius: 14px;
+        padding: 24px;
+        text-align: center;
+        color: var(--muted);
+        margin-bottom: 16px;
+      `;
+      emptyMsg.textContent = filterQuery ? 'No matching notifications or updates found.' : 'No notifications yet.';
+      container.appendChild(emptyMsg);
+      appendFooter();
       return;
     }
 
@@ -100,19 +155,21 @@ async function loadInbox() {
 
       if (!isRead) {
         card.addEventListener('click', () => {
-          readIds.push(item.uniqueId);
-          localStorage.setItem('limn_read_notifications', JSON.stringify(readIds));
-
-          card.style.borderColor = 'var(--border)';
-          card.style.background = 'var(--surface)';
-          const dot = card.querySelector('.unread-dot');
-          if (dot) dot.remove();
+          if (!readIds.includes(item.uniqueId)) {
+            readIds.push(item.uniqueId);
+            localStorage.setItem('limn_read_notifications', JSON.stringify(readIds));
+            renderList(currentFilter);
+          }
         });
       }
 
       container.appendChild(card);
     });
 
+    appendFooter();
+  }
+
+  function appendFooter() {
     const footerCard = document.createElement('div');
     footerCard.style.cssText = `background: var(--surface); border: 1.5px solid var(--accent2); border-radius: 14px; padding: 20px; text-align: center; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); margin-top: 20px;`;
     footerCard.innerHTML = `
@@ -126,7 +183,7 @@ async function loadInbox() {
     container.appendChild(footerCard);
   }
 
-  renderList();
+  renderList('');
 
   const searchInput = document.getElementById('search-input');
   if (searchInput) {
@@ -137,4 +194,3 @@ async function loadInbox() {
 }
 
 loadInbox();
-           
