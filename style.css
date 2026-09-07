@@ -272,7 +272,7 @@ header img.avatar,
   gap: 8px;
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  animation: bannerColorShift 8s linear infinite;
+  animation: bannerColorShift 20s linear infinite;
   transition: transform 0.25s ease;
 }
 
@@ -442,7 +442,7 @@ main {
   padding: 32px 20px 60px;
   box-sizing: border-box;
   position: relative;
-  z-index: 999;   
+  z-index: 99999;   
 }
 main > h1 {
   font-size: 2rem;
