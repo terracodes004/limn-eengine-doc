@@ -46,7 +46,7 @@ html, body {
 }
 
 header {
-  position: relative;
+  
   width: 100%;
   height: 100vh;
   min-height: 100vh;
@@ -183,7 +183,7 @@ header img.avatar,
 }
 
 #dropdown-menu {
-  position: absolute;
+  position: fixed;
   right: 0;
   top: 100%;
   z-index: 99999;
@@ -365,8 +365,8 @@ nav {
   background: var(--bg);
   border-bottom: 1px solid var(--border);
   position: sticky;
-  top: 0;
-  z-index: 1000;
+  top: 3px;
+  z-index: 100000;
   width: 100%;
 }
 
