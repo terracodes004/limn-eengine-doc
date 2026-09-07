@@ -4,6 +4,23 @@ const SUPABASE_URL = 'https://pjtpesdhjfvcidfkxord.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBqdHBlc2RoamZ2Y2lkZmt4b3JkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgxNDUyNDUsImV4cCI6MjEwMzcyMTI0NX0.110aDXEqJ4PxjKWNv1Z2YNR8frklg3WW1u0HePDoN38';
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+const { data: { subscription } } = supabase.auth.onAuthStateChange(
+  (event, session) => {
+    if (event === 'SIGNED_IN' && session?.user) {
+      if (typeof gtag !== 'undefined') {
+        gtag('event', 'sign_up', {
+          method: 'email_or_oauth',
+          user_id: session.user.id
+        });
+        console.log('✅ GA4 sign_up event sent for:', session.user.email);
+      } else {
+        console.warn('⚠️ gtag not found – GA4 script might not be loaded.');
+      }
+    }
+  }
+);
+
 const messageEl = document.getElementById('message');
 
 const homeRedirect = window.location.origin + '/index.html';
@@ -171,4 +188,3 @@ if (verifyEmailBtn) {
         }
     });
     }
-                                            
