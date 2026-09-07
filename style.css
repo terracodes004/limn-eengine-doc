@@ -71,7 +71,7 @@ header {
 
 .con {
   position: relative;
-  z-index: -10;
+  z-index: 1;
   text-align: center;
   width: 100%;
   max-width: 700px;
