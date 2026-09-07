@@ -221,6 +221,37 @@ header img.avatar,
   display: none !important;
 }
 
+@keyframes bannerColorShift {
+  0% {
+    border-color: #0066ff;
+    box-shadow: 0 0 20px rgba(0, 102, 255, 0.25), inset 0 0 10px rgba(0, 102, 255, 0.1);
+  }
+  16.66% {
+    border-color: #ff0000;
+    box-shadow: 0 0 20px rgba(255, 0, 0, 0.25), inset 0 0 10px rgba(255, 0, 0, 0.1);
+  }
+  33.33% {
+    border-color: #ff8800;
+    box-shadow: 0 0 20px rgba(255, 136, 0, 0.25), inset 0 0 10px rgba(255, 136, 0, 0.1);
+  }
+  50% {
+    border-color: #00cc00;
+    box-shadow: 0 0 20px rgba(0, 204, 0, 0.25), inset 0 0 10px rgba(0, 204, 0, 0.1);
+  }
+  66.66% {
+    border-color: #39ff14;
+    box-shadow: 0 0 20px rgba(57, 255, 20, 0.25), inset 0 0 10px rgba(57, 255, 20, 0.1);
+  }
+  83.33% {
+    border-color: #0066ff;
+    box-shadow: 0 0 20px rgba(0, 102, 255, 0.25), inset 0 0 10px rgba(0, 102, 255, 0.1);
+  }
+  100% {
+    border-color: #ffdd00;
+    box-shadow: 0 0 20px rgba(255, 221, 0, 0.25), inset 0 0 10px rgba(255, 221, 0, 0.1);
+  }
+}
+
 #user-banner {
   position: absolute;
   top: 30px;
@@ -229,7 +260,7 @@ header img.avatar,
   z-index: 90;
   background: rgba(5, 8, 61, 0.75);
   color: var(--accent2) !important;
-  border: 1.5px solid var(--accent2);
+  border: 1.5px solid;
   padding: 8px 20px;
   border-radius: 100px;
   font-size: 0.75rem;
@@ -241,20 +272,18 @@ header img.avatar,
   gap: 8px;
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  box-shadow: 0 0 20px rgba(127, 255, 178, 0.25), inset 0 0 10px rgba(127, 255, 178, 0.1);
-  transition: all 0.25s ease;
+  animation: bannerColorShift 8s linear infinite;
+  transition: transform 0.25s ease;
 }
 
 #user-banner:hover {
-  box-shadow: 0 0 25px rgba(127, 255, 178, 0.4), inset 0 0 15px rgba(127, 255, 178, 0.2);
   transform: translateX(-50%) translateY(-2px);
 }
 
 #user-banner strong {
   color: #ffffff;
   font-weight: 700;
-}
-
+  }
 #installAppBtn {
   background: transparent;
   color: var(--accent2);
