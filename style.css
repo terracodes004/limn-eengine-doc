@@ -455,6 +455,7 @@ main {
   padding: 32px 20px 60px;
   box-sizing: border-box;
   position: relative;
+  z-index: 99999;   
 }
 main > h1 {
   font-size: 2rem;
@@ -927,7 +928,7 @@ aside {
   background: var(--surface);
   border-right: 1px solid var(--border);
   overflow-y: auto;
-  z-index: 5000000000;
+  z-index: 500000000000000000000000000000000000;
   display: none;
   padding: 16px 0 40px;
 }
